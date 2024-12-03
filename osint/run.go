@@ -10,10 +10,15 @@ import (
 )
 
 type OsintOpts struct {
-	domain   string
-	scanPath string
-	proxy    string
-	dryRun   bool
+	domain    string
+	scanPath  string
+	proxy     string
+	dryRun    bool
+	rateLimit int32
+}
+
+func (opts *OsintOpts) SetRateLimit(data int32) {
+	opts.rateLimit = data
 }
 
 func (opts *OsintOpts) SetDomain(domain string) {
@@ -87,6 +92,7 @@ func (opts OsintOpts) runDnsx() {
 
 	dnsxOutfile := fmt.Sprintf("%s/dnsx_%s.json", opts.scanPath, opts.domain)
 	dnsxCfg["outfile"] = dnsxOutfile
+	dnsxCfg["proxy"] = opts.proxy
 
 	dnsx.Configure(dnsxCfg)
 	dnsx.Info(opts.domain)
@@ -96,8 +102,23 @@ func (opts OsintOpts) runDnsx() {
 	}
 }
 
-func (opts OsintOpts) runHttpx() {
+func (opts OsintOpts) runHttpx(input string) {
+	httpx := Httpx{}
+	httpxCfg := make(map[string]interface{})
 
+	httpxOutdir := fmt.Sprintf("%s/httpx-%s", opts.scanPath, opts.domain)
+
+	httpxCfg["OutDirPath"] = httpxOutdir
+	httpxCfg["Proxy"] = opts.proxy
+	httpxCfg["RateLimit"] = opts.rateLimit
+	httpxCfg["InputFile"] = input
+
+	httpx.Configure(httpxCfg)
+	httpx.Info(opts.domain)
+
+	if !opts.dryRun {
+		httpx.Run(opts.domain)
+	}
 }
 
 func (opts OsintOpts) Run() {
@@ -122,6 +143,8 @@ func (opts OsintOpts) Run() {
 		if err != nil {
 			panic(err)
 		}
+
+		/* FIXME(djnn): parsing from dnsx is fucked, need to fix it tomorrow */
 
 		/* check if valid IP address / domain & if it's already in the list */
 		lines := strings.Split(strings.ReplaceAll(string(newDomains), "\r\n", "\n"), "\n")
@@ -153,6 +176,6 @@ func (opts OsintOpts) Run() {
 
 	fmt.Printf("[OSINT %s] Registered %v IP addresses and assets.\n", opts.domain, len(domains))
 
-	opts.runHttpx()
+	opts.runHttpx(uniqueOutfile)
 	fmt.Printf("[OSINT %s] done.\n", opts.domain)
 }

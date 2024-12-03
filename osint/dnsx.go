@@ -1,6 +1,8 @@
 package osint
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -13,7 +15,7 @@ type Dnsx struct {
 }
 
 func (d *Dnsx) Info(url string) {
-	fmt.Println("[+] Running dnsx on %s", url)
+	fmt.Println("[+] Running dnsx on ", url)
 }
 
 func (d *Dnsx) Configure(c interface{}) {
@@ -48,7 +50,12 @@ func (d *Dnsx) Run(domain string) {
 		fmt.Printf("err: %v\n", err)
 		return
 	}
-	fmt.Println(jsonStr)
+
+	var prettyJSON bytes.Buffer
+	error := json.Indent(&prettyJSON, []byte(jsonStr), "", "\t")
+	if error != nil {
+		panic(err)
+	}
 
 	fo, err := os.Create(d.outfile)
 	if err != nil {
@@ -60,9 +67,9 @@ func (d *Dnsx) Run(domain string) {
 		}
 	}()
 
-	if _, err := fo.Write([]byte(jsonStr)); err != nil {
+	if _, err := fo.Write(prettyJSON.Bytes()); err != nil {
 		panic(err)
 	}
 
-	fmt.Printf("[OSINT %s] Dnsx results are stored in %s", domain, d.outfile)
+	fmt.Printf("[OSINT %s] Dnsx results are stored in %s\n", domain, d.outfile)
 }

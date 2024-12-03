@@ -14,7 +14,7 @@ type Httpx struct {
 }
 
 func (h *Httpx) Info(url string) {
-	fmt.Println("[+] Running httpx on %s", url)
+	fmt.Println("[+] Running httpx on ", url)
 }
 
 func (h *Httpx) Configure(c interface{}) {
@@ -45,5 +45,5 @@ func (h *Httpx) Run(domain string) {
 	defer httpxRunner.Close()
 
 	httpxRunner.RunEnumeration()
-	fmt.Printf("[OSINT %s] httpx completed.", domain)
+	fmt.Printf("[OSINT %s] httpx completed.\n", domain)
 }

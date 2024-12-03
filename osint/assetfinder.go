@@ -26,7 +26,7 @@ type Assetfinder struct {
 }
 
 func (a *Assetfinder) Info(url string) {
-	fmt.Println("[+] Running Assetfinder on %s", url)
+	fmt.Println("[+] Running Assetfinder on ", url)
 }
 
 func (a *Assetfinder) Configure(c interface{}) {
@@ -94,5 +94,5 @@ func (a *Assetfinder) Run(url string) {
 		file.WriteString(n + string('\n'))
 	}
 
-	fmt.Printf("[OSINT %s] Assetfinder done.", url, a.outfile)
+	fmt.Printf("[OSINT %s] Assetfinder done.\n", url, a.outfile)
 }

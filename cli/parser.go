@@ -38,6 +38,12 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 			osintOpts.SetScanPath(opts.OutDirName)
 			osintOpts.SetProxy(opts.Proxy)
 			osintOpts.SetDryRun(opts.RunDry)
+			osintOpts.SetRateLimit(opts.RateLimit)
+
+			// if used create subcommand, put the results in scans
+			if helper.Exists(opts.OutDirName + "/scans/") {
+				osintOpts.SetScanPath(opts.OutDirName + "/scans/")
+			}
 
 			if opts.TargetFilePath == "" {
 				osintOpts.Run()
