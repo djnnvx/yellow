@@ -13,10 +13,16 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 
 	var createDirectories = &cobra.Command{
 		Use:   "create",
-		Short: "creates work tree to perform scanning, OSINT, and other targets",
-		Long:  "Obtain a clean-cut architecture at the launch of your assessments",
+		Short: "create a work tree to perform scanning, OSINT, and other targets",
+		Long:  "Set up a clean-cut architecture at the launch of your assessments",
 		Args:  cobra.MinimumNArgs(0),
 		Run: func(cmd *cobra.Command, args []string) {
+
+            if opts.TargetName == "" {
+                fmt.Println("[!] Error: target cannot be empty. Please run with --target [something]")
+                fmt.Println("\nIf you're confused, feel free to use --help option. :)~")
+                os.Exit(1)
+            }
 
 			dirname := "./" + helpers.ReplaceWithHyphen(opts.TargetName)
 			fmt.Println("[+] setting up directory architecture for ", dirname)
