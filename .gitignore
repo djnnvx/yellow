@@ -16,8 +16,27 @@
 *.out
 
 # Dependency directories (remove the comment below to include it)
-# vendor/
+vendor/
 
 # Go workspace file
 go.work
 
+
+# Target files
+./targets.txt
+targets.txt
+target.txt
+
+# IDE
+.vscode
+.idea
+
+# Build files
+dist/
+yellow
+nuclei-templates/
+
+# Out files
+.yellow
+.pki
+.cache
