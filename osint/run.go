@@ -100,10 +100,6 @@ func (opts OsintOpts) runHttpx() {
 
 }
 
-func (opts OsintOpts) runGowitness() {
-
-}
-
 func (opts OsintOpts) Run() {
 	fmt.Printf("\n[OSINT] domain: %s\n\n", opts.domain)
 
@@ -158,7 +154,5 @@ func (opts OsintOpts) Run() {
 	fmt.Printf("[OSINT %s] Registered %v IP addresses and assets.\n", opts.domain, len(domains))
 
 	opts.runHttpx()
-	opts.runGowitness()
-
 	fmt.Printf("[OSINT %s] done.\n", opts.domain)
 }
