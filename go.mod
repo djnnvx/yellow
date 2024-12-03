@@ -5,6 +5,7 @@ go 1.23
 require (
 	github.com/bogdzn/gork v0.0.5
 	github.com/spf13/cobra v1.8.1
+	github.com/spiral-sec/assetfinder v0.2.0
 )
 
 require (

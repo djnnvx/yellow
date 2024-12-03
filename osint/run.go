@@ -43,8 +43,25 @@ func (opts OsintOpts) runGoogleDorks() {
 	}
 }
 
-func (opts OsintOpts) runAssetfinder() {
+func (opts OsintOpts) runSubfinder() {
 
+}
+
+func (opts OsintOpts) runAssetfinder() {
+	asf := Assetfinder{}
+	asfCfg := make(map[string]interface{})
+
+	asfOutfile := fmt.Sprintf("%s/assetfinder_%s.txt", opts.scanPath, opts.domain)
+
+	asfCfg["scanPath"] = opts.scanPath
+	asfCfg["outfile"] = asfOutfile
+
+	asf.Configure(asfCfg)
+	asf.Info(opts.domain)
+
+	if !opts.dryRun {
+		asf.Run(opts.domain)
+	}
 }
 
 func (opts OsintOpts) runDnsx() {
@@ -63,6 +80,7 @@ func (opts OsintOpts) Run() {
 	fmt.Printf("\n[OSINT] domain: %s\n\n", opts.domain)
 
 	opts.runGoogleDorks()
+	opts.runSubfinder()
 	opts.runAssetfinder()
 	opts.runDnsx()
 	opts.runHttpx()
