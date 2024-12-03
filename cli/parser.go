@@ -3,10 +3,12 @@ package cli
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 
-	helpers "evil.djnn.sh/djnn/yellow/helpers"
+	"evil.djnn.sh/djnn/yellow/helpers"
+	"evil.djnn.sh/djnn/yellow/osint"
 )
 
 func GetParser(opts *StandardOptions) *cobra.Command {
@@ -14,7 +16,7 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 	var osintCmd = &cobra.Command{
 		Use:   "osint",
 		Short: "Run OSINT tools to retrieve IP addresses and interesting assets",
-		Long:  "Runs subfinder & dnsx on all domains to find subdomains which are passed to httpx. Also runs google dorks.",
+		Long:  "Runs dorks, subfinder, assetfinder & dnsx on all domains to find subdomains & assets, which are passed on to httpx and finally gowitness",
 		Args:  cobra.MinimumNArgs(0),
 		Run: func(cmd *cobra.Command, args []string) {
 
@@ -24,32 +26,32 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 				os.Exit(1)
 			}
 
-			helpers.CheckProxy(opts.Proxy)
-			helpers.DisplayNetInfo()
+			helper.CheckProxy(opts.Proxy)
+			helper.DisplayNetInfo()
 
-			if opts.OutDirName == "" || !helpers.Exists(opts.OutDirName) {
+			if opts.OutDirName == "" || !helper.Exists(opts.OutDirName) {
 				println("[!] collected assets will be sent to current working directory")
 			}
 
-			/*
-				createOutDirectory()
-				checkProxy()
-				displayNetInfo()
+			osintOpts := osint.OsintOpts{}
+			osintOpts.SetDomain(opts.OutDirName)
+			osintOpts.SetScanPath(opts.OutDirName)
+			osintOpts.SetProxy(opts.Proxy)
+			osintOpts.SetDryRun(opts.RunDry)
 
-				if targetPath == "" {
-					scanDomain(domain)
-					return
-				}
+			if opts.TargetFilePath == "" {
+				osintOpts.Run()
+				return
+			}
 
-				scanner := loadTargetFile()
-				defer scanner.Close()
+			scanner := helper.LoadTargetFile(opts.TargetFilePath)
+			defer scanner.Close()
 
-				for scanner.Scan() {
-					targetDomain := scanner.Text()
-					scanDomain(targetDomain)
-				}
-			*/
-
+			for scanner.Scan() {
+				targetDomain := scanner.Text()
+				osintOpts.SetDomain(targetDomain)
+				osintOpts.Run()
+			}
 		},
 	}
 
@@ -66,24 +68,14 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 				os.Exit(1)
 			}
 
-			dirname := helpers.ReplaceWithHyphen(opts.OutDirName)
-			fmt.Println("[+] setting up directory architecture for", dirname)
-
-			_ = os.MkdirAll(dirname, 0775)
-			helpers.CreateDirectory(dirname, []helpers.Folder{
-				{
-					Name:     "scans",
-					Children: helpers.FolderNameFactory("nmap", "infra", "web", "ssl", "screenshots", "nessus"),
-				},
-				{
-					Name:     "extracted",
-					Children: helpers.FolderNameFactory("assets", "creds", "code"),
-				},
-				{
-					Name:     "www",
-					Children: helpers.FolderNameFactory("exploits", "tools"),
-				},
-			})
+			if strings.Contains(opts.OutDirName, ",") {
+				directories := strings.Split(opts.OutDirName, ",")
+				for _, d := range directories {
+					helper.SetUpDirectoryArchitecture(d)
+				}
+			} else {
+				helper.SetUpDirectoryArchitecture(opts.OutDirName)
+			}
 
 			fmt.Println("[+] Done. Happy hunting :)~")
 		},
@@ -91,10 +83,10 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 
 	defaults := GetDefaultOptions()
 	var rootCmd = createDirectories
-	rootCmd.Flags().StringVarP(&opts.OutDirName, "dir-name", "d", defaults.OutDirName, "Pentest target, will be the name of the directories created, for instance")
+	rootCmd.Flags().StringVarP(&opts.OutDirName, "dir-name", "d", defaults.OutDirName, "Directory name to create (you can also put multiple names and separate them with a ,)")
 
 	rootCmd.AddCommand(osintCmd)
-	osintCmd.Flags().StringVarP(&opts.OutDirName, "dir-name", "d", defaults.OutDirName, "Pentest target, will be the name of the directories created, for instance")
+	osintCmd.Flags().StringVarP(&opts.OutDirName, "dir-name", "d", defaults.OutDirName, "Outfile directory name (if no target-file is specified, will also be target domain)")
 	osintCmd.Flags().StringVarP(&opts.Proxy, "proxy", "p", defaults.Proxy, "Proxy URL (used for the tools supporting it. Other will prompt a warning msg)")
 	osintCmd.Flags().BoolVarP(&opts.RunDry, "dry", "", defaults.RunDry, "Run a dry-run (test mode)")
 	osintCmd.Flags().BoolVarP(&opts.UseHttpInsecure, "insecure", "k", defaults.UseHttpInsecure, "Ignore SSL warnings and force http")

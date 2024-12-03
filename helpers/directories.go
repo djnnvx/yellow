@@ -10,6 +10,27 @@ type Folder struct {
 	Children []Folder
 }
 
+func SetUpDirectoryArchitecture(target string) {
+	dirname := ReplaceWithHyphen(target)
+	fmt.Println("[+] setting up directory architecture for", dirname)
+
+	_ = os.MkdirAll(dirname, 0775)
+	CreateDirectory(dirname, []Folder{
+		{
+			Name:     "scans",
+			Children: FolderNameFactory("nmap", "infra", "web", "ssl", "screenshots", "nessus"),
+		},
+		{
+			Name:     "extracted",
+			Children: FolderNameFactory("assets", "creds", "code"),
+		},
+		{
+			Name:     "www",
+			Children: FolderNameFactory("exploits", "tools"),
+		},
+	})
+}
+
 func Exists(path string) bool {
 	_, err := os.Stat(path)
 	if err == nil {

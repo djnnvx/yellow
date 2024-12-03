@@ -6,7 +6,21 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 )
+
+func ParseDomain(website string) string {
+	if strings.HasPrefix(website, "http") {
+		parsedUrl, err := url.Parse(website)
+		if err != nil {
+			fmt.Printf("%s", err)
+		}
+
+		website = parsedUrl.Host
+	}
+
+	return website
+}
 
 func GetHttpTransport() *http.Transport {
 	var proxy = os.Getenv("HTTP_PROXY")
