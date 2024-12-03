@@ -1,5 +1,8 @@
 package main
 
+import (
+	"evil.djnn.sh/djnn/yellow/cli"
+)
 
 // skid ascii art
 const ASCII_ART = `
@@ -29,9 +32,11 @@ const ASCII_ART = `
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠛⠛⠛⠛⠛⠛⠛⠋⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 `
 
-
 func main() {
-    println(ASCII_ART)
+	println(ASCII_ART)
 
+	opts := cli.GetDefaultOptions()
+	parser := cli.GetParser(&opts)
 
+	parser.ExecuteC()
 }
