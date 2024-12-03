@@ -16,7 +16,7 @@ type Subfinder struct {
 }
 
 func (s *Subfinder) Info(url string) {
-	fmt.Println("[+] Running subfinder on %s", url)
+	fmt.Println("[+] Running subfinder on", url)
 }
 
 func (s *Subfinder) Configure(c interface{}) {
@@ -59,5 +59,5 @@ func (s *Subfinder) Run(domain string) {
 		panic(err)
 	}
 
-	fmt.Printf("[OSINT %s] Subfinder are stored in %s", domain, s.outfile)
+	fmt.Printf("[OSINT %s] Subfinder are stored in %s\n\n", domain, s.outfile)
 }

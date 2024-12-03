@@ -45,5 +45,5 @@ func (h *Httpx) Run(domain string) {
 	defer httpxRunner.Close()
 
 	httpxRunner.RunEnumeration()
-	fmt.Printf("[OSINT %s] httpx completed.\n", domain)
+	fmt.Printf("[OSINT %s] httpx completed.\n\n", domain)
 }

@@ -7,6 +7,8 @@ import (
 	"net"
 	"slices"
 	"strings"
+
+	"evil.djnn.sh/djnn/yellow/helpers"
 )
 
 type OsintOpts struct {
@@ -144,25 +146,25 @@ func (opts OsintOpts) Run() {
 			panic(err)
 		}
 
-		/* FIXME(djnn): parsing from dnsx is fucked, need to fix it tomorrow */
-
 		/* check if valid IP address / domain & if it's already in the list */
 		lines := strings.Split(strings.ReplaceAll(string(newDomains), "\r\n", "\n"), "\n")
 		for _, domain := range lines {
 
+			parsedDomain := strings.Trim(domain, "\t \",")
+
 			// already exists in list
-			if slices.Contains(domains, domain) {
+			if slices.Contains(domains, parsedDomain) {
 				continue
 			}
 
 			// is IP address ?
-			addr := net.ParseIP(domain)
+			addr := net.ParseIP(parsedDomain)
 
 			// does it look like a domain name ? at least one .
 			// (hacky, but no need to make it better for now)
-			if addr != nil || strings.Contains(domain, ".") {
-				domains = append(domains, domain)
-				domainBuffer.Write([]byte(string(domain) + "\n"))
+			if addr != nil || !helper.StringHasUnwantedCharacters(parsedDomain) {
+				domains = append(domains, parsedDomain)
+				domainBuffer.Write([]byte(string(parsedDomain) + "\n"))
 			}
 		}
 	}

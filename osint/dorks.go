@@ -12,7 +12,7 @@ type Dorks struct {
 }
 
 func (d *Dorks) Info(url string) {
-	fmt.Println("[+] Running dorks on ", url)
+	fmt.Println("[+] Running dorks on", url)
 }
 
 func (d *Dorks) Configure(c interface{}) {
@@ -32,5 +32,5 @@ func (d *Dorks) Run(domain string) {
 	}
 
 	dorks.Run(opts)
-	fmt.Printf("[OSINT %s] Dorks are stored in %s\n", domain, d.outfile)
+	fmt.Printf("[OSINT %s] Dorks are stored in %s\n\n", domain, d.outfile)
 }

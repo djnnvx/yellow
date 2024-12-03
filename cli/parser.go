@@ -42,7 +42,7 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 
 			// if used create subcommand, put the results in scans
 			if helper.Exists(opts.OutDirName + "/scans/") {
-				osintOpts.SetScanPath(opts.OutDirName + "/scans/")
+				osintOpts.SetScanPath(opts.OutDirName + "/scans")
 			}
 
 			if opts.TargetFilePath == "" {
