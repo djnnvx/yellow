@@ -10,12 +10,18 @@ type Folder struct {
 	Children []Folder
 }
 
+func Exists(path string) bool {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true
+	}
+	return false
+}
+
 func CreateDirectory(base string, folders []Folder) {
 	for _, f := range folders {
 		current := fmt.Sprintf("%s/%s", base, f.Name)
-		if e := os.Mkdir(current, 0775); e != nil {
-			fmt.Println(e)
-		}
+		_ = os.Mkdir(current, 0775)
 		if len(f.Children) != 0 {
 			CreateDirectory(current, f.Children)
 		}

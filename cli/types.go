@@ -4,7 +4,7 @@ type StandardOptions struct {
 
 	// Pentest target, will be the name of the directories created, for instance
 	// if no target file is specified for OSINT command, will use that instead
-	TargetName string
+	OutDirName string
 
 	// Run a dry-run (test mode)
 	RunDry bool
@@ -27,7 +27,7 @@ type StandardOptions struct {
 
 func GetDefaultOptions() StandardOptions {
 	opts := StandardOptions{
-		TargetName:      "",
+		OutDirName:      "",
 		RunDry:          false,
 		Proxy:           "",
 		UseHttpInsecure: false,
