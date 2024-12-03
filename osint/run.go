@@ -77,7 +77,18 @@ func (opts OsintOpts) runAssetfinder() {
 }
 
 func (opts OsintOpts) runDnsx() {
+	dnsx := Dnsx{}
+	dnsxCfg := make(map[string]interface{})
 
+	dnsxOutfile := fmt.Sprintf("%s/dnsx_%s.json", opts.scanPath, opts.domain)
+	dnsxCfg["outfile"] = dnsxOutfile
+
+	dnsx.Configure(dnsxCfg)
+	dnsx.Info(opts.domain)
+
+	if !opts.dryRun {
+		dnsx.Run(opts.domain)
+	}
 }
 
 func (opts OsintOpts) runHttpx() {

@@ -4,6 +4,7 @@ go 1.23
 
 require (
 	github.com/bogdzn/gork v0.0.5
+	github.com/projectdiscovery/dnsx v1.2.1
 	github.com/projectdiscovery/subfinder/v2 v2.6.7
 	github.com/spf13/cobra v1.8.1
 	github.com/spiral-sec/assetfinder v0.2.0
@@ -78,7 +79,6 @@ require (
 	github.com/projectdiscovery/blackrock v0.0.1 // indirect
 	github.com/projectdiscovery/cdncheck v1.1.0 // indirect
 	github.com/projectdiscovery/chaos-client v0.5.2 // indirect
-	github.com/projectdiscovery/dnsx v1.2.1 // indirect
 	github.com/projectdiscovery/fastdialer v0.2.9 // indirect
 	github.com/projectdiscovery/goflags v0.1.64 // indirect
 	github.com/projectdiscovery/gologger v1.1.27 // indirect
