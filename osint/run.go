@@ -44,6 +44,18 @@ func (opts OsintOpts) runGoogleDorks() {
 }
 
 func (opts OsintOpts) runSubfinder() {
+	sbf := Subfinder{}
+	sbfCfg := make(map[string]interface{})
+
+	sbfOutfile := fmt.Sprintf("%s/subfinder_%s.txt", opts.scanPath, opts.domain)
+	sbfCfg["outfile"] = sbfOutfile
+
+	sbf.Configure(sbfCfg)
+	sbf.Info(opts.domain)
+
+	if !opts.dryRun {
+		sbf.Run(opts.domain)
+	}
 
 }
 
