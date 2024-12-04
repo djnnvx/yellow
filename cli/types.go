@@ -32,7 +32,7 @@ func GetDefaultOptions() StandardOptions {
 		Proxy:           "",
 		UseHttpInsecure: false,
 		RateLimit:       0,
-		WordlistPath:    "",
+		WordlistPath:    "/usr/share/wordlists/seclists/Discovery/Web-Content/common.txt",
 		TargetFilePath:  "",
 	}
 

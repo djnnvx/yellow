@@ -104,25 +104,6 @@ func (opts OsintOpts) runDnsx() {
 	}
 }
 
-func (opts OsintOpts) runHttpx(input string) {
-	httpx := Httpx{}
-	httpxCfg := make(map[string]interface{})
-
-	httpxOutdir := fmt.Sprintf("%s/httpx-%s", opts.scanPath, opts.domain)
-
-	httpxCfg["OutDirPath"] = httpxOutdir
-	httpxCfg["Proxy"] = opts.proxy
-	httpxCfg["RateLimit"] = opts.rateLimit
-	httpxCfg["InputFile"] = input
-
-	httpx.Configure(httpxCfg)
-	httpx.Info(opts.domain)
-
-	if !opts.dryRun {
-		httpx.Run(opts.domain)
-	}
-}
-
 func (opts OsintOpts) Run() {
 	fmt.Printf("\n[OSINT] domain: %s\n\n", opts.domain)
 
@@ -170,14 +151,12 @@ func (opts OsintOpts) Run() {
 	}
 
 	// now add all assets together, line by line
-	uniqueOutfile := fmt.Sprintf("%s/unique_%s.txt", opts.scanPath, opts.domain)
+	uniqueOutfile := fmt.Sprintf("%s/domains_%s.txt", opts.scanPath, opts.domain)
 	err := ioutil.WriteFile(uniqueOutfile, domainBuffer.Bytes(), 0644)
 	if err != nil {
 		panic(err)
 	}
 
 	fmt.Printf("[OSINT %s] Registered %v IP addresses and assets.\n", opts.domain, len(domains))
-
-	opts.runHttpx(uniqueOutfile)
 	fmt.Printf("[OSINT %s] done.\n", opts.domain)
 }

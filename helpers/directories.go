@@ -18,7 +18,7 @@ func SetUpDirectoryArchitecture(target string) {
 	CreateDirectory(dirname, []Folder{
 		{
 			Name:     "scans",
-			Children: FolderNameFactory("nmap", "infra", "web", "ssl", "screenshots", "nessus"),
+			Children: FolderNameFactory("infra", "ssl", "screenshots", "nessus"),
 		},
 		{
 			Name:     "extracted",
