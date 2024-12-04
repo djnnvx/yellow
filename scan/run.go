@@ -114,10 +114,21 @@ func (opts *ScanOpts) Run() {
 		}
 	}
 
-	naabuScanFile := fullPath + "/open-ports-top-1000.txt"
-	opts.SetScanPath(naabuScanFile)
+	/*
 
-	opts.runNaabu()
+	    oldScan := opts.scanPath
+		naabuScanFile := fullPath + "/open-ports-top-1000.txt"
+		opts.SetScanPath(naabuScanFile)
+
+		opts.runNaabu()
+	    opts.SetScanPath(oldScan) */
+
+	if opts.forceInsecure {
+		opts.SetDomain("http://" + opts.domain)
+	} else {
+		opts.SetDomain("https://" + opts.domain)
+	}
+
 	opts.runSitemap()
 	opts.runRobots()
 	opts.runWappalyzerGo()

@@ -64,7 +64,7 @@ func (d *Sitemap) Run(domain string) {
 		}
 	}
 
-	fmt.Printf("[SCAN %s] Sitemap scan for %s completed\n\n", domain)
+	fmt.Printf("[SCAN %s] Sitemap scan for %s completed\n\n", domain, domain)
 }
 
 func contains(slice []string, item string) bool {

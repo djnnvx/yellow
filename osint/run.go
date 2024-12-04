@@ -158,6 +158,6 @@ func (opts OsintOpts) Run() {
 	}
 
 	fmt.Printf("[OSINT %s] Registered %v IP addresses and assets.\n", opts.domain, len(domains))
-    fmt.Printf("[OSINT %s] Location of unique domain names: %s.\n", opts.domain, uniqueOutfile)
+	fmt.Printf("[OSINT %s] Location of unique domain names: %s.\n", opts.domain, uniqueOutfile)
 	fmt.Printf("[OSINT %s] done.\n", opts.domain)
 }

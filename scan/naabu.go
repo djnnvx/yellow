@@ -28,6 +28,8 @@ func (d *Naabu) Configure(c interface{}) {
 
 func (d *Naabu) Run(url string) {
 
+	/* TODO(djnn): check if ASN is cloudflare / fly.io / or a cdn and if so, bypass */
+
 	var fullScan string
 	options := runner.Options{
 		Host:     goflags.StringSlice{url},

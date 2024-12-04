@@ -6,7 +6,6 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"strings"
 )
 
 type FileScanner struct {
@@ -26,7 +25,7 @@ func LoadTargetFile(targetPath string) *FileScanner {
 		fmt.Printf("%v, %+v", err, targetPath)
 	}
 
-	fmt.Println("Loaded target: \n%v", strings.Replace(string(body), "\n", ", ", -1))
+	fmt.Println("[+] Loaded targets: \n", string(body))
 
 	return &FileScanner{file, scanner}
 }

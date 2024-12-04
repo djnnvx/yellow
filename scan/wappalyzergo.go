@@ -50,5 +50,5 @@ func (d *WappalyzerGo) Run(url string) {
 		fmt.Printf("%v\n", fingerprints)
 	}
 
-	fmt.Printf("[SCAN %s] WappalyzerGo scan for %s completed\n\n", url)
+	fmt.Printf("[SCAN %s] WappalyzerGo scan for %s completed\n\n", url, url)
 }
