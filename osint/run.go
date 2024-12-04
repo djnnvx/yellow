@@ -143,7 +143,7 @@ func (opts OsintOpts) Run() {
 
 			// does it look like a domain name ? at least one .
 			// (hacky, but no need to make it better for now)
-			if addr != nil || !helper.StringHasUnwantedCharacters(parsedDomain) {
+			if addr != nil || (!helper.StringHasUnwantedCharacters(parsedDomain) && parsedDomain != "") {
 				domains = append(domains, parsedDomain)
 				domainBuffer.Write([]byte(string(parsedDomain) + "\n"))
 			}
@@ -158,5 +158,6 @@ func (opts OsintOpts) Run() {
 	}
 
 	fmt.Printf("[OSINT %s] Registered %v IP addresses and assets.\n", opts.domain, len(domains))
+    fmt.Printf("[OSINT %s] Location of unique domain names: %s.\n", opts.domain, uniqueOutfile)
 	fmt.Printf("[OSINT %s] done.\n", opts.domain)
 }
