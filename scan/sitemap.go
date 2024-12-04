@@ -14,8 +14,7 @@ import (
 var GlobalHeaders = []string{"Server", "X-XSS-Protection", "Access-Control-Allow-Credentials", "Content-Security-Policy", "X-Powered-By", "Strict-Transport-Security"}
 
 type Sitemap struct {
-	Proxy    string
-	ScanPath string
+	Proxy string
 }
 
 func (d *Sitemap) Info(url string) {
@@ -24,7 +23,6 @@ func (d *Sitemap) Info(url string) {
 
 func (d *Sitemap) Configure(c interface{}) {
 	d.Proxy = c.(map[string]interface{})["Proxy"].(string)
-	d.ScanPath = c.(map[string]interface{})["ScanPath"].(string)
 }
 
 func (d *Sitemap) Run(domain string) {

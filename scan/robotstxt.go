@@ -11,8 +11,7 @@ import (
 )
 
 type RobotsTxt struct {
-	Proxy    string
-	ScanPath string
+	Proxy string
 }
 
 func (d *RobotsTxt) Info(url string) {
@@ -21,7 +20,6 @@ func (d *RobotsTxt) Info(url string) {
 
 func (d *RobotsTxt) Configure(c interface{}) {
 	d.Proxy = c.(map[string]interface{})["Proxy"].(string)
-	d.ScanPath = c.(map[string]interface{})["ScanPath"].(string)
 }
 
 func (d *RobotsTxt) Run(domain string) {

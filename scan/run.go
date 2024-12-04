@@ -44,12 +44,11 @@ func (opts *ScanOpts) SetDryRun(data bool) {
 	opts.dryRun = data
 }
 
-func (opts ScanOpts) runRobots(scanFile string) {
+func (opts ScanOpts) runRobots() {
 
 	rb := Sitemap{}
 	rbCfg := make(map[string]interface{})
 
-	rbCfg["ScanPath"] = scanFile
 	rbCfg["Proxy"] = opts.proxy
 
 	rb.Configure(rbCfg)
@@ -59,12 +58,25 @@ func (opts ScanOpts) runRobots(scanFile string) {
 	}
 }
 
-func (opts ScanOpts) runSitemap(scanFile string) {
+func (opts ScanOpts) runWappalyzerGo() {
+
+	wp := WappalyzerGo{}
+	wpCfg := make(map[string]interface{})
+
+	wpCfg["Proxy"] = opts.proxy
+
+	wp.Configure(wpCfg)
+	wp.Info(opts.domain)
+	if !opts.dryRun {
+		wp.Run(opts.domain)
+	}
+}
+
+func (opts ScanOpts) runSitemap() {
 
 	sm := Sitemap{}
 	smCfg := make(map[string]interface{})
 
-	smCfg["ScanPath"] = scanFile
 	smCfg["Proxy"] = opts.proxy
 
 	sm.Configure(smCfg)
@@ -74,12 +86,12 @@ func (opts ScanOpts) runSitemap(scanFile string) {
 	}
 }
 
-func (opts ScanOpts) runNaabu(scanFile string) {
+func (opts ScanOpts) runNaabu() {
 
 	nb := Naabu{}
 	nbCfg := make(map[string]interface{})
 
-	nbCfg["ScanPath"] = scanFile
+	nbCfg["ScanPath"] = opts.scanPath
 	nbCfg["Proxy"] = opts.proxy
 	nbCfg["RateLimit"] = opts.rateLimit
 
@@ -105,17 +117,16 @@ func (opts *ScanOpts) Run() {
 	naabuScanFile := fullPath + "/open-ports-top-1000.txt"
 	opts.SetScanPath(naabuScanFile)
 
-	opts.runNaabu(opts.domain)
-	opts.runSitemap(opts.domain)
-	opts.runRobots(opts.domain)
+	opts.runNaabu()
+	opts.runSitemap()
+	opts.runRobots()
+	opts.runWappalyzerGo()
 
 	/*
 	   - gobuster
-	   - wappalyzergo
 	   - katana
 	   - nuclei
 	   - httpx
 	   - gowitness
 	*/
-
 }
