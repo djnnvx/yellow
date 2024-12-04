@@ -44,6 +44,36 @@ func (opts *ScanOpts) SetDryRun(data bool) {
 	opts.dryRun = data
 }
 
+func (opts ScanOpts) runRobots(scanFile string) {
+
+	rb := Sitemap{}
+	rbCfg := make(map[string]interface{})
+
+	rbCfg["ScanPath"] = scanFile
+	rbCfg["Proxy"] = opts.proxy
+
+	rb.Configure(rbCfg)
+	rb.Info(opts.domain)
+	if !opts.dryRun {
+		rb.Run(opts.domain)
+	}
+}
+
+func (opts ScanOpts) runSitemap(scanFile string) {
+
+	sm := Sitemap{}
+	smCfg := make(map[string]interface{})
+
+	smCfg["ScanPath"] = scanFile
+	smCfg["Proxy"] = opts.proxy
+
+	sm.Configure(smCfg)
+	sm.Info(opts.domain)
+	if !opts.dryRun {
+		sm.Run(opts.domain)
+	}
+}
+
 func (opts ScanOpts) runNaabu(scanFile string) {
 
 	nb := Naabu{}
@@ -76,14 +106,13 @@ func (opts *ScanOpts) Run() {
 	opts.SetScanPath(naabuScanFile)
 
 	opts.runNaabu(opts.domain)
+	opts.runSitemap(opts.domain)
+	opts.runRobots(opts.domain)
 
 	/*
-	   - naabu
-	   - katana
-	   - wappalyzergo
-	   - sitemap
-	   - robots.txt
 	   - gobuster
+	   - wappalyzergo
+	   - katana
 	   - nuclei
 	   - httpx
 	   - gowitness

@@ -36,15 +36,9 @@ func (d *Naabu) Run(url string) {
 		Rate:     int(d.RateLimit),
 		Proxy:    d.Proxy,
 		OnResult: func(hr *result.HostResult) {
-			stringToAdd := fmt.Sprintf("%v", hr.IP)
-
-			nbPorts := len(hr.Ports)
-			for pIdx, port := range hr.Ports {
-				if nbPorts == pIdx+1 {
-					stringToAdd = fmt.Sprintf("%s %s:%v\n", stringToAdd, port.Protocol, port.Port)
-				} else {
-					stringToAdd = fmt.Sprintf("%s %s:%v", stringToAdd, port.Protocol, port.Port)
-				}
+			var stringToAdd string
+			for _, port := range hr.Ports {
+				stringToAdd += fmt.Sprintf("%v/%v\n", port.Port, port.Protocol)
 			}
 
 			fullScan = fullScan + stringToAdd
