@@ -2,6 +2,7 @@ package scan
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/projectdiscovery/goflags"
 	"github.com/projectdiscovery/httpx/runner"
@@ -27,14 +28,18 @@ func (h *Httpx) Configure(c interface{}) {
 
 func (h *Httpx) Run(domain string) {
 	options := runner.Options{
-		Methods:            "GET",
-		InputTargetHost:    goflags.StringSlice{domain},
-		HTTPProxy:          h.Proxy,
-		StoreResponseDir:   h.OutDirPath,
-		Screenshot:         true,
-		RandomAgent:        true,
-		UseInstalledChrome: true,
-		RateLimit:          int(h.RateLimit),
+		Methods:                   "GET",
+		InputTargetHost:           goflags.StringSlice{domain},
+		HTTPProxy:                 h.Proxy,
+		StoreResponseDir:          h.OutDirPath,
+		Screenshot:                true,
+		ScreenshotTimeout:         10 * time.Second,
+		ScreenshotIdle:            1 * time.Second,
+		RandomAgent:               true,
+		UseInstalledChrome:        false,
+		HeadlessOptionalArguments: nil,
+		NoHeadlessBody:            false,
+		RateLimit:                 int(h.RateLimit),
 	}
 
 	if err := options.ValidateOptions(); err != nil {
