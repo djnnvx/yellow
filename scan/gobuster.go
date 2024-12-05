@@ -1,22 +1,63 @@
 package scan
 
 import (
+	"context"
+	"errors"
 	"fmt"
+
+	"evil.djnn.sh/djnn/yellow/helpers"
+	"github.com/OJ/gobuster/v3/cli"
+	"github.com/OJ/gobuster/v3/gobusterdir"
+	"github.com/OJ/gobuster/v3/libgobuster"
 )
 
 type Gobuster struct {
+	scanPath  string
+	proxy     string
+	wordlist  string
+	insecure  bool
+	rateLimit int32
 }
 
-func (d *Gobuster) Info(url string) {
-	fmt.Println("[+] Running Gobuster on", url)
+func (s *Gobuster) Info(website string) {
+	fmt.Println("Running gobuster on", website)
 }
 
-func (d *Gobuster) Configure(c interface{}) {
+func (g *Gobuster) Configure(c interface{}) {
+
+	g.scanPath = c.(map[string]interface{})["scanPath"].(string)
+	g.proxy = c.(map[string]interface{})["proxy"].(string)
+	g.wordlist = c.(map[string]interface{})["wordlist"].(string)
+	g.insecure = c.(map[string]interface{})["insecure"].(bool)
+	g.rateLimit = c.(map[string]interface{})["rateLimit"].(int32)
 }
 
-func (d *Gobuster) Run(url string) {
+func (g *Gobuster) Run(url string) {
 
-	/* run dir & dns command ? */
+	GlobalOpts := libgobuster.NewOptions()
+	GlobalOpts.Wordlist = g.wordlist
+	GlobalOpts.OutputFilename = g.scanPath + "/gobuster.txt"
+
+	pluginOpts := gobusterdir.NewOptionsDir()
+	pluginOpts.Proxy = g.proxy
+	pluginOpts.NoTLSValidation = g.insecure
+	pluginOpts.UserAgent = helper.GetUserAgent()
+
+	plugin, err := gobusterdir.NewGobusterDir(GlobalOpts, pluginOpts)
+	if err != nil {
+		panic(err)
+	}
+
+	mainContext, _ := context.WithCancel(context.Background())
+	log := libgobuster.NewLogger(GlobalOpts.Debug)
+	if err := cli.Gobuster(mainContext, GlobalOpts, plugin, log); err != nil {
+
+		var wErr *gobusterdir.ErrWildcard
+		if errors.As(err, &wErr) {
+			fmt.Printf("%w. To continue please exclude the status code or the length\n", wErr)
+		}
+		panic(err)
+	}
 
 	fmt.Printf("[SCAN %s] Gobuster scan for %s completed\n\n", url)
 }

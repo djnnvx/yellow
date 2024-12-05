@@ -3,6 +3,7 @@ module evil.djnn.sh/djnn/yellow
 go 1.23
 
 require (
+	github.com/OJ/gobuster/v3 v3.6.0
 	github.com/bogdzn/gork v0.0.5
 	github.com/projectdiscovery/dnsx v1.2.1
 	github.com/projectdiscovery/goflags v0.1.65

@@ -16,6 +16,24 @@ type ScanOpts struct {
 	withPortScan  bool
 }
 
+func (opts ScanOpts) runGobusterDir() {
+
+	nb := Naabu{}
+	nbCfg := make(map[string]interface{})
+
+	nbCfg["scanPath"] = opts.scanPath
+	nbCfg["proxy"] = opts.proxy
+	nbCfg["rateLimit"] = opts.rateLimit
+	nbCfg["wordlist"] = opts.wordlistPath
+	nbCfg["insecure"] = opts.forceInsecure
+
+	nb.Configure(nbCfg)
+	nb.Info(opts.domain)
+	if !opts.dryRun {
+		nb.Run(opts.domain)
+	}
+}
+
 func (opts *ScanOpts) SetWithPortScan(data bool) {
 	opts.withPortScan = data
 }

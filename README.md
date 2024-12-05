@@ -44,12 +44,14 @@ Please use at your own risk, in a controlled environnement. Thanks<3
 
 For next version, i want to take care of at least two items described here:
 
-* `scan`: integrate browser-dependant tools (katana, gowitness),
+* `scan`: integrate browser-dependant tools (katana, ...),
 * `scan`: integrate a runner for nuclei that will automatically fetch new rules,
 * `scan`: port third-party tools (smbenum, ldapsearch, enum4linux),
 * `scan`: add a CVE query system
+* `scan`: port some quick win, such as anonymous ftp
 
-> feel free to suggest more. :)~
+> feel free to suggest more ideas. :)~
+>
 > if you'd like to do so, reach me by mail or on social media: https://djnn.sh/pgp
 
 ### Contributing
@@ -62,7 +64,7 @@ afterwards.
 
 Using `go v1.23`.
 
-> also requires `libpcap-dev` and `chrome` !
+> also requires `libpcap-dev` !
 
 ```bash
 # please clone using https. couldnt be arsed to set up a tcp tunnel on cloudflare
