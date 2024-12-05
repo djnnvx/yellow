@@ -5,7 +5,8 @@ RUN apk update --no-cache && \
     apk upgrade --no-cache && \
     apk add --no-cache \
     make \
-    build-base
+    build-base \
+    libpcap-dev
 
 COPY go.mod .
 RUN go mod download

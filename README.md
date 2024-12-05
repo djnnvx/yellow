@@ -30,7 +30,7 @@
     <=[ Pentest companion for scanning, OSINT, and quick wins ]=>
 ```
 
-little golang to quickly set up scanning at the beginning of a pentest:)~.
+tiny golang CLI to quickly set up scanning at the beginning of a pentest. :)~
 
 Based on [yelaa](https://github.com/matro7sh/Yelaa).
 
@@ -39,6 +39,24 @@ Based on [yelaa](https://github.com/matro7sh/Yelaa).
 This software is provided as-is, at the discretion of professionals.
 Developpers assume no responsability for your lack of morals or overall stupidity.
 Please use at your own risk, in a controlled environnement. Thanks<3
+
+## Roadmap
+
+For next version, i want to take care of at least two items described here:
+
+* `scan`: integrate browser-dependant tools (katana, gowitness),
+* `scan`: integrate a runner for nuclei that will automatically fetch new rules,
+* `scan`: port third-party tools (smbenum, ldapsearch, enum4linux),
+* `scan`: add a CVE query system
+
+> feel free to suggest more. :)~
+> if you'd like to do so, reach me by mail or on social media: https://djnn.sh/pgp
+
+### Contributing
+
+This software's code is public, but not open to contributions.
+The reason for that is that if something is integrated, I want to make sure I am able to maintain it
+afterwards.
 
 ## Installing
 
@@ -51,6 +69,14 @@ git clone https://evil.djnn.sh/djnn/yellow.git
 cd yellow/
 
 make
+```
+
+### Using docker
+
+```bash
+cd yellow/
+
+make docker
 ```
 
 ## Running
