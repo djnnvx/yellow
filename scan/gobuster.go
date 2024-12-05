@@ -69,5 +69,5 @@ func (g *Gobuster) Run(url string) {
 		}
 	}
 
-	fmt.Printf("[SCAN %s] Gobuster scan for %s completed\n\n", url)
+	fmt.Printf("[SCAN %s] Gobuster scan for %s completed\n\n", url, url)
 }
