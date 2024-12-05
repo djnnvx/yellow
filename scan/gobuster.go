@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"evil.djnn.sh/djnn/yellow/helpers"
 	"github.com/OJ/gobuster/v3/cli"
@@ -37,7 +38,8 @@ func (g *Gobuster) Run(url string) {
 	globalOpts := libgobuster.NewOptions()
 	globalOpts.Wordlist = g.wordlist
 	globalOpts.OutputFilename = g.scanPath + "/gobuster.txt"
-	globalOpts.Quiet = true
+	globalOpts.Quiet = false
+	globalOpts.Threads = 50
 
 	pluginOpts := gobusterdir.NewOptionsDir()
 	pluginOpts.Proxy = g.proxy
@@ -45,6 +47,7 @@ func (g *Gobuster) Run(url string) {
 	pluginOpts.UserAgent = helper.GetUserAgent()
 	pluginOpts.URL = url
 	pluginOpts.Method = "GET"
+	pluginOpts.Timeout = time.Second * 5
 
 	ssc, _ := libgobuster.ParseCommaSeparatedInt("302,404,500")
 	pluginOpts.StatusCodesBlacklistParsed = ssc
