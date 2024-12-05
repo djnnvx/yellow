@@ -34,9 +34,10 @@ func (g *Gobuster) Configure(c interface{}) {
 
 func (g *Gobuster) Run(url string) {
 
-	GlobalOpts := libgobuster.NewOptions()
-	GlobalOpts.Wordlist = g.wordlist
-	GlobalOpts.OutputFilename = g.scanPath + "/gobuster.txt"
+	globalOpts := libgobuster.NewOptions()
+	globalOpts.Wordlist = g.wordlist
+	globalOpts.OutputFilename = g.scanPath + "/gobuster.txt"
+	globalOpts.Quiet = true
 
 	pluginOpts := gobusterdir.NewOptionsDir()
 	pluginOpts.Proxy = g.proxy
@@ -48,14 +49,14 @@ func (g *Gobuster) Run(url string) {
 	ssc, _ := libgobuster.ParseCommaSeparatedInt("302,404,500")
 	pluginOpts.StatusCodesBlacklistParsed = ssc
 
-	plugin, err := gobusterdir.NewGobusterDir(GlobalOpts, pluginOpts)
+	plugin, err := gobusterdir.NewGobusterDir(globalOpts, pluginOpts)
 	if err != nil {
 		panic(err)
 	}
 
 	mainContext, _ := context.WithCancel(context.Background())
-	log := libgobuster.NewLogger(GlobalOpts.Debug)
-	if err := cli.Gobuster(mainContext, GlobalOpts, plugin, log); err != nil {
+	log := libgobuster.NewLogger(globalOpts.Debug)
+	if err := cli.Gobuster(mainContext, globalOpts, plugin, log); err != nil {
 
 		var wErr *gobusterdir.ErrWildcard
 		if errors.As(err, &wErr) {
