@@ -62,6 +62,8 @@ afterwards.
 
 Using `go v1.23`.
 
+> also requires `libpcap-dev` !
+
 ```bash
 # please clone using https. couldnt be arsed to set up a tcp tunnel on cloudflare
 git clone https://evil.djnn.sh/djnn/yellow.git
