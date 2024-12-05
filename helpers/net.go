@@ -1,10 +1,12 @@
 package helper
 
 import (
+	"crypto/tls"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+
 	"os"
 	"strings"
 )
@@ -91,4 +93,30 @@ func CheckProxy(proxy string) {
 	} else {
 		fmt.Println("[+] No proxy has been set")
 	}
+}
+
+func HasUnavailableWebInterface(url string) bool {
+	url = strings.TrimSuffix(url, "/")
+
+	transport := GetHttpTransport()
+	transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+
+	client := &http.Client{
+		Transport: transport,
+	}
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return true
+	}
+	req.Header.Add("User-Agent", GetUserAgent())
+	resp, err := client.Do(req)
+	if err != nil {
+		return true
+	}
+
+	if resp == nil || resp.StatusCode >= http.StatusBadGateway {
+		return true
+	}
+	return false
 }

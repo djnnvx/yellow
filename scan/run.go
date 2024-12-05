@@ -14,6 +14,11 @@ type ScanOpts struct {
 	rateLimit     int32
 	wordlistPath  string
 	forceInsecure bool
+	withPortScan  bool
+}
+
+func (opts *ScanOpts) SetWithPortScan(data bool) {
+	opts.withPortScan = data
 }
 
 func (opts *ScanOpts) SetForceInsecure(data bool) {
@@ -103,7 +108,7 @@ func (opts ScanOpts) runNaabu() {
 }
 
 func (opts *ScanOpts) Run() {
-	fmt.Printf("\n[SCAN] domain: %s\n\n", opts.domain)
+	fmt.Printf("\n[SCAN] domain: %s\n", opts.domain)
 
 	/* make a directory with the domain name to organize results a bit */
 	fullPath := opts.scanPath + "/" + opts.domain
@@ -114,14 +119,14 @@ func (opts *ScanOpts) Run() {
 		}
 	}
 
-	/*
-
-	    oldScan := opts.scanPath
+	if opts.withPortScan {
+		oldScan := opts.scanPath
 		naabuScanFile := fullPath + "/open-ports-top-1000.txt"
 		opts.SetScanPath(naabuScanFile)
 
 		opts.runNaabu()
-	    opts.SetScanPath(oldScan) */
+		opts.SetScanPath(oldScan)
+	}
 
 	if opts.forceInsecure {
 		opts.SetDomain("http://" + opts.domain)
@@ -129,15 +134,22 @@ func (opts *ScanOpts) Run() {
 		opts.SetDomain("https://" + opts.domain)
 	}
 
-	opts.runSitemap()
-	opts.runRobots()
-	opts.runWappalyzerGo()
+	if !helper.HasUnavailableWebInterface(opts.domain) {
 
-	/*
-	   - gobuster
-	   - katana
-	   - nuclei
-	   - httpx
-	   - gowitness
-	*/
+		fmt.Printf("[SCAN %s] web panel online....running web scans\n", opts.domain)
+
+		opts.runSitemap()
+		opts.runRobots()
+		opts.runWappalyzerGo()
+
+		/*
+		   - gobuster
+		   - katana
+		   - nuclei
+		   - httpx
+		   - gowitness
+		*/
+	} else {
+		fmt.Printf("[SCAN %s] => no web panel online. skipping\n", opts.domain)
+	}
 }
