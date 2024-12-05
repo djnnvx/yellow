@@ -6,6 +6,7 @@ RUN apk update --no-cache && \
     apk add --no-cache \
     make \
     build-base \
+    chromium \
     libpcap-dev
 
 COPY go.mod .

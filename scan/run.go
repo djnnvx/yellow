@@ -3,7 +3,6 @@ package scan
 import (
 	"evil.djnn.sh/djnn/yellow/helpers"
 	"fmt"
-	"os"
 )
 
 type ScanOpts struct {
@@ -107,21 +106,31 @@ func (opts ScanOpts) runNaabu() {
 	}
 }
 
+func (opts *ScanOpts) runHttpx() {
+	httpx := Httpx{}
+	httpxCfg := make(map[string]interface{})
+
+	httpxOutdir := fmt.Sprintf("%s/httpx", opts.scanPath)
+
+	httpxCfg["OutDirPath"] = httpxOutdir
+	httpxCfg["Proxy"] = opts.proxy
+	httpxCfg["RateLimit"] = opts.rateLimit
+	httpxCfg["Insecure"] = opts.forceInsecure
+
+	httpx.Configure(httpxCfg)
+	httpx.Info(opts.domain)
+
+	if !opts.dryRun {
+		httpx.Run(opts.domain)
+	}
+}
+
 func (opts *ScanOpts) Run() {
 	fmt.Printf("\n[SCAN] domain: %s\n", opts.domain)
 
-	/* make a directory with the domain name to organize results a bit */
-	fullPath := opts.scanPath + "/" + opts.domain
-	if !helper.Exists(fullPath) {
-		err := os.MkdirAll(fullPath, 0775)
-		if err != nil {
-			panic(err)
-		}
-	}
-
 	if opts.withPortScan {
 		oldScan := opts.scanPath
-		naabuScanFile := fullPath + "/open-ports-top-1000.txt"
+		naabuScanFile := oldScan + "/" + opts.domain + "_open-ports-top-1000.txt"
 		opts.SetScanPath(naabuScanFile)
 
 		opts.runNaabu()
@@ -141,13 +150,10 @@ func (opts *ScanOpts) Run() {
 		opts.runSitemap()
 		opts.runRobots()
 		opts.runWappalyzerGo()
+		opts.runHttpx()
 
 		/*
 		   - gobuster
-		   - katana
-		   - nuclei
-		   - httpx
-		   - gowitness
 		*/
 	} else {
 		fmt.Printf("[SCAN %s] => no web panel online. skipping\n", opts.domain)

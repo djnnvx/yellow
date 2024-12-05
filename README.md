@@ -62,7 +62,7 @@ afterwards.
 
 Using `go v1.23`.
 
-> also requires `libpcap-dev` !
+> also requires `libpcap-dev` and `chrome` !
 
 ```bash
 # please clone using https. couldnt be arsed to set up a tcp tunnel on cloudflare

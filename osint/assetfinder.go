@@ -94,5 +94,5 @@ func (a *Assetfinder) Run(url string) {
 		file.WriteString(n + string('\n'))
 	}
 
-	fmt.Printf("[OSINT %s] Assetfinder done.\n\n", url, a.outfile)
+	fmt.Printf("[OSINT %s] Assetfinder done.\n\n", url)
 }
