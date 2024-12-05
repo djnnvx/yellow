@@ -102,5 +102,5 @@ Run scans against the target actively.
 ./yellow scan --help
 
 # or, if in a hurry
-./yellow scan -d djnn.sh/scans --file djnn.sh/scans/domains_djnn.sh.txt
+./yellow scan -d djnn.sh/scans --file djnn.sh/scans/domains_djnn.sh.txt --with-port-scanning
 ```
