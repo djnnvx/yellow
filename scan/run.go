@@ -16,24 +16,6 @@ type ScanOpts struct {
 	withPortScan  bool
 }
 
-func (opts ScanOpts) runGobusterDir() {
-
-	nb := Naabu{}
-	nbCfg := make(map[string]interface{})
-
-	nbCfg["scanPath"] = opts.scanPath
-	nbCfg["proxy"] = opts.proxy
-	nbCfg["rateLimit"] = opts.rateLimit
-	nbCfg["wordlist"] = opts.wordlistPath
-	nbCfg["insecure"] = opts.forceInsecure
-
-	nb.Configure(nbCfg)
-	nb.Info(opts.domain)
-	if !opts.dryRun {
-		nb.Run(opts.domain)
-	}
-}
-
 func (opts *ScanOpts) SetWithPortScan(data bool) {
 	opts.withPortScan = data
 }
@@ -143,6 +125,24 @@ func (opts *ScanOpts) runHttpx() {
 	}
 }
 
+func (opts ScanOpts) runGobusterDir() {
+
+	nb := Gobuster{}
+	nbCfg := make(map[string]interface{})
+
+	nbCfg["scanPath"] = opts.scanPath
+	nbCfg["proxy"] = opts.proxy
+	nbCfg["rateLimit"] = opts.rateLimit
+	nbCfg["wordlist"] = opts.wordlistPath
+	nbCfg["insecure"] = opts.forceInsecure
+
+	nb.Configure(nbCfg)
+	nb.Info(opts.domain)
+	if !opts.dryRun {
+		nb.Run(opts.domain)
+	}
+}
+
 func (opts *ScanOpts) Run() {
 	fmt.Printf("\n[SCAN] domain: %s\n", opts.domain)
 
@@ -169,10 +169,8 @@ func (opts *ScanOpts) Run() {
 		opts.runRobots()
 		opts.runWappalyzerGo()
 		opts.runHttpx()
+		opts.runGobusterDir()
 
-		/*
-		   - gobuster
-		*/
 	} else {
 		fmt.Printf("[SCAN %s] => no web panel online. skipping\n", opts.domain)
 	}

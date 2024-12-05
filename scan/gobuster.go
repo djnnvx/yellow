@@ -42,6 +42,11 @@ func (g *Gobuster) Run(url string) {
 	pluginOpts.Proxy = g.proxy
 	pluginOpts.NoTLSValidation = g.insecure
 	pluginOpts.UserAgent = helper.GetUserAgent()
+	pluginOpts.URL = url
+	pluginOpts.Method = "GET"
+
+	ssc, _ := libgobuster.ParseCommaSeparatedInt("302,404,500")
+	pluginOpts.StatusCodesBlacklistParsed = ssc
 
 	plugin, err := gobusterdir.NewGobusterDir(GlobalOpts, pluginOpts)
 	if err != nil {
@@ -54,9 +59,10 @@ func (g *Gobuster) Run(url string) {
 
 		var wErr *gobusterdir.ErrWildcard
 		if errors.As(err, &wErr) {
-			fmt.Printf("%w. To continue please exclude the status code or the length\n", wErr)
+			fmt.Printf("%v.\nTo continue please exclude the status code or the length\n", wErr)
+			fmt.Printf("\nSince gobuster cannot make the difference between good and bad urls, it will be skipped.\n\n")
+			return
 		}
-		panic(err)
 	}
 
 	fmt.Printf("[SCAN %s] Gobuster scan for %s completed\n\n", url)
