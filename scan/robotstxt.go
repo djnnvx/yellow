@@ -3,7 +3,7 @@ package scan
 import (
 	"crypto/tls"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 
@@ -18,8 +18,8 @@ func (d *RobotsTxt) Info(url string) {
 	fmt.Println("[+] Running RobotsTxt on", url)
 }
 
-func (d *RobotsTxt) Configure(c interface{}) {
-	d.Proxy = c.(map[string]interface{})["Proxy"].(string)
+func (d *RobotsTxt) Configure(c any) {
+	d.Proxy = c.(map[string]any)["Proxy"].(string)
 }
 
 func (d *RobotsTxt) Run(domain string) {
@@ -43,7 +43,7 @@ func (d *RobotsTxt) Run(domain string) {
 		}
 
 		if resp != nil && resp.StatusCode != http.StatusNotFound {
-			body, err := ioutil.ReadAll(resp.Body)
+			body, err := io.ReadAll(resp.Body)
 			if err != nil {
 				fmt.Printf("%v", err)
 			}
@@ -55,5 +55,5 @@ func (d *RobotsTxt) Run(domain string) {
 		}
 	}
 
-	fmt.Printf("[SCAN %s] RobotsTxt scan for %s completed\n\n", domain)
+	fmt.Printf("[SCAN %s] RobotsTxt scan for %s completed\n\n", domain, domain)
 }

@@ -24,13 +24,13 @@ func (s *Gobuster) Info(website string) {
 	fmt.Println("Running gobuster on", website)
 }
 
-func (g *Gobuster) Configure(c interface{}) {
+func (g *Gobuster) Configure(c any) {
 
-	g.scanPath = c.(map[string]interface{})["scanPath"].(string)
-	g.proxy = c.(map[string]interface{})["proxy"].(string)
-	g.wordlist = c.(map[string]interface{})["wordlist"].(string)
-	g.insecure = c.(map[string]interface{})["insecure"].(bool)
-	g.rateLimit = c.(map[string]interface{})["rateLimit"].(int32)
+	g.scanPath = c.(map[string]any)["scanPath"].(string)
+	g.proxy = c.(map[string]any)["proxy"].(string)
+	g.wordlist = c.(map[string]any)["wordlist"].(string)
+	g.insecure = c.(map[string]any)["insecure"].(bool)
+	g.rateLimit = c.(map[string]any)["rateLimit"].(int32)
 }
 
 func (g *Gobuster) Run(url string) {

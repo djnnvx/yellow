@@ -51,7 +51,7 @@ func (opts *ScanOpts) SetDryRun(data bool) {
 func (opts ScanOpts) runRobots() {
 
 	rb := Sitemap{}
-	rbCfg := make(map[string]interface{})
+	rbCfg := make(map[string]any)
 
 	rbCfg["Proxy"] = opts.proxy
 
@@ -65,7 +65,7 @@ func (opts ScanOpts) runRobots() {
 func (opts ScanOpts) runWappalyzerGo() {
 
 	wp := WappalyzerGo{}
-	wpCfg := make(map[string]interface{})
+	wpCfg := make(map[string]any)
 
 	wpCfg["Proxy"] = opts.proxy
 
@@ -79,7 +79,7 @@ func (opts ScanOpts) runWappalyzerGo() {
 func (opts ScanOpts) runSitemap() {
 
 	sm := Sitemap{}
-	smCfg := make(map[string]interface{})
+	smCfg := make(map[string]any)
 
 	smCfg["Proxy"] = opts.proxy
 
@@ -93,7 +93,7 @@ func (opts ScanOpts) runSitemap() {
 func (opts ScanOpts) runNaabu() {
 
 	nb := Naabu{}
-	nbCfg := make(map[string]interface{})
+	nbCfg := make(map[string]any)
 
 	nbCfg["ScanPath"] = opts.scanPath
 	nbCfg["Proxy"] = opts.proxy
@@ -108,7 +108,7 @@ func (opts ScanOpts) runNaabu() {
 
 func (opts *ScanOpts) runHttpx() {
 	httpx := Httpx{}
-	httpxCfg := make(map[string]interface{})
+	httpxCfg := make(map[string]any)
 
 	httpxOutdir := fmt.Sprintf("%s/httpx", opts.scanPath)
 
@@ -128,7 +128,7 @@ func (opts *ScanOpts) runHttpx() {
 func (opts ScanOpts) runGobusterDir() {
 
 	nb := Gobuster{}
-	nbCfg := make(map[string]interface{})
+	nbCfg := make(map[string]any)
 
 	nbCfg["scanPath"] = opts.scanPath
 	nbCfg["proxy"] = opts.proxy

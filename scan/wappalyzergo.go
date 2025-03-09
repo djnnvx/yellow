@@ -3,7 +3,7 @@ package scan
 import (
 	"crypto/tls"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	"evil.djnn.sh/djnn/yellow/helpers"
@@ -18,8 +18,8 @@ func (d *WappalyzerGo) Info(url string) {
 	fmt.Println("[+] Running WappalyzerGo on", url)
 }
 
-func (d *WappalyzerGo) Configure(c interface{}) {
-	d.Proxy = c.(map[string]interface{})["Proxy"].(string)
+func (d *WappalyzerGo) Configure(c any) {
+	d.Proxy = c.(map[string]any)["Proxy"].(string)
 }
 
 func (d *WappalyzerGo) Run(url string) {
@@ -40,7 +40,7 @@ func (d *WappalyzerGo) Run(url string) {
 	}
 
 	if resp != nil {
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			fmt.Printf("%v", err)
 		}

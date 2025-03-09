@@ -19,8 +19,8 @@ func (s *Subfinder) Info(url string) {
 	fmt.Println("[+] Running subfinder on", url)
 }
 
-func (s *Subfinder) Configure(c interface{}) {
-	s.outfile = c.(map[string]interface{})["outfile"].(string)
+func (s *Subfinder) Configure(c any) {
+	s.outfile = c.(map[string]any)["outfile"].(string)
 }
 
 func (s *Subfinder) Run(domain string) {

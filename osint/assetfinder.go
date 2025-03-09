@@ -29,9 +29,9 @@ func (a *Assetfinder) Info(url string) {
 	fmt.Println("[+] Running Assetfinder on ", url)
 }
 
-func (a *Assetfinder) Configure(c interface{}) {
-	a.scanPath = c.(map[string]interface{})["scanPath"].(string)
-	a.outfile = c.(map[string]interface{})["outfile"].(string)
+func (a *Assetfinder) Configure(c any) {
+	a.scanPath = c.(map[string]any)["scanPath"].(string)
+	a.outfile = c.(map[string]any)["outfile"].(string)
 
 	a.functions = []fetchFn{
 		assetfinder.CertSpotter,

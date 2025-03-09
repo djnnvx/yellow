@@ -18,9 +18,9 @@ func (d *Dnsx) Info(url string) {
 	fmt.Println("[+] Running dnsx on ", url)
 }
 
-func (d *Dnsx) Configure(c interface{}) {
-	d.outfile = c.(map[string]interface{})["outfile"].(string)
-	d.proxy = c.(map[string]interface{})["proxy"].(string)
+func (d *Dnsx) Configure(c any) {
+	d.outfile = c.(map[string]any)["outfile"].(string)
+	d.proxy = c.(map[string]any)["proxy"].(string)
 }
 
 func (d *Dnsx) Run(domain string) {

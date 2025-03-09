@@ -3,7 +3,7 @@ package helper
 import (
 	"crypto/tls"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -63,7 +63,7 @@ func GetCurrentIP() string {
 		return ""
 	}
 
-	result, err := ioutil.ReadAll(resp.Body)
+	result, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Printf("[!] Could not IP address: %s\n", err.Error())
 		return ""
@@ -89,7 +89,7 @@ func CheckProxy(proxy string) {
 	os.Setenv("HTTPS_PROXY", proxy)
 
 	if proxy != "" {
-		fmt.Println("[+] Proxy configuration: %s", proxy)
+		fmt.Printf("[+] Proxy configuration: %s\n", proxy)
 	} else {
 		fmt.Println("[+] No proxy has been set")
 	}

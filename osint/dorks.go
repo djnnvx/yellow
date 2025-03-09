@@ -15,9 +15,9 @@ func (d *Dorks) Info(url string) {
 	fmt.Println("[+] Running dorks on", url)
 }
 
-func (d *Dorks) Configure(c interface{}) {
-	d.outfile = c.(map[string]interface{})["outfile"].(string)
-	d.proxy = c.(map[string]interface{})["proxy"].(string)
+func (d *Dorks) Configure(c any) {
+	d.outfile = c.(map[string]any)["outfile"].(string)
+	d.proxy = c.(map[string]any)["proxy"].(string)
 }
 
 func (d *Dorks) Run(domain string) {

@@ -19,11 +19,11 @@ func (h *Httpx) Info(url string) {
 	fmt.Println("[+] Running httpx on ", url)
 }
 
-func (h *Httpx) Configure(c interface{}) {
-	h.OutDirPath = c.(map[string]interface{})["OutDirPath"].(string)
-	h.Proxy = c.(map[string]interface{})["Proxy"].(string)
-	h.RateLimit = c.(map[string]interface{})["RateLimit"].(int32)
-	h.Insecure = c.(map[string]interface{})["Insecure"].(bool)
+func (h *Httpx) Configure(c any) {
+	h.OutDirPath = c.(map[string]any)["OutDirPath"].(string)
+	h.Proxy = c.(map[string]any)["Proxy"].(string)
+	h.RateLimit = c.(map[string]any)["RateLimit"].(int32)
+	h.Insecure = c.(map[string]any)["Insecure"].(bool)
 }
 
 func (h *Httpx) Run(domain string) {

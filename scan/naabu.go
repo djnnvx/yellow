@@ -3,7 +3,7 @@ package scan
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"os"
 
 	"github.com/projectdiscovery/goflags"
 	"github.com/projectdiscovery/naabu/v2/pkg/result"
@@ -20,10 +20,10 @@ func (d *Naabu) Info(url string) {
 	fmt.Println("[+] Running Naabu on", url)
 }
 
-func (d *Naabu) Configure(c interface{}) {
-	d.Proxy = c.(map[string]interface{})["Proxy"].(string)
-	d.RateLimit = c.(map[string]interface{})["RateLimit"].(int32)
-	d.ScanPath = c.(map[string]interface{})["ScanPath"].(string)
+func (d *Naabu) Configure(c any) {
+	d.Proxy = c.(map[string]any)["Proxy"].(string)
+	d.RateLimit = c.(map[string]any)["RateLimit"].(int32)
+	d.ScanPath = c.(map[string]any)["ScanPath"].(string)
 }
 
 func (d *Naabu) Run(url string) {
@@ -55,10 +55,10 @@ func (d *Naabu) Run(url string) {
 	ctx := context.Background()
 	naabuRunner.RunEnumeration(ctx)
 
-	err = ioutil.WriteFile(d.ScanPath, []byte(fullScan), 0644)
+	err = os.WriteFile(d.ScanPath, []byte(fullScan), 0644)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Printf("[SCAN %s] Naabu scan for %s completed\n\t=>(stored in %s)\n\n", url, d.ScanPath)
+	fmt.Printf("[SCAN %s] Naabu scan for %s completed\n\t=>(stored in %s)\n\n", url, url, d.ScanPath)
 }

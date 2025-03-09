@@ -3,8 +3,8 @@ package osint
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"net"
+	"os"
 	"slices"
 	"strings"
 
@@ -42,7 +42,7 @@ func (opts *OsintOpts) SetDryRun(data bool) {
 func (opts OsintOpts) runGoogleDorks() {
 
 	dorks := Dorks{}
-	dorksCfg := make(map[string]interface{})
+	dorksCfg := make(map[string]any)
 
 	dorksOutfile := fmt.Sprintf("%s/dorks_%s.txt", opts.scanPath, opts.domain)
 	dorksCfg["outfile"] = dorksOutfile
@@ -57,7 +57,7 @@ func (opts OsintOpts) runGoogleDorks() {
 
 func (opts OsintOpts) runSubfinder() {
 	sbf := Subfinder{}
-	sbfCfg := make(map[string]interface{})
+	sbfCfg := make(map[string]any)
 
 	sbfOutfile := fmt.Sprintf("%s/subfinder_%s.txt", opts.scanPath, opts.domain)
 	sbfCfg["outfile"] = sbfOutfile
@@ -73,7 +73,7 @@ func (opts OsintOpts) runSubfinder() {
 
 func (opts OsintOpts) runAssetfinder() {
 	asf := Assetfinder{}
-	asfCfg := make(map[string]interface{})
+	asfCfg := make(map[string]any)
 
 	asfOutfile := fmt.Sprintf("%s/assetfinder_%s.txt", opts.scanPath, opts.domain)
 
@@ -90,7 +90,7 @@ func (opts OsintOpts) runAssetfinder() {
 
 func (opts OsintOpts) runDnsx() {
 	dnsx := Dnsx{}
-	dnsxCfg := make(map[string]interface{})
+	dnsxCfg := make(map[string]any)
 
 	dnsxOutfile := fmt.Sprintf("%s/dnsx_%s.json", opts.scanPath, opts.domain)
 	dnsxCfg["outfile"] = dnsxOutfile
@@ -122,7 +122,7 @@ func (opts OsintOpts) Run() {
 	var domains []string
 	var domainBuffer bytes.Buffer
 	for _, file := range domainsFiles {
-		newDomains, err := ioutil.ReadFile(file)
+		newDomains, err := os.ReadFile(file)
 		if err != nil {
 			panic(err)
 		}
@@ -152,7 +152,7 @@ func (opts OsintOpts) Run() {
 
 	// now add all assets together, line by line
 	uniqueOutfile := fmt.Sprintf("%s/domains_%s.txt", opts.scanPath, opts.domain)
-	err := ioutil.WriteFile(uniqueOutfile, domainBuffer.Bytes(), 0644)
+	err := os.WriteFile(uniqueOutfile, domainBuffer.Bytes(), 0644)
 	if err != nil {
 		panic(err)
 	}

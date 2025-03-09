@@ -3,7 +3,7 @@ package scan
 import (
 	"crypto/tls"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -21,8 +21,8 @@ func (d *Sitemap) Info(url string) {
 	fmt.Println("[+] Running Sitemap on", url)
 }
 
-func (d *Sitemap) Configure(c interface{}) {
-	d.Proxy = c.(map[string]interface{})["Proxy"].(string)
+func (d *Sitemap) Configure(c any) {
+	d.Proxy = c.(map[string]any)["Proxy"].(string)
 }
 
 func (d *Sitemap) Run(domain string) {
@@ -46,7 +46,7 @@ func (d *Sitemap) Run(domain string) {
 		}
 
 		if resp != nil && resp.StatusCode != http.StatusNotFound {
-			body, err := ioutil.ReadAll(resp.Body)
+			body, err := io.ReadAll(resp.Body)
 			if err != nil {
 				fmt.Printf("%v", err)
 			}

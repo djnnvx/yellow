@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 )
 
@@ -20,7 +19,7 @@ func LoadTargetFile(targetPath string) *FileScanner {
 	}
 
 	scanner := bufio.NewScanner(file)
-	body, err := ioutil.ReadFile(targetPath)
+	body, err := os.ReadFile(targetPath)
 	if err != nil {
 		fmt.Printf("%v, %+v", err, targetPath)
 	}
