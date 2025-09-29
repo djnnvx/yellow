@@ -9,7 +9,7 @@ require (
 	github.com/projectdiscovery/goflags v0.1.74
 	github.com/projectdiscovery/httpx v1.7.1
 	github.com/projectdiscovery/naabu/v2 v2.3.5
-	github.com/projectdiscovery/subfinder/v2 v2.6.7
+	github.com/projectdiscovery/subfinder/v2 v2.9.0
 	github.com/projectdiscovery/wappalyzergo v0.2.37
 	github.com/spf13/cobra v1.9.1
 	github.com/spiral-sec/assetfinder v0.2.0
@@ -159,7 +159,7 @@ require (
 	github.com/tklauser/go-sysconf v0.3.12 // indirect
 	github.com/tklauser/numcpus v0.6.1 // indirect
 	github.com/tomnomnom/linkheader v0.0.0-20180905144013-02ca5825eb80 // indirect
-	github.com/ulikunitz/xz v0.5.14 // indirect
+	github.com/ulikunitz/xz v0.5.15 // indirect
 	github.com/urfave/cli/v2 v2.27.7 // indirect
 	github.com/weppos/publicsuffix-go v0.40.3-0.20250408071509-6074bbe7fd39 // indirect
 	github.com/xrash/smetrics v0.0.0-20250705151800-55b8f293f342 // indirect

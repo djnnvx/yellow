@@ -374,8 +374,8 @@ github.com/projectdiscovery/retryablehttp-go v1.0.125 h1:/00K0xHXIRLn2awpn6RD66r
 github.com/projectdiscovery/retryablehttp-go v1.0.125/go.mod h1:69TkYApUaekghXT1TJxiwKLdEY1xO+H7RCDsHx5eKWg=
 github.com/projectdiscovery/stringsutil v0.0.2 h1:uzmw3IVLJSMW1kEg8eCStG/cGbYYZAja8BH3LqqJXMA=
 github.com/projectdiscovery/stringsutil v0.0.2/go.mod h1:EJ3w6bC5fBYjVou6ryzodQq37D5c6qbAYQpGmAy+DC0=
-github.com/projectdiscovery/subfinder/v2 v2.6.7 h1:JLKpNFNd4dqqWzwaCejHbGMF+w21bu6n+pAkcXDn6Y4=
-github.com/projectdiscovery/subfinder/v2 v2.6.7/go.mod h1:p4Xb09XmxOoCu01LJwOm0r3cdn06OEy8895N0S+TMlU=
+github.com/projectdiscovery/subfinder/v2 v2.9.0 h1:9DW2hjn3c3hzp27mWS9jKj/kz6XNT6UvbnZ7OTDld6s=
+github.com/projectdiscovery/subfinder/v2 v2.9.0/go.mod h1:An6w+iO9nFwp9NdhsDD9aXOhqZ0yGiEovG4J6clqgwA=
 github.com/projectdiscovery/tlsx v1.1.9 h1:DhErhHCO2+toF5DEX7qe3pkwrIrYlex3F/mzHEUiZHg=
 github.com/projectdiscovery/tlsx v1.1.9/go.mod h1:Jy+r38WyYjapQWaffiKGdYm4Ksdrt8BWtsqA2rUospU=
 github.com/projectdiscovery/uncover v1.1.0 h1:UDp/qLZn78YZb6VPoOrfyP1vz+ojEx8VrTTyjjRt9UU=
@@ -480,8 +480,8 @@ github.com/tklauser/numcpus v0.6.1/go.mod h1:1XfjsgE2zo8GVw7POkMbHENHzVg3GzmoZ9f
 github.com/tomnomnom/linkheader v0.0.0-20180905144013-02ca5825eb80 h1:nrZ3ySNYwJbSpD6ce9duiP+QkD3JuLCcWkdaehUS/3Y=
 github.com/tomnomnom/linkheader v0.0.0-20180905144013-02ca5825eb80/go.mod h1:iFyPdL66DjUD96XmzVL3ZntbzcflLnznH0fr99w5VqE=
 github.com/ulikunitz/xz v0.5.8/go.mod h1:nbz6k7qbPmH4IRqmfOplQw/tblSgqTqBwxkY0oWt/14=
-github.com/ulikunitz/xz v0.5.14 h1:uv/0Bq533iFdnMHZdRBTOlaNMdb1+ZxXIlHDZHIHcvg=
-github.com/ulikunitz/xz v0.5.14/go.mod h1:nbz6k7qbPmH4IRqmfOplQw/tblSgqTqBwxkY0oWt/14=
+github.com/ulikunitz/xz v0.5.15 h1:9DNdB5s+SgV3bQ2ApL10xRc35ck0DuIX/isZvIk+ubY=
+github.com/ulikunitz/xz v0.5.15/go.mod h1:nbz6k7qbPmH4IRqmfOplQw/tblSgqTqBwxkY0oWt/14=
 github.com/urfave/cli/v2 v2.27.7 h1:bH59vdhbjLv3LAvIu6gd0usJHgoTTPhCFib8qqOwXYU=
 github.com/urfave/cli/v2 v2.27.7/go.mod h1:CyNAG/xg+iAOg0N4MPGZqVmv2rCoP267496AOXUZjA4=
 github.com/weppos/publicsuffix-go v0.13.0/go.mod h1:z3LCPQ38eedDQSwmsSRW4Y7t2L8Ln16JPQ02lHAdn5k=

@@ -41,7 +41,8 @@ func (s *Subfinder) Run(domain string) {
 	}
 
 	output := &bytes.Buffer{}
-	if err = subfinder.EnumerateSingleDomainWithCtx(context.Background(), domain, []io.Writer{output}); err != nil {
+    _, err = subfinder.EnumerateSingleDomainWithCtx(context.Background(), domain, []io.Writer{output})
+	if  err != nil {
 		log.Fatalf("failed to enumerate single domain: %v", err)
 	}
 
