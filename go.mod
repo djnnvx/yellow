@@ -7,10 +7,10 @@ require (
 	github.com/bogdzn/gork v0.0.5
 	github.com/projectdiscovery/dnsx v1.2.2
 	github.com/projectdiscovery/goflags v0.1.74
-	github.com/projectdiscovery/httpx v1.6.10
+	github.com/projectdiscovery/httpx v1.7.1
 	github.com/projectdiscovery/naabu/v2 v2.3.3
 	github.com/projectdiscovery/subfinder/v2 v2.6.7
-	github.com/projectdiscovery/wappalyzergo v0.2.19
+	github.com/projectdiscovery/wappalyzergo v0.2.37
 	github.com/spf13/cobra v1.9.1
 	github.com/spiral-sec/assetfinder v0.2.0
 )
@@ -21,13 +21,13 @@ require (
 	github.com/Masterminds/semver/v3 v3.2.1 // indirect
 	github.com/Mzack9999/gcache v0.0.0-20230410081825-519e28eab057 // indirect
 	github.com/Mzack9999/go-http-digest-auth-client v0.6.1-0.20220414142836-eb8883508809 // indirect
-	github.com/PuerkitoBio/goquery v1.8.1 // indirect
+	github.com/PuerkitoBio/goquery v1.10.3 // indirect
 	github.com/STARRY-S/zip v0.2.1 // indirect
 	github.com/VividCortex/ewma v1.2.0 // indirect
 	github.com/akrylysov/pogreb v0.10.2 // indirect
 	github.com/alecthomas/chroma/v2 v2.14.0 // indirect
 	github.com/andybalholm/brotli v1.1.1 // indirect
-	github.com/andybalholm/cascadia v1.3.2 // indirect
+	github.com/andybalholm/cascadia v1.3.3 // indirect
 	github.com/antchfx/htmlquery v1.0.0 // indirect
 	github.com/antchfx/xmlquery v1.0.0 // indirect
 	github.com/antchfx/xpath v1.0.0 // indirect
@@ -53,11 +53,12 @@ require (
 	github.com/dsnet/compress v0.0.2-0.20230904184137-39efe44ab707 // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/gaissmai/bart v0.25.0 // indirect
-	github.com/go-faker/faker/v4 v4.1.1 // indirect
+	github.com/go-faker/faker/v4 v4.6.1 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
-	github.com/go-rod/rod v0.114.0 // indirect
-	github.com/go-viper/mapstructure/v2 v2.1.0 // indirect
+	github.com/go-rod/rod v0.116.2 // indirect
+	github.com/go-viper/mapstructure/v2 v2.3.0 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
+	github.com/gocarina/gocsv v0.0.0-20240520201108-78e41c74b4b1 // indirect
 	github.com/gocolly/colly/v2 v2.0.1 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
@@ -107,10 +108,10 @@ require (
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
 	github.com/projectdiscovery/asnmap v1.1.1 // indirect
 	github.com/projectdiscovery/blackrock v0.0.1 // indirect
-	github.com/projectdiscovery/cdncheck v1.1.0 // indirect
+	github.com/projectdiscovery/cdncheck v1.1.27 // indirect
 	github.com/projectdiscovery/chaos-client v0.5.2 // indirect
 	github.com/projectdiscovery/clistats v0.1.1 // indirect
-	github.com/projectdiscovery/dsl v0.3.13 // indirect
+	github.com/projectdiscovery/dsl v0.5.0 // indirect
 	github.com/projectdiscovery/fastdialer v0.4.11 // indirect
 	github.com/projectdiscovery/fdmax v0.0.4 // indirect
 	github.com/projectdiscovery/freeport v0.0.7 // indirect
@@ -122,22 +123,22 @@ require (
 	github.com/projectdiscovery/machineid v0.0.0-20240226150047-2e2c51e35983 // indirect
 	github.com/projectdiscovery/mapcidr v1.1.34 // indirect
 	github.com/projectdiscovery/networkpolicy v0.1.25 // indirect
-	github.com/projectdiscovery/ratelimit v0.0.69 // indirect
-	github.com/projectdiscovery/rawhttp v0.1.84 // indirect
+	github.com/projectdiscovery/ratelimit v0.0.81 // indirect
+	github.com/projectdiscovery/rawhttp v0.1.90 // indirect
 	github.com/projectdiscovery/retryabledns v1.0.107 // indirect
 	github.com/projectdiscovery/retryablehttp-go v1.0.125 // indirect
-	github.com/projectdiscovery/tlsx v1.1.8 // indirect
+	github.com/projectdiscovery/tlsx v1.1.9 // indirect
 	github.com/projectdiscovery/uncover v1.0.9 // indirect
-	github.com/projectdiscovery/useragent v0.0.87 // indirect
+	github.com/projectdiscovery/useragent v0.0.101 // indirect
 	github.com/projectdiscovery/utils v0.6.0 // indirect
 	github.com/refraction-networking/utls v1.7.1 // indirect
 	github.com/remeh/sizedwaitgroup v1.0.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rogpeppe/go-internal v1.13.1 // indirect
-	github.com/rs/xid v1.5.0 // indirect
+	github.com/rs/xid v1.6.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/saintfish/chardet v0.0.0-20230101081208-5e3ef4b5456d // indirect
-	github.com/sashabaranov/go-openai v1.15.3 // indirect
+	github.com/sashabaranov/go-openai v1.37.0 // indirect
 	github.com/shirou/gopsutil/v3 v3.24.2 // indirect
 	github.com/shoenig/go-m1cpu v0.1.6 // indirect
 	github.com/sorairolake/lzip-go v0.3.5 // indirect
@@ -165,9 +166,9 @@ require (
 	github.com/yl2chen/cidranger v1.0.2 // indirect
 	github.com/ysmood/fetchup v0.2.3 // indirect
 	github.com/ysmood/goob v0.4.0 // indirect
-	github.com/ysmood/got v0.34.1 // indirect
+	github.com/ysmood/got v0.40.0 // indirect
 	github.com/ysmood/gson v0.7.3 // indirect
-	github.com/ysmood/leakless v0.8.0 // indirect
+	github.com/ysmood/leakless v0.9.0 // indirect
 	github.com/yuin/goldmark v1.7.4 // indirect
 	github.com/yuin/goldmark-emoji v1.0.3 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
