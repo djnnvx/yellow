@@ -360,8 +360,8 @@ github.com/projectdiscovery/machineid v0.0.0-20240226150047-2e2c51e35983 h1:ZScL
 github.com/projectdiscovery/machineid v0.0.0-20240226150047-2e2c51e35983/go.mod h1:3G3BRKui7nMuDFAZKR/M2hiOLtaOmyukT20g88qRQjI=
 github.com/projectdiscovery/mapcidr v1.1.34 h1:udr83vQ7oz3kEOwlsU6NC6o08leJzSDQtls1wmXN/kM=
 github.com/projectdiscovery/mapcidr v1.1.34/go.mod h1:1+1R6OkKSAKtWDXE9RvxXtXPoajXTYX0eiEdkqlhQqQ=
-github.com/projectdiscovery/naabu/v2 v2.3.3 h1:7UZvXnYZvaXUbBUlp+I+GJqF+EMyPWP4im81YpgV01k=
-github.com/projectdiscovery/naabu/v2 v2.3.3/go.mod h1:7VEutopiUJpvoKGZG7udPN9/6q3DDeegEjQWFGTUjmk=
+github.com/projectdiscovery/naabu/v2 v2.3.5 h1:VrVsBUh896Xs6O2ELOaY0R5MKtsbfHITKqcmuXu9gR8=
+github.com/projectdiscovery/naabu/v2 v2.3.5/go.mod h1:8nPngmoGvih9m/ipzl3YSEW0EWKYudUS5Hv7Lff6STQ=
 github.com/projectdiscovery/networkpolicy v0.1.25 h1:2f3Nxp4ncz/95hm6PkIDLcjMJI6ei2YsgkQ29NZn7b0=
 github.com/projectdiscovery/networkpolicy v0.1.25/go.mod h1:6zQPoZRyGeNq0WvWnL5cbah3mCg9KJiOn5tgVQWGIn4=
 github.com/projectdiscovery/ratelimit v0.0.81 h1:u6lW+rAhS/UO0amHTYmYLipPK8NEotA9521hdojBtgI=
@@ -378,8 +378,8 @@ github.com/projectdiscovery/subfinder/v2 v2.6.7 h1:JLKpNFNd4dqqWzwaCejHbGMF+w21b
 github.com/projectdiscovery/subfinder/v2 v2.6.7/go.mod h1:p4Xb09XmxOoCu01LJwOm0r3cdn06OEy8895N0S+TMlU=
 github.com/projectdiscovery/tlsx v1.1.9 h1:DhErhHCO2+toF5DEX7qe3pkwrIrYlex3F/mzHEUiZHg=
 github.com/projectdiscovery/tlsx v1.1.9/go.mod h1:Jy+r38WyYjapQWaffiKGdYm4Ksdrt8BWtsqA2rUospU=
-github.com/projectdiscovery/uncover v1.0.9 h1:s5RbkD/V4r8QcPkys4gTTqMuRSgXq0JprejqLSopN9Y=
-github.com/projectdiscovery/uncover v1.0.9/go.mod h1:2PUF3SpB5QNIJ8epaB2xbRzkPaxEAWRDm3Ir2ijt81U=
+github.com/projectdiscovery/uncover v1.1.0 h1:UDp/qLZn78YZb6VPoOrfyP1vz+ojEx8VrTTyjjRt9UU=
+github.com/projectdiscovery/uncover v1.1.0/go.mod h1:2rXINmMe/lmVAt2jn9CpAOs9An57/JEeLZobY3Z9kUs=
 github.com/projectdiscovery/useragent v0.0.101 h1:8A+XOJ/nIH+WqW8ogLxJ/psemGp8ATQ2/GuKroJ/81E=
 github.com/projectdiscovery/useragent v0.0.101/go.mod h1:RGoRw1BQ/lJnhYMbMpEKjyAAgCaDCr/+GsULo5yEJ2I=
 github.com/projectdiscovery/utils v0.6.0 h1:rH4Haei7uHgqEq6pFGe8U+iD4PoBWUDB8LhoNxPawkk=
