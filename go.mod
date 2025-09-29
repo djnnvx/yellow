@@ -10,7 +10,7 @@ require (
 	github.com/projectdiscovery/httpx v1.7.1
 	github.com/projectdiscovery/naabu/v2 v2.3.5
 	github.com/projectdiscovery/subfinder/v2 v2.9.0
-	github.com/projectdiscovery/wappalyzergo v0.2.37
+	github.com/projectdiscovery/wappalyzergo v0.2.48
 	github.com/spf13/cobra v1.9.1
 	github.com/spiral-sec/assetfinder v0.2.0
 )
