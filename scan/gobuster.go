@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/url"
 	"time"
 
 	"evil.djnn.sh/djnn/yellow/helpers"
@@ -33,35 +34,49 @@ func (g *Gobuster) Configure(c any) {
 	g.rateLimit = c.(map[string]any)["rateLimit"].(int32)
 }
 
-func (g *Gobuster) Run(url string) {
+func (g *Gobuster) Run(rawUrl string) {
 
-	globalOpts := libgobuster.NewOptions()
+	globalOpts := libgobuster.Options{}
 	globalOpts.Wordlist = g.wordlist
 	globalOpts.OutputFilename = g.scanPath + "/gobuster.txt"
 	globalOpts.Quiet = false
 	globalOpts.Threads = 50
 
-	pluginOpts := gobusterdir.NewOptionsDir()
+	globalOpts.WordlistOffset = 0
+	globalOpts.Debug = false
+	globalOpts.DiscoverPatternFile = ""
+	globalOpts.Patterns = make([]string, 0)
+	globalOpts.DiscoverPatterns = make([]string, 0)
+	globalOpts.NoError = false
+	globalOpts.NoProgress = false
+	globalOpts.Delay = time.Second
+
+	u, err := url.Parse(rawUrl)
+	if err != nil {
+		panic("[gobuster] Invalid URL: " + rawUrl)
+	}
+
+	pluginOpts := gobusterdir.NewOptions()
 	pluginOpts.Proxy = g.proxy
 	pluginOpts.NoTLSValidation = g.insecure
 	pluginOpts.UserAgent = helper.GetUserAgent()
-	pluginOpts.URL = url
+	pluginOpts.URL = u
 	pluginOpts.Method = "GET"
 	pluginOpts.Timeout = time.Second * 5
 
 	ssc, _ := libgobuster.ParseCommaSeparatedInt("302,404,500")
 	pluginOpts.StatusCodesBlacklistParsed = ssc
 
-	plugin, err := gobusterdir.NewGobusterDir(globalOpts, pluginOpts)
+	log := libgobuster.NewLogger(globalOpts.Debug)
+	plugin, err := gobusterdir.New(&globalOpts, pluginOpts, log)
 	if err != nil {
-		panic(err)
+		panic("[gobuster] cannot load plugin: " + err.Error())
 	}
 
 	mainContext, _ := context.WithCancel(context.Background())
-	log := libgobuster.NewLogger(globalOpts.Debug)
-	if err := cli.Gobuster(mainContext, globalOpts, plugin, log); err != nil {
+	if err := cli.Gobuster(mainContext, &globalOpts, plugin, log); err != nil {
 
-		var wErr *gobusterdir.ErrWildcard
+		var wErr *gobusterdir.WildcardError
 		if errors.As(err, &wErr) {
 			fmt.Printf("%v.\nTo continue please exclude the status code or the length\n", wErr)
 			fmt.Printf("\nSince gobuster cannot make the difference between good and bad urls, it will be skipped.\n\n")
@@ -69,5 +84,5 @@ func (g *Gobuster) Run(url string) {
 		}
 	}
 
-	fmt.Printf("[SCAN %s] Gobuster scan for %s completed\n\n", url, url)
+	fmt.Printf("[SCAN %s] Gobuster scan for %s completed\n\n", rawUrl, rawUrl)
 }
