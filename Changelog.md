@@ -10,3 +10,4 @@
 - feat: updating cobra ~ @djnnvx
 - feat(dnsx): adding TXT domain enumeration ~ @djnnvx
 - fix(osint): TXT records in parsed domains + file cleanup ~ @djnnvx
+- feat(scan): dropping support for port-scanning ~ @djnnvx

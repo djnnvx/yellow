@@ -64,8 +64,6 @@ afterwards.
 
 Using `go v1.25`.
 
-> also requires `libpcap-dev` !
-
 ```bash
 git clone https://evil.djnn.sh/yellow.git
 
@@ -131,5 +129,5 @@ Run scans against the target actively.
 ./yellow scan --help
 
 # or, if in a hurry
-./yellow scan -d djnn.sh/scans --file djnn.sh/scans/domains_djnn.sh.txt --with-port-scanning
+./yellow scan -d djnn.sh/scans --file djnn.sh/scans/domains.txt
 ```

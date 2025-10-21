@@ -13,11 +13,6 @@ type ScanOpts struct {
 	rateLimit     int32
 	wordlistPath  string
 	forceInsecure bool
-	withPortScan  bool
-}
-
-func (opts *ScanOpts) SetWithPortScan(data bool) {
-	opts.withPortScan = data
 }
 
 func (opts *ScanOpts) SetForceInsecure(data bool) {
@@ -90,22 +85,6 @@ func (opts ScanOpts) runSitemap() {
 	}
 }
 
-func (opts ScanOpts) runNaabu() {
-
-	nb := Naabu{}
-	nbCfg := make(map[string]any)
-
-	nbCfg["ScanPath"] = opts.scanPath
-	nbCfg["Proxy"] = opts.proxy
-	nbCfg["RateLimit"] = opts.rateLimit
-
-	nb.Configure(nbCfg)
-	nb.Info(opts.domain)
-	if !opts.dryRun {
-		nb.Run(opts.domain)
-	}
-}
-
 func (opts *ScanOpts) runHttpx() {
 	httpx := Httpx{}
 	httpxCfg := make(map[string]any)
@@ -145,15 +124,6 @@ func (opts ScanOpts) runGobusterDir() {
 
 func (opts *ScanOpts) Run() {
 	fmt.Printf("\n[SCAN] domain: %s\n", opts.domain)
-
-	if opts.withPortScan {
-		oldScan := opts.scanPath
-		naabuScanFile := oldScan + "/" + opts.domain + "_open-ports-top-1000.txt"
-		opts.SetScanPath(naabuScanFile)
-
-		opts.runNaabu()
-		opts.SetScanPath(oldScan)
-	}
 
 	if opts.forceInsecure {
 		opts.SetDomain("http://" + opts.domain)

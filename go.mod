@@ -8,7 +8,6 @@ require (
 	github.com/projectdiscovery/dnsx v1.2.2
 	github.com/projectdiscovery/goflags v0.1.74
 	github.com/projectdiscovery/httpx v1.7.1
-	github.com/projectdiscovery/naabu/v2 v2.3.5
 	github.com/projectdiscovery/subfinder/v2 v2.9.0
 	github.com/projectdiscovery/wappalyzergo v0.2.48
 	github.com/spf13/cobra v1.10.1
@@ -67,7 +66,6 @@ require (
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/gopacket/gopacket v1.2.0 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
 	github.com/hako/durafmt v0.0.0-20210316092057-3a2c319c1acd // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
@@ -119,7 +117,6 @@ require (
 	github.com/projectdiscovery/gologger v1.1.55 // indirect
 	github.com/projectdiscovery/gostruct v0.0.2 // indirect
 	github.com/projectdiscovery/hmap v0.0.94 // indirect
-	github.com/projectdiscovery/ipranger v0.0.53 // indirect
 	github.com/projectdiscovery/machineid v0.0.0-20240226150047-2e2c51e35983 // indirect
 	github.com/projectdiscovery/mapcidr v1.1.34 // indirect
 	github.com/projectdiscovery/networkpolicy v0.1.25 // indirect
@@ -128,11 +125,9 @@ require (
 	github.com/projectdiscovery/retryabledns v1.0.107 // indirect
 	github.com/projectdiscovery/retryablehttp-go v1.0.125 // indirect
 	github.com/projectdiscovery/tlsx v1.1.9 // indirect
-	github.com/projectdiscovery/uncover v1.1.0 // indirect
 	github.com/projectdiscovery/useragent v0.0.101 // indirect
 	github.com/projectdiscovery/utils v0.6.0 // indirect
 	github.com/refraction-networking/utls v1.7.1 // indirect
-	github.com/remeh/sizedwaitgroup v1.0.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rogpeppe/go-internal v1.13.1 // indirect
 	github.com/rs/xid v1.6.0 // indirect
@@ -163,7 +158,6 @@ require (
 	github.com/urfave/cli/v2 v2.27.7 // indirect
 	github.com/weppos/publicsuffix-go v0.40.3-0.20250408071509-6074bbe7fd39 // indirect
 	github.com/xrash/smetrics v0.0.0-20250705151800-55b8f293f342 // indirect
-	github.com/yl2chen/cidranger v1.0.2 // indirect
 	github.com/ysmood/fetchup v0.2.3 // indirect
 	github.com/ysmood/goob v0.4.0 // indirect
 	github.com/ysmood/got v0.40.0 // indirect

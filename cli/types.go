@@ -23,14 +23,10 @@ type StandardOptions struct {
 
 	// File containing list of targets (should be a list of IP Addresses or domains)
 	TargetFilePath string
-
-	// With port scanning
-	WithPortScan bool
 }
 
 func GetDefaultOptions() StandardOptions {
 	opts := StandardOptions{
-		WithPortScan:    false,
 		OutDirName:      "",
 		RunDry:          false,
 		Proxy:           "",
