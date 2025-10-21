@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net"
 	"os"
 
 	"github.com/projectdiscovery/dnsx/libs/dnsx"
@@ -51,10 +52,33 @@ func (d *Dnsx) Run(domain string) {
 		return
 	}
 
+	// Try to unmarshal the DNSX JSON response into a map so we can add TXT records.
+	var obj map[string]any
+	if err := json.Unmarshal([]byte(jsonStr), &obj); err != nil {
+		// If unmarshalling fails, start with an empty object and preserve the original JSON under "raw" key.
+		fmt.Printf("warning: failed to unmarshal DNSX JSON: %v\n", err)
+		obj = map[string]any{
+			"raw": jsonStr,
+		}
+	}
+
+	txts, txtErr := net.LookupTXT(domain)
+	if txtErr != nil {
+		fmt.Printf("warning: failed to lookup TXT records for %s: %v\n", domain, txtErr)
+		txts = []string{}
+	}
+	obj["TXTs"] = txts
+
+	modifiedJSON, err := json.Marshal(obj)
+	if err != nil {
+		fmt.Printf("err: %v\n", err)
+		return
+	}
+
 	var prettyJSON bytes.Buffer
-	error := json.Indent(&prettyJSON, []byte(jsonStr), "", "\t")
-	if error != nil {
-		panic(err)
+	if indentErr := json.Indent(&prettyJSON, modifiedJSON, "", "\t"); indentErr != nil {
+		fmt.Printf("err: %v\n", indentErr)
+		return
 	}
 
 	fo, err := os.Create(d.outfile)
