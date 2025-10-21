@@ -30,3 +30,7 @@ clean: ## cleans up the project
 tidy: ## runs tidy and formatting
 	@go mod tidy
 	@gofmt -s -w .
+
+.PHONY: release-build
+release-build: ## makes a release build locally on the current commit
+	@goreleaser release --skip=publish --snapshot
