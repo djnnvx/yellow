@@ -44,11 +44,13 @@ Please use at your own risk, in a controlled environnement. Thanks<3
 
 For next version, i want to take care of at least two items described here:
 
-* `scan`: integrate browser-dependant tools (katana, ...),
-* `scan`: integrate a runner for nuclei that will automatically fetch new rules,
-* `scan`: port third-party tools (smbenum, ldapsearch, enum4linux),
-* `scan`: add a CVE query system
-* `scan`: port some quick win, such as anonymous ftp
+* `scan`: add toolbox scan script to automatically integrate it with
+          nmap and other CLI tools
+* `scan`: integrate browser-dependant tools (katana, ...) (still TBD),
+* `scan`: add a CVE query module, plugged after wappalyzergo
+
+* `osint`: add support for more dorks
+* `osint`: shodan API integration
 
 > feel free to suggest more ideas. :)~
 >
@@ -57,8 +59,8 @@ For next version, i want to take care of at least two items described here:
 ### Contributing
 
 This software's code is public, but not open to contributions.
-The reason for that is that if something is integrated, I want to make sure I am able to maintain it
-afterwards.
+The reason for that is that if something is integrated, I want to make sure I
+am able to maintain it afterwards.
 
 ## Installing
 
@@ -128,6 +130,9 @@ Run scans against the target actively.
 ```bash
 ./yellow scan --help
 
-# or, if in a hurry
-./yellow scan -d djnn.sh/scans --file djnn.sh/scans/domains.txt
+# run scan on ports 80, 443, 8080 & 8443
+nmap -T4 -Pn -p 80,443,8080,8443 --open -oA domains -iL djnn.sh/scans/domains.txt
+cat *.gnmap | grep -i "open/tcp" | cut -d " " -f2 | sort -u > djnn.sh/scans/web-targets.txt
+
+./yellow scan -d djnn.sh/scans --file djnn.sh/scans/web-targets.txt
 ```
