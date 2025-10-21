@@ -39,12 +39,30 @@ func (opts *OsintOpts) SetDryRun(data bool) {
 	opts.dryRun = data
 }
 
+func (opts OsintOpts) RunCleanup() {
+	println("[+] cleaning up...")
+
+	/* remove superfluous files */
+	asfFilepath := fmt.Sprintf("%s/assetfinder.txt", opts.scanPath)
+	sbfOutfile := fmt.Sprintf("%s/subfinder.txt", opts.scanPath)
+
+	err := os.Remove(asfFilepath)
+	if err != nil {
+		panic(err)
+	}
+
+	err = os.Remove(sbfOutfile)
+	if err != nil {
+		panic(err)
+	}
+}
+
 func (opts OsintOpts) runGoogleDorks() {
 
 	dorks := Dorks{}
 	dorksCfg := make(map[string]any)
 
-	dorksOutfile := fmt.Sprintf("%s/dorks_%s.txt", opts.scanPath, opts.domain)
+	dorksOutfile := fmt.Sprintf("%s/dorks.txt", opts.scanPath)
 	dorksCfg["outfile"] = dorksOutfile
 	dorksCfg["proxy"] = opts.proxy
 
@@ -59,7 +77,7 @@ func (opts OsintOpts) runSubfinder() {
 	sbf := Subfinder{}
 	sbfCfg := make(map[string]any)
 
-	sbfOutfile := fmt.Sprintf("%s/subfinder_%s.txt", opts.scanPath, opts.domain)
+	sbfOutfile := fmt.Sprintf("%s/subfinder.txt", opts.scanPath)
 	sbfCfg["outfile"] = sbfOutfile
 
 	sbf.Configure(sbfCfg)
@@ -75,7 +93,7 @@ func (opts OsintOpts) runAssetfinder() {
 	asf := Assetfinder{}
 	asfCfg := make(map[string]any)
 
-	asfOutfile := fmt.Sprintf("%s/assetfinder_%s.txt", opts.scanPath, opts.domain)
+	asfOutfile := fmt.Sprintf("%s/assetfinder.txt", opts.scanPath)
 
 	asfCfg["scanPath"] = opts.scanPath
 	asfCfg["outfile"] = asfOutfile
@@ -92,7 +110,7 @@ func (opts OsintOpts) runDnsx() {
 	dnsx := Dnsx{}
 	dnsxCfg := make(map[string]any)
 
-	dnsxOutfile := fmt.Sprintf("%s/dnsx_%s.json", opts.scanPath, opts.domain)
+	dnsxOutfile := fmt.Sprintf("%s/dnsx.json", opts.scanPath)
 	dnsxCfg["outfile"] = dnsxOutfile
 	dnsxCfg["proxy"] = opts.proxy
 
@@ -112,11 +130,9 @@ func (opts OsintOpts) Run() {
 	opts.runAssetfinder()
 	opts.runDnsx()
 
-	fmt.Printf("\n[OSINT %s] merging aggregated IP addresses together\n", opts.domain)
-
-	asfFilepath := fmt.Sprintf("%s/assetfinder_%s.txt", opts.scanPath, opts.domain)
-	dnsxFilepath := fmt.Sprintf("%s/dnsx_%s.json", opts.scanPath, opts.domain)
-	sbfOutfile := fmt.Sprintf("%s/subfinder_%s.txt", opts.scanPath, opts.domain)
+	asfFilepath := fmt.Sprintf("%s/assetfinder.txt", opts.scanPath)
+	dnsxFilepath := fmt.Sprintf("%s/dnsx.json", opts.scanPath)
+	sbfOutfile := fmt.Sprintf("%s/subfinder.txt", opts.scanPath)
 
 	domainsFiles := []string{asfFilepath, dnsxFilepath, sbfOutfile}
 	var domains []string
@@ -143,7 +159,7 @@ func (opts OsintOpts) Run() {
 
 			// does it look like a domain name ? at least one .
 			// (hacky, but no need to make it better for now)
-			if addr != nil || (!helper.StringHasUnwantedCharacters(parsedDomain) && parsedDomain != "") {
+			if addr != nil || (!helper.StringHasUnwantedCharactersForDomainName(parsedDomain) && parsedDomain != "") {
 				domains = append(domains, parsedDomain)
 				domainBuffer.Write([]byte(string(parsedDomain) + "\n"))
 			}
@@ -151,13 +167,15 @@ func (opts OsintOpts) Run() {
 	}
 
 	// now add all assets together, line by line
-	uniqueOutfile := fmt.Sprintf("%s/domains_%s.txt", opts.scanPath, opts.domain)
+	uniqueOutfile := fmt.Sprintf("%s/domains.txt", opts.scanPath)
 	err := os.WriteFile(uniqueOutfile, domainBuffer.Bytes(), 0644)
 	if err != nil {
 		panic(err)
 	}
 
 	fmt.Printf("[OSINT %s] Registered %v IP addresses and assets.\n", opts.domain, len(domains))
-	fmt.Printf("[OSINT %s] Location of unique domain names: %s.\n", opts.domain, uniqueOutfile)
+	fmt.Printf("[OSINT %s] Location of unique domain names: %s\n", opts.domain, uniqueOutfile)
 	fmt.Printf("[OSINT %s] done.\n", opts.domain)
+
+	opts.RunCleanup()
 }

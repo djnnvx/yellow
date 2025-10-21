@@ -110,7 +110,7 @@ func (opts *ScanOpts) runHttpx() {
 	httpx := Httpx{}
 	httpxCfg := make(map[string]any)
 
-	httpxOutdir := fmt.Sprintf("%s/httpx", opts.scanPath)
+	httpxOutdir := fmt.Sprintf("%s/infra/httpx", opts.scanPath)
 
 	httpxCfg["OutDirPath"] = httpxOutdir
 	httpxCfg["Proxy"] = opts.proxy

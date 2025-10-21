@@ -9,6 +9,4 @@
 - feat: updating wappalyzergo ~ @djnnvx
 - feat: updating cobra ~ @djnnvx
 - feat(dnsx): adding TXT domain enumeration ~ @djnnvx
-
-### TODO:
-- [ ] move `httpx` results to infra/ directory
+- fix(osint): TXT records in parsed domains + file cleanup ~ @djnnvx

@@ -20,8 +20,8 @@ func ReplaceWithHyphen(input string) string {
 
 // if its not a valid domain in the end, not too big of a deal,
 // we just want an approximate response
-func StringHasUnwantedCharacters(url string) bool {
-	badChars := ":;\t\n, +\\\"[]{}()"
+func StringHasUnwantedCharactersForDomainName(url string) bool {
+	badChars := ":;\t\n, +\\\"[]{}()="
 	for _, b := range badChars {
 		if strings.Contains(url, string(b)) {
 			return true
