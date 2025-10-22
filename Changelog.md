@@ -1,6 +1,7 @@
 ## v0.0.4
 
 - feat(scan): saving wappalyzer results to file ~ @djnnvx
+- feat(scan): adding cvemap module ~ @djnnvx
 
 ## v0.0.3
 

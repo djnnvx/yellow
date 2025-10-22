@@ -9,4 +9,4 @@ set -euo
 
 ./yellow osint -d ${1}
 
-./yellow scan -d ${1}/scans --file ${1}/scans/domains.txt
+./yellow scan -d ${1}/scans/infra --file ${1}/scans/domains.txt

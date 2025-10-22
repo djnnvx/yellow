@@ -1,8 +1,10 @@
 package scan
 
 import (
-	"evil.djnn.sh/djnn/yellow/helpers"
 	"fmt"
+	"os"
+
+	"evil.djnn.sh/djnn/yellow/helpers"
 )
 
 type ScanOpts struct {
@@ -14,6 +16,15 @@ type ScanOpts struct {
 	wordlistPath  string
 	forceInsecure bool
 }
+
+/*
+	save in shared memory to avoid having to read a write from files
+
+all the time
+*/
+var (
+	wappalyzerResults []string
+)
 
 func (opts *ScanOpts) SetForceInsecure(data bool) {
 	opts.forceInsecure = data
@@ -58,16 +69,33 @@ func (opts ScanOpts) runRobots() {
 }
 
 func (opts ScanOpts) runWappalyzerGo() {
+	wappalyzerResults = make([]string, 0)
 
 	wp := WappalyzerGo{}
 	wpCfg := make(map[string]any)
 
 	wpCfg["Proxy"] = opts.proxy
+	wpCfg["ScanPath"] = opts.scanPath
 
 	wp.Configure(wpCfg)
 	wp.Info(opts.domain)
 	if !opts.dryRun {
-		wp.Run(opts.domain)
+		wappalyzerResults = wp.Run(opts.domain)
+	}
+}
+
+func (opts ScanOpts) runCvemap() {
+	cv := Cvemap{}
+	cvCfg := make(map[string]any)
+
+	cvCfg["Proxy"] = opts.proxy
+	cvCfg["ScanPath"] = opts.scanPath
+	cv.Configure(cvCfg)
+	cv.Info(opts.domain)
+
+	if !opts.dryRun {
+		cv.Run(wappalyzerResults)
+		wappalyzerResults = make([]string, 0)
 	}
 }
 
@@ -89,7 +117,7 @@ func (opts *ScanOpts) runHttpx() {
 	httpx := Httpx{}
 	httpxCfg := make(map[string]any)
 
-	httpxOutdir := fmt.Sprintf("%s/infra/httpx", opts.scanPath)
+	httpxOutdir := fmt.Sprintf("%s/httpx", opts.scanPath)
 
 	httpxCfg["OutDirPath"] = httpxOutdir
 	httpxCfg["Proxy"] = opts.proxy
@@ -125,22 +153,33 @@ func (opts ScanOpts) runGobusterDir() {
 func (opts *ScanOpts) Run() {
 	fmt.Printf("\n[SCAN] domain: %s\n", opts.domain)
 
+	fullDomain := "https://" + opts.domain
 	if opts.forceInsecure {
-		opts.SetDomain("http://" + opts.domain)
-	} else {
-		opts.SetDomain("https://" + opts.domain)
+		fullDomain = "http://" + opts.domain
 	}
 
-	if !helper.HasUnavailableWebInterface(opts.domain) {
+	if !helper.HasUnavailableWebInterface(fullDomain) {
 
+		initialPath := opts.scanPath
 		fmt.Printf("[SCAN %s] web panel online....running web scans\n", opts.domain)
+
+		pathForDomain := opts.scanPath + "/" + opts.domain
+		opts.SetScanPath(pathForDomain)
+		err := os.MkdirAll(opts.scanPath, 0755)
+		if err != nil {
+			panic(err)
+		}
+
+		opts.SetDomain(fullDomain)
 
 		opts.runSitemap()
 		opts.runRobots()
 		opts.runWappalyzerGo()
+		opts.runCvemap()
 		opts.runHttpx()
 		opts.runGobusterDir()
 
+		opts.SetScanPath(initialPath)
 	} else {
 		fmt.Printf("[SCAN %s] => no web panel online. skipping\n", opts.domain)
 	}

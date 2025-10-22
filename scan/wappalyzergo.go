@@ -6,11 +6,9 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
 	"os"
 	"reflect"
 	"sort"
-	"strings"
 
 	helper "evil.djnn.sh/djnn/yellow/helpers"
 	wappalyzer "github.com/projectdiscovery/wappalyzergo"
@@ -30,14 +28,16 @@ func (d *WappalyzerGo) Configure(c any) {
 	d.ScanPath = c.(map[string]any)["ScanPath"].(string)
 }
 
-func (d *WappalyzerGo) Run(targetURL string) {
+func (d *WappalyzerGo) Run(targetURL string) []string {
+	var names = make([]string, 0)
+
 	client := d.newHTTPClient()
 
 	resp, body, err := d.fetchResponse(client, targetURL)
 	if err != nil {
 		fmt.Printf("error fetching %s: %v\n", targetURL, err)
 		fmt.Printf("[SCAN %s] WappalyzerGo scan for %s completed\n\n", targetURL, targetURL)
-		return
+		return names
 	}
 	if resp != nil {
 		defer resp.Body.Close()
@@ -47,10 +47,10 @@ func (d *WappalyzerGo) Run(targetURL string) {
 	if err != nil {
 		fmt.Printf("error fingerprinting %s: %v\n", targetURL, err)
 		fmt.Printf("[SCAN %s] WappalyzerGo scan for %s completed\n\n", targetURL, targetURL)
-		return
+		return names
 	}
 
-	names := techNamesFromResults(results)
+	names = techNamesFromResults(results)
 	filename, err := d.saveNames(names, targetURL)
 	if err != nil {
 		fmt.Printf("error saving results for %s: %v\n", targetURL, err)
@@ -59,8 +59,8 @@ func (d *WappalyzerGo) Run(targetURL string) {
 	}
 
 	fmt.Printf("%v\n", names)
-
 	fmt.Printf("[SCAN %s] WappalyzerGo scan for %s completed\n\n", targetURL, targetURL)
+	return names
 }
 
 func (d *WappalyzerGo) newHTTPClient() *http.Client {
@@ -112,28 +112,12 @@ func (d *WappalyzerGo) saveNames(names []string, targetURL string) (string, erro
 		return "", fmt.Errorf("marshal names: %w", err)
 	}
 
-	filename := d.ScanPath + "/" + buildOutputFilename(targetURL)
+	filename := d.ScanPath + "/wappalyzer.json"
 	if err := os.WriteFile(filename, data, 0644); err != nil {
 		return "", fmt.Errorf("write file %s: %w", filename, err)
 	}
 
 	return filename, nil
-}
-
-func buildOutputFilename(targetURL string) string {
-	u, err := url.Parse(targetURL)
-	var host string
-	if err == nil {
-		host = u.Hostname()
-		if host == "" {
-			host = u.Host
-		}
-	}
-	if host == "" {
-		host = strings.ReplaceAll(strings.ReplaceAll(targetURL, "://", "_"), "/", "_")
-	}
-	host = strings.ReplaceAll(host, ":", "_")
-	return fmt.Sprintf("wappalyzer_%s.json", host)
 }
 
 func techNamesFromResults(results any) []string {

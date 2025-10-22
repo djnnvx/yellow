@@ -47,10 +47,13 @@ For next version, i want to take care of at least two items described here:
 * `scan`: add toolbox scan script to automatically integrate it with
           nmap and other CLI tools
 * `scan`: integrate browser-dependant tools (katana, ...) (still TBD),
-* `scan`: add a CVE query module, plugged after wappalyzergo
 
 * `osint`: add support for more dorks
 * `osint`: shodan API integration
+
+### Bugfixes
+
+* `sitemap` should be stored to a file & fetch robots.txt
 
 > feel free to suggest more ideas. :)~
 >
@@ -134,5 +137,15 @@ Run scans against the target actively.
 nmap -T4 -Pn -p 80,443,8080,8443 --open -oA domains -iL djnn.sh/scans/domains.txt
 cat *.gnmap | grep -i "open/tcp" | cut -d " " -f2 | sort -u > djnn.sh/scans/web-targets.txt
 
-./yellow scan -d djnn.sh/scans --file djnn.sh/scans/web-targets.txt
+# you can also just run the domains.txt file directly
+
+./yellow scan -d djnn.sh/scans/infra --file djnn.sh/scans/web-targets.txt
 ```
+
+#### Retrieving CVEs automatically
+
+We use [vulnx](https://github.com/projectdiscovery/cvemap/tree/main) under the hood to query CVEs based on
+initial fingerprinting. To get this feature working, you will need to create an account
+on [ProjectDiscovery](https://cloud.projectdiscovery.io/) and retrieve an API key.
+
+Then you should set this key in your `.bashrc` or equivalent to `VULNX_API_KEY`.
