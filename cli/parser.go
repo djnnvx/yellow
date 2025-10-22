@@ -42,6 +42,7 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 			scanOpts.SetRateLimit(opts.RateLimit)
 			scanOpts.SetWordlistPath(opts.WordlistPath)
 			scanOpts.SetForceInsecure(opts.UseHttpInsecure)
+			scanOpts.SetNoGobuster(opts.NoGobuster)
 
 			if opts.TargetFilePath == "" {
 				scanOpts.Run()
@@ -148,6 +149,7 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 	scanCmd.Flags().StringVarP(&opts.OutDirName, "dir-name", "d", defaults.OutDirName, "Outfile directory name (if no target-file is specified, will also be target domain)")
 	scanCmd.Flags().StringVarP(&opts.Proxy, "proxy", "p", defaults.Proxy, "Proxy URL (used for the tools supporting it. Other will prompt a warning msg)")
 	scanCmd.Flags().BoolVarP(&opts.RunDry, "dry", "", defaults.RunDry, "Run a dry-run (test mode)")
+	scanCmd.Flags().BoolVarP(&opts.NoGobuster, "no-dirbusting", "", defaults.NoGobuster, "Disable directory bruteforce (sometimes you don't need it yk...)")
 	scanCmd.Flags().BoolVarP(&opts.UseHttpInsecure, "insecure", "k", defaults.UseHttpInsecure, "Ignore SSL warnings and force http")
 	scanCmd.Flags().Int32VarP(&opts.RateLimit, "rate-limit", "r", defaults.RateLimit, "Requests rate-limit (used for the tools supporting it. Other will prompt a warning msg)")
 	scanCmd.Flags().StringVarP(&opts.WordlistPath, "wordlist", "w", defaults.WordlistPath, "Wordlist to use")

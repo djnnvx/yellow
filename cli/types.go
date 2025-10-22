@@ -23,6 +23,9 @@ type StandardOptions struct {
 
 	// File containing list of targets (should be a list of IP Addresses or domains)
 	TargetFilePath string
+
+	// Disable Gobuster run (we dont need it sometimes yk)
+	NoGobuster bool
 }
 
 func GetDefaultOptions() StandardOptions {
@@ -34,6 +37,7 @@ func GetDefaultOptions() StandardOptions {
 		RateLimit:       0,
 		WordlistPath:    "/usr/share/wordlists/seclists/Discovery/Web-Content/common.txt",
 		TargetFilePath:  "",
+		NoGobuster:      false,
 	}
 
 	return opts

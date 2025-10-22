@@ -15,6 +15,7 @@ type ScanOpts struct {
 	rateLimit     int32
 	wordlistPath  string
 	forceInsecure bool
+	noGoBuster    bool
 }
 
 /*
@@ -25,6 +26,10 @@ all the time
 var (
 	wappalyzerResults []string
 )
+
+func (opts *ScanOpts) SetNoGobuster(data bool) {
+	opts.noGoBuster = data
+}
 
 func (opts *ScanOpts) SetForceInsecure(data bool) {
 	opts.forceInsecure = data
@@ -177,7 +182,10 @@ func (opts *ScanOpts) Run() {
 		opts.runWappalyzerGo()
 		opts.runCvemap()
 		opts.runHttpx()
-		opts.runGobusterDir()
+
+		if !opts.noGoBuster {
+			opts.runGobusterDir()
+		}
 
 		opts.SetScanPath(initialPath)
 	} else {
