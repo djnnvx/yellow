@@ -9,7 +9,7 @@
       --------  ⠀⠀⢸⣿⣿⣿⣿⣷⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⣀⣀⣀⣙⢿⣿⣿⣿⣿⣿⣿⣦⡀⠀⠀⠀⠀⠀
         ⠀⠀⠀⠀  ⠀⠀⠀⠀⠀⢿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣶⣶⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠻⣿⣿⣿⣿⣿⣿⣿⣄⠀⠀⠀⠀
         djnn.sh⠀⠀⠀⠀⠘⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠇⠀⠀⢹⣿⣿⣿⣿⣿⣿⣿⣆⠀⠀⠀
-        ⠀v0.0.3  ⠀⠀⢠⣿⣿⣿⣿⡟⠹⠿⠟⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡏⠀⠀⠀⠀⢿⣿⣿⣿⣿⣿⣿⣿⡆⠀⠀
+        ⠀v0.0.4  ⠀⠀⢠⣿⣿⣿⣿⡟⠹⠿⠟⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡏⠀⠀⠀⠀⢿⣿⣿⣿⣿⣿⣿⣿⡆⠀⠀
         ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡿⠋⡬⢿⣿⣷⣤⣤⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠀⠀⠀⠀⠀⠸⣿⣿⣿⣿⣿⣿⣿⣿⡀⠀
         ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠰⡇⢸⡇⢸⣿⣿⣿⠟⠁⢀⣬⢽⣿⣿⣿⣿⣿⣿⠋⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀
         ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⣧⣈⣛⣿⣿⣿⡇⠀⠀⣾⠁⢀⢻⣿⣿⣿⣿⠇⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⡀
@@ -44,11 +44,16 @@ Please use at your own risk, in a controlled environnement. Thanks<3
 
 For next version, i want to take care of at least two items described here:
 
-* `scan`: integrate browser-dependant tools (katana, ...),
-* `scan`: integrate a runner for nuclei that will automatically fetch new rules,
-* `scan`: port third-party tools (smbenum, ldapsearch, enum4linux),
-* `scan`: add a CVE query system
-* `scan`: port some quick win, such as anonymous ftp
+* `scan`: add toolbox scan script to automatically integrate it with
+          nmap and other CLI tools
+* `scan`: integrate browser-dependant tools (katana, ...) (still TBD),
+
+* `osint`: add support for more dorks
+* `osint`: shodan API integration
+
+### Bugfixes
+
+* `sitemap` should be stored to a file & fetch robots.txt
 
 > feel free to suggest more ideas. :)~
 >
@@ -57,8 +62,8 @@ For next version, i want to take care of at least two items described here:
 ### Contributing
 
 This software's code is public, but not open to contributions.
-The reason for that is that if something is integrated, I want to make sure I am able to maintain it
-afterwards.
+The reason for that is that if something is integrated, I want to make sure I
+am able to maintain it afterwards.
 
 ## Installing
 
@@ -128,6 +133,19 @@ Run scans against the target actively.
 ```bash
 ./yellow scan --help
 
-# or, if in a hurry
-./yellow scan -d djnn.sh/scans --file djnn.sh/scans/domains.txt
+# run scan on ports 80, 443, 8080 & 8443
+nmap -T4 -Pn -p 80,443,8080,8443 --open -oA domains -iL djnn.sh/scans/domains.txt
+cat *.gnmap | grep -i "open/tcp" | cut -d " " -f2 | sort -u > djnn.sh/scans/web-targets.txt
+
+# you can also just run the domains.txt file directly
+
+./yellow scan -d djnn.sh/scans/infra --file djnn.sh/scans/web-targets.txt
 ```
+
+#### Retrieving CVEs automatically
+
+We use [vulnx](https://github.com/projectdiscovery/cvemap/tree/main) under the hood to query CVEs based on
+initial fingerprinting. To get this feature working, you will need to create an account
+on [ProjectDiscovery](https://cloud.projectdiscovery.io/) and retrieve an API key.
+
+Then you should set this key in your `.bashrc` or equivalent to `VULNX_API_KEY`.
