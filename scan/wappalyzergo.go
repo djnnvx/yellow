@@ -2,16 +2,23 @@ package scan
 
 import (
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
+	"os"
+	"reflect"
+	"sort"
+	"strings"
 
-	"evil.djnn.sh/djnn/yellow/helpers"
+	helper "evil.djnn.sh/djnn/yellow/helpers"
 	wappalyzer "github.com/projectdiscovery/wappalyzergo"
 )
 
 type WappalyzerGo struct {
-	Proxy string
+	Proxy    string
+	ScanPath string
 }
 
 func (d *WappalyzerGo) Info(url string) {
@@ -20,35 +27,141 @@ func (d *WappalyzerGo) Info(url string) {
 
 func (d *WappalyzerGo) Configure(c any) {
 	d.Proxy = c.(map[string]any)["Proxy"].(string)
+	d.ScanPath = c.(map[string]any)["ScanPath"].(string)
 }
 
-func (d *WappalyzerGo) Run(url string) {
+func (d *WappalyzerGo) Run(targetURL string) {
+	client := d.newHTTPClient()
 
+	resp, body, err := d.fetchResponse(client, targetURL)
+	if err != nil {
+		fmt.Printf("error fetching %s: %v\n", targetURL, err)
+		fmt.Printf("[SCAN %s] WappalyzerGo scan for %s completed\n\n", targetURL, targetURL)
+		return
+	}
+	if resp != nil {
+		defer resp.Body.Close()
+	}
+
+	results, err := d.fingerprint(resp, body)
+	if err != nil {
+		fmt.Printf("error fingerprinting %s: %v\n", targetURL, err)
+		fmt.Printf("[SCAN %s] WappalyzerGo scan for %s completed\n\n", targetURL, targetURL)
+		return
+	}
+
+	names := techNamesFromResults(results)
+	filename, err := d.saveNames(names, targetURL)
+	if err != nil {
+		fmt.Printf("error saving results for %s: %v\n", targetURL, err)
+	} else {
+		fmt.Printf("[SCAN %s] WappalyzerGo results are stored in %s\n", targetURL, filename)
+	}
+
+	fmt.Printf("%v\n", names)
+
+	fmt.Printf("[SCAN %s] WappalyzerGo scan for %s completed\n\n", targetURL, targetURL)
+}
+
+func (d *WappalyzerGo) newHTTPClient() *http.Client {
 	transport := helper.GetHttpTransport()
 	transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 
-	client := &http.Client{
+	return &http.Client{
 		Transport: transport,
 	}
+}
 
-	req, err := http.NewRequest("GET", url, nil)
+func (d *WappalyzerGo) fetchResponse(client *http.Client, targetURL string) (*http.Response, []byte, error) {
+	req, err := http.NewRequest("GET", targetURL, nil)
+	if err != nil {
+		return nil, nil, fmt.Errorf("creating request: %w", err)
+	}
 	req.Header.Add("User-Agent", helper.GetUserAgent())
 
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Printf("%v", err)
+		return resp, nil, fmt.Errorf("performing request: %w", err)
 	}
 
-	if resp != nil {
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			fmt.Printf("%v", err)
+	if resp == nil {
+		return nil, nil, fmt.Errorf("no response received")
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return resp, nil, fmt.Errorf("reading response body: %w", err)
+	}
+
+	return resp, body, nil
+}
+
+func (d *WappalyzerGo) fingerprint(resp *http.Response, body []byte) (any, error) {
+	wappalyzerClient, err := wappalyzer.New()
+	if err != nil {
+		return nil, fmt.Errorf("initializing wappalyzer client: %w", err)
+	}
+
+	results := wappalyzerClient.Fingerprint(resp.Header, body)
+	return results, nil
+}
+
+func (d *WappalyzerGo) saveNames(names []string, targetURL string) (string, error) {
+	data, err := json.MarshalIndent(names, "", "\t")
+	if err != nil {
+		return "", fmt.Errorf("marshal names: %w", err)
+	}
+
+	filename := d.ScanPath + "/" + buildOutputFilename(targetURL)
+	if err := os.WriteFile(filename, data, 0644); err != nil {
+		return "", fmt.Errorf("write file %s: %w", filename, err)
+	}
+
+	return filename, nil
+}
+
+func buildOutputFilename(targetURL string) string {
+	u, err := url.Parse(targetURL)
+	var host string
+	if err == nil {
+		host = u.Hostname()
+		if host == "" {
+			host = u.Host
 		}
+	}
+	if host == "" {
+		host = strings.ReplaceAll(strings.ReplaceAll(targetURL, "://", "_"), "/", "_")
+	}
+	host = strings.ReplaceAll(host, ":", "_")
+	return fmt.Sprintf("wappalyzer_%s.json", host)
+}
 
-		wappalyzerClient, err := wappalyzer.New()
-		fingerprints := wappalyzerClient.Fingerprint(resp.Header, body)
-		fmt.Printf("%v\n", fingerprints)
+func techNamesFromResults(results any) []string {
+	if s, ok := results.([]string); ok {
+		out := make([]string, len(s))
+		copy(out, s)
+		sort.Strings(out)
+		return out
 	}
 
-	fmt.Printf("[SCAN %s] WappalyzerGo scan for %s completed\n\n", url, url)
+	if si, ok := results.([]interface{}); ok {
+		out := make([]string, 0, len(si))
+		for _, v := range si {
+			out = append(out, fmt.Sprint(v))
+		}
+		sort.Strings(out)
+		return out
+	}
+
+	val := reflect.ValueOf(results)
+	if val.Kind() == reflect.Map {
+		out := make([]string, 0, val.Len())
+		for _, k := range val.MapKeys() {
+			out = append(out, fmt.Sprint(k.Interface()))
+		}
+		sort.Strings(out)
+		return out
+	}
+
+	return []string{fmt.Sprint(results)}
 }

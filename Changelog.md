@@ -1,5 +1,6 @@
 ## v0.0.4
 
+- feat(scan): saving wappalyzer results to file ~ @djnnvx
 
 ## v0.0.3
 
