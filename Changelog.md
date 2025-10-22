@@ -3,6 +3,7 @@
 - feat(scan): saving wappalyzer results to file ~ @djnnvx
 - feat(scan): adding cvemap module ~ @djnnvx
 - fix(scan): adding --no-dirbusting ~ @djnnvx
+- feat(meta): adding run-web-recon script ~ @djnnvx
 
 
 ## v0.0.3
