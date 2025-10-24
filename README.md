@@ -1,5 +1,7 @@
 # yellow
 
+mirror available here: https://github.com/djnnvx/yellow
+
 ```
 
         ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣤⣤⣤⣤⣤⣤⣄⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
@@ -44,10 +46,7 @@ Please use at your own risk, in a controlled environnement. Thanks<3
 
 For next version, i want to take care of at least two items described here:
 
-* `scan`: add toolbox scan script to automatically integrate it with
-          nmap and other CLI tools
 * `scan`: integrate browser-dependant tools (katana, ...) (still TBD),
-
 * `osint`: add support for more dorks
 * `osint`: shodan API integration
 

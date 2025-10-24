@@ -1,0 +1,41 @@
+package scan
+
+import (
+	"fmt"
+	"os"
+
+	helper "evil.djnn.sh/djnn/yellow/helpers"
+)
+
+/*
+   This is a sub-command, based on the scan command.
+
+   However, all it does is to run wappalyzer-go then cvemap on it
+   for quick wins.
+*/
+
+func (opts *ScanOpts) Fingerprint() {
+	fmt.Printf("\n[SCAN] domain: %s\n", opts.domain)
+
+	fullDomain := "https://" + opts.domain
+	if opts.forceInsecure {
+		fullDomain = "http://" + opts.domain
+	}
+
+	if !helper.HasUnavailableWebInterface(fullDomain) {
+		pathForDomain := opts.scanPath + "/" + opts.domain
+		opts.SetScanPath(pathForDomain)
+
+		err := os.MkdirAll(opts.scanPath, 0755)
+		if err != nil {
+			panic(err)
+		}
+
+		opts.SetDomain(fullDomain)
+
+		opts.RunWappalyzerGo()
+		opts.RunCvemap()
+	} else {
+		fmt.Printf("[FINGERPRINT %s] => no web panel online. skipping\n", opts.domain)
+	}
+}

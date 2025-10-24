@@ -19,9 +19,7 @@ type ScanOpts struct {
 }
 
 /*
-	save in shared memory to avoid having to read a write from files
-
-all the time
+save in shared memory to avoid having to read a write from files all the time
 */
 var (
 	wappalyzerResults []string
@@ -73,7 +71,7 @@ func (opts ScanOpts) runRobots() {
 	}
 }
 
-func (opts ScanOpts) runWappalyzerGo() {
+func (opts ScanOpts) RunWappalyzerGo() {
 	wappalyzerResults = make([]string, 0)
 
 	wp := WappalyzerGo{}
@@ -89,7 +87,7 @@ func (opts ScanOpts) runWappalyzerGo() {
 	}
 }
 
-func (opts ScanOpts) runCvemap() {
+func (opts ScanOpts) RunCvemap() {
 	cv := Cvemap{}
 	cvCfg := make(map[string]any)
 
@@ -165,7 +163,6 @@ func (opts *ScanOpts) Run() {
 
 	if !helper.HasUnavailableWebInterface(fullDomain) {
 
-		initialPath := opts.scanPath
 		fmt.Printf("[SCAN %s] web panel online....running web scans\n", opts.domain)
 
 		pathForDomain := opts.scanPath + "/" + opts.domain
@@ -179,15 +176,13 @@ func (opts *ScanOpts) Run() {
 
 		opts.runSitemap()
 		opts.runRobots()
-		opts.runWappalyzerGo()
-		opts.runCvemap()
+		opts.RunWappalyzerGo()
+		opts.RunCvemap()
 		opts.runHttpx()
 
 		if !opts.noGoBuster {
 			opts.runGobusterDir()
 		}
-
-		opts.SetScanPath(initialPath)
 	} else {
 		fmt.Printf("[SCAN %s] => no web panel online. skipping\n", opts.domain)
 	}

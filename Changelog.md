@@ -4,6 +4,7 @@
 - feat(scan): adding cvemap module ~ @djnnvx
 - fix(scan): adding --no-dirbusting ~ @djnnvx
 - feat(meta): adding run-web-recon script ~ @djnnvx
+- feat(cmd): adding fingerprint subcommand ~ @djnnvx
 
 
 ## v0.0.3
