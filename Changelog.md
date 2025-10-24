@@ -6,6 +6,7 @@
 - feat(meta): adding run-web-recon script ~ @djnnvx
 - feat(cmd): adding fingerprint subcommand ~ @djnnvx
 - feat(cmd): adding prune subcommand ~ @djnnvx
+- chore(meta): document new subcommands ~ @djnnvx
 
 
 ## v0.0.3

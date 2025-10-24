@@ -141,6 +141,15 @@ cat *.gnmap | grep -i "open/tcp" | cut -d " " -f2 | sort -u > djnn.sh/scans/web-
 ./yellow scan -d djnn.sh/scans/infra --file djnn.sh/scans/web-targets.txt
 ```
 
+#### Filter inactive web domains from a list of domains
+
+The `osint` subcommand is nice, but as it retrieves historical domains, it means there are
+some domains that are not reachable anymore. To filter them out, you can run:
+
+```bash
+./yellow prune -f djnn.sh/scans/domains.txt -o djnn.sh/scans/cleaned-web-targets.txt
+```
+
 #### Retrieving CVEs automatically
 
 We use [vulnx](https://github.com/projectdiscovery/cvemap/tree/main) under the hood to query CVEs based on
@@ -148,3 +157,12 @@ initial fingerprinting. To get this feature working, you will need to create an 
 on [ProjectDiscovery](https://cloud.projectdiscovery.io/) and retrieve an API key.
 
 Then you should set this key in your `.bashrc` or equivalent to `VULNX_API_KEY`.
+
+#### Running fingerprinting
+
+If you don't want to scan the whole website, but just run the fingerprint and retrieve the CVEs,
+you can also run this:
+
+```bash
+./yellow fingerprint -d djnn.sh/scans/infra --file djnn.sh/scans/web-targets.txt
+```
