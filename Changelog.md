@@ -5,6 +5,7 @@
 - fix(scan): adding --no-dirbusting ~ @djnnvx
 - feat(meta): adding run-web-recon script ~ @djnnvx
 - feat(cmd): adding fingerprint subcommand ~ @djnnvx
+- feat(cmd): adding prune subcommand ~ @djnnvx
 
 
 ## v0.0.3
