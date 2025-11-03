@@ -184,7 +184,7 @@ func (opts OsintOpts) Run() {
 		}
 	}
 
-	/* opts.runShodan(domains) */
+	opts.runShodan(domains)
 
 	// now add all assets together, line by line
 	uniqueOutfile := fmt.Sprintf("%s/domains.txt", opts.scanPath)

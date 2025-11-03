@@ -7,6 +7,7 @@
 - feat(cmd): adding fingerprint subcommand ~ @djnnvx
 - feat(cmd): adding prune subcommand ~ @djnnvx
 - chore(meta): document new subcommands ~ @djnnvx
+- feat(osint): adding experimental shodan module ~ @djnnvx
 
 
 ## v0.0.3

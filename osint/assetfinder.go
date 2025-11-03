@@ -7,8 +7,8 @@ import (
 	"time"
 
 	// old fork that dissociates main from runner
-	// (i deleted the repo but the code still exists, and the tool has not
-	// been update in 4 years so...)
+	// (repo was deleted but module still exists, and the tool has not
+	// been updated in 4 years so...)
 	assetfinder "github.com/spiral-sec/assetfinder/scanner"
 )
 

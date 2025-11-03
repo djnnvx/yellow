@@ -48,7 +48,6 @@ For next version, i want to take care of at least two items described here:
 
 * `scan`: integrate browser-dependant tools (katana, ...) (still TBD),
 * `osint`: add support for more dorks
-* `osint`: shodan API integration
 
 ### Bugfixes
 
