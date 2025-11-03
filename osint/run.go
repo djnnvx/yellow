@@ -57,6 +57,24 @@ func (opts OsintOpts) RunCleanup() {
 	}
 }
 
+func (opts OsintOpts) runShodan(domains []string) {
+
+	shodanExec := Shodan{}
+	shodanCfg := make(map[string]any)
+
+	shodanCfg["outfile"] = fmt.Sprintf("%s/shodan.txt", opts.scanPath)
+	shodanExec.Configure(shodanCfg)
+
+	shodanExec.Info(opts.domain)
+	if opts.dryRun || !shodanExec.ShouldRun() {
+		return
+	}
+
+	for _, d := range domains {
+		shodanExec.Run(d)
+	}
+}
+
 func (opts OsintOpts) runGoogleDorks() {
 
 	dorks := Dorks{}
@@ -165,6 +183,8 @@ func (opts OsintOpts) Run() {
 			}
 		}
 	}
+
+	/* opts.runShodan(domains) */
 
 	// now add all assets together, line by line
 	uniqueOutfile := fmt.Sprintf("%s/domains.txt", opts.scanPath)

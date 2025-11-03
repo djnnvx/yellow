@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"encoding/json"
 	"strings"
 	"unicode"
 )
@@ -37,4 +38,50 @@ func StringHasUnwantedCharactersForDomainName(url string) bool {
 	}
 
 	return false
+}
+
+func ExtractString(m map[string]any, k string) string {
+	if v, ok := m[k]; ok {
+		if s, ok := v.(string); ok {
+			return s
+		}
+	}
+	return ""
+}
+
+func ExtractInt(m map[string]any, k string) int {
+	if v, ok := m[k]; ok {
+		switch t := v.(type) {
+		case json.Number:
+			if i, err := t.Int64(); err == nil {
+				return int(i)
+			}
+			if f, err := t.Float64(); err == nil {
+				return int(f)
+			}
+		case float64:
+			return int(t)
+		case int:
+			return t
+		case int64:
+			return int(t)
+		}
+	}
+	return 0
+}
+
+func ExtractNumberAsFloat(m map[string]any, k string) (float64, bool) {
+	if v, ok := m[k]; ok {
+		switch t := v.(type) {
+		case json.Number:
+			f, err := t.Float64()
+			if err != nil {
+				return 0, false
+			}
+			return f, true
+		case float64:
+			return t, true
+		}
+	}
+	return 0, false
 }
