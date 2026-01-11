@@ -166,22 +166,24 @@ func (opts *ScanOpts) Run() {
 		fmt.Printf("[SCAN %s] web panel online....running web scans\n", opts.domain)
 
 		pathForDomain := opts.scanPath + "/" + opts.domain
-		opts.SetScanPath(pathForDomain)
-		err := os.MkdirAll(opts.scanPath, 0755)
+		err := os.MkdirAll(pathForDomain, 0755)
 		if err != nil {
 			panic(err)
 		}
 
-		opts.SetDomain(fullDomain)
+		/* modifying opts.scanPath directly would cause nested directories */
+		runOpts := *opts
+		runOpts.scanPath = pathForDomain
+		runOpts.domain = fullDomain
 
-		opts.runSitemap()
-		opts.runRobots()
-		opts.RunWappalyzerGo()
-		opts.RunCvemap()
-		opts.runHttpx()
+		runOpts.runSitemap()
+		runOpts.runRobots()
+		runOpts.RunWappalyzerGo()
+		runOpts.RunCvemap()
+		runOpts.runHttpx()
 
-		if !opts.noGoBuster {
-			opts.runGobusterDir()
+		if !runOpts.noGoBuster {
+			runOpts.runGobusterDir()
 		}
 	} else {
 		fmt.Printf("[SCAN %s] => no web panel online. skipping\n", opts.domain)
