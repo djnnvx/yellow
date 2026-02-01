@@ -27,6 +27,9 @@ type StandardOptions struct {
 
 	// Disable Gobuster run (we dont need it sometimes yk)
 	NoGobuster bool
+
+	// File containing list of emails for credential leak checking
+	EmailsFilePath string
 }
 
 func GetDefaultOptions() StandardOptions {
@@ -39,6 +42,7 @@ func GetDefaultOptions() StandardOptions {
 		WordlistPath:    "/usr/share/wordlists/seclists/Discovery/Web-Content/common.txt",
 		TargetFilePath:  "",
 		NoGobuster:      false,
+		EmailsFilePath:  "",
 	}
 
 	return opts

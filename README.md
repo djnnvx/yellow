@@ -152,6 +152,30 @@ on ProjectDiscovery (https://cloud.projectdiscovery.io/) and retrieve an API key
 
 Then you should set this key in your .bashrc (or equivalent) to VULNX_API_KEY.
 
+#### Credential Leak Checking (Leaker)
+
+The `osint` subcommand can check for credential leaks using the integrated
+[leaker](https://github.com/vflame6/leaker) library.
+
+Some leaker sources (like LeakCheck) require API keys. Create a provider config file:
+
+```yaml
+# ~/.config/leaker/provider-config.yml
+leakcheck: [your-api-key-here]
+```
+
+Set the config path via environment variable:
+
+```bash
+export LEAKER_PROVIDER_CONFIG=~/.config/leaker/provider-config.yml
+```
+
+Usage:
+
+```bash
+./yellow osint -d target.com --emails /path/to/emails.txt
+```
+
 #### Running fingerprinting
 
 If you don't want to scan the whole website, but just run the fingerprint and retrieve the CVEs,

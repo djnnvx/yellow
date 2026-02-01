@@ -1,6 +1,6 @@
 module evil.djnn.sh/djnn/yellow
 
-go 1.25
+go 1.25.5
 
 require (
 	github.com/OJ/gobuster/v3 v3.8.2
@@ -14,6 +14,7 @@ require (
 	github.com/shadowscatcher/shodan v1.0.8
 	github.com/spf13/cobra v1.10.2
 	github.com/spiral-sec/assetfinder v0.2.0
+	github.com/vflame6/leaker v1.0.5
 )
 
 require (
