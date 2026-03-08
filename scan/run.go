@@ -16,6 +16,8 @@ type ScanOpts struct {
 	wordlistPath  string
 	forceInsecure bool
 	noGoBuster    bool
+	portScan      bool
+	ports         string
 }
 
 /*
@@ -55,6 +57,14 @@ func (opts *ScanOpts) SetProxy(data string) {
 
 func (opts *ScanOpts) SetDryRun(data bool) {
 	opts.dryRun = data
+}
+
+func (opts *ScanOpts) SetPortScan(data bool) {
+	opts.portScan = data
+}
+
+func (opts *ScanOpts) SetPorts(data string) {
+	opts.ports = data
 }
 
 func (opts ScanOpts) runRobots() {
@@ -159,6 +169,10 @@ func (opts *ScanOpts) Run() {
 	fullDomain := "https://" + opts.domain
 	if opts.forceInsecure {
 		fullDomain = "http://" + opts.domain
+	}
+
+	if opts.portScan {
+		opts.runPortScan()
 	}
 
 	if !helper.HasUnavailableWebInterface(fullDomain) {

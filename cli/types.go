@@ -27,6 +27,12 @@ type StandardOptions struct {
 
 	// Disable Gobuster run (we dont need it sometimes yk)
 	NoGobuster bool
+
+	// Run TCP port scan + service fingerprinting
+	PortScan bool
+
+	// Ports to scan (comma-separated or ranges, e.g. "22,80,443,8000-9000")
+	Ports string
 }
 
 func GetDefaultOptions() StandardOptions {
@@ -39,6 +45,8 @@ func GetDefaultOptions() StandardOptions {
 		WordlistPath:    "/usr/share/wordlists/seclists/Discovery/Web-Content/common.txt",
 		TargetFilePath:  "",
 		NoGobuster:      false,
+		PortScan:        false,
+		Ports:           "21,22,23,25,53,80,110,135,139,143,443,445,993,995,1723,3306,3389,5900,8080,8443,8888",
 	}
 
 	return opts

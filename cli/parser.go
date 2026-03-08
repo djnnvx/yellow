@@ -114,6 +114,8 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 			scanOpts.SetWordlistPath(opts.WordlistPath)
 			scanOpts.SetForceInsecure(opts.UseHttpInsecure)
 			scanOpts.SetNoGobuster(opts.NoGobuster)
+			scanOpts.SetPortScan(opts.PortScan)
+			scanOpts.SetPorts(opts.Ports)
 
 			if opts.TargetFilePath == "" {
 				scanOpts.Run()
@@ -225,6 +227,8 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 	scanCmd.Flags().Int32VarP(&opts.RateLimit, "rate-limit", "r", defaults.RateLimit, "Requests rate-limit (used for the tools supporting it. Other will prompt a warning msg)")
 	scanCmd.Flags().StringVarP(&opts.WordlistPath, "wordlist", "w", defaults.WordlistPath, "Wordlist to use")
 	scanCmd.Flags().StringVarP(&opts.TargetFilePath, "file", "f", defaults.TargetFilePath, "File containing list of targets (should be a list of IP Addresses or domains)")
+	scanCmd.Flags().BoolVarP(&opts.PortScan, "port-scan", "", defaults.PortScan, "Run TCP port scan and service fingerprinting")
+	scanCmd.Flags().StringVarP(&opts.Ports, "ports", "", defaults.Ports, "Ports to scan, comma-separated or ranges (e.g. 22,80,443,8000-9000)")
 
 	rootCmd.AddCommand(pruneCmd)
 	pruneCmd.Flags().StringVarP(&opts.OutName, "dir-name", "d", defaults.OutName, "Outfile directory name (if no target-file is specified, will also be target domain)")
