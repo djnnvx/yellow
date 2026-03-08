@@ -159,6 +159,7 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 			osintOpts.SetProxy(opts.Proxy)
 			osintOpts.SetDryRun(opts.RunDry)
 			osintOpts.SetRateLimit(opts.RateLimit)
+			osintOpts.SetEmailsFile(opts.EmailsFilePath)
 
 			// if used create subcommand, put the results in scans
 			if helper.Exists(opts.OutName + "/scans/") {
@@ -217,6 +218,7 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 	osintCmd.Flags().BoolVarP(&opts.RunDry, "dry", "", defaults.RunDry, "Run a dry-run (test mode)")
 	osintCmd.Flags().Int32VarP(&opts.RateLimit, "rate-limit", "r", defaults.RateLimit, "Requests rate-limit (used for the tools supporting it. Other will prompt a warning msg)")
 	osintCmd.Flags().StringVarP(&opts.TargetFilePath, "file", "f", defaults.TargetFilePath, "File containing list of targets (should be a list of IP Addresses or domains)")
+	osintCmd.Flags().StringVarP(&opts.EmailsFilePath, "emails", "e", defaults.EmailsFilePath, "File containing list of emails for credential leak checking")
 
 	rootCmd.AddCommand(scanCmd)
 	scanCmd.Flags().StringVarP(&opts.OutName, "dir-name", "d", defaults.OutName, "Outfile directory name (if no target-file is specified, will also be target domain)")

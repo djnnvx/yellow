@@ -135,6 +135,16 @@ cat *.gnmap | grep -i "open/tcp" | cut -d " " -f2 | sort -u > djnn.sh/scans/web-
 ./yellow scan -d djnn.sh/scans/infra --file djnn.sh/scans/web-targets.txt
 ```
 
+#### Running port scans:
+
+You can run a TCP port scan with service fingerprinting as part of the scan command:
+
+```bash
+./yellow scan -d djnn.sh --port-scan
+# or with custom ports
+./yellow scan -d djnn.sh --port-scan --ports "22,80,443,8080-8090"
+```
+
 #### Filter inactive web domains from a list of domains:
 
 The `osint` subcommand is nice, but as it retrieves historical domains, it means there are
@@ -151,6 +161,30 @@ initial fingerprinting. To get this feature working, you will need to create an 
 on ProjectDiscovery (https://cloud.projectdiscovery.io/) and retrieve an API key.
 
 Then you should set this key in your .bashrc (or equivalent) to VULNX_API_KEY.
+
+#### Credential Leak Checking (Leaker)
+
+The `osint` subcommand can check for credential leaks using the integrated
+[leaker](https://github.com/vflame6/leaker) library.
+
+Some leaker sources (like LeakCheck) require API keys. Create a provider config file:
+
+```yaml
+# ~/.config/leaker/provider-config.yml
+leakcheck: [your-api-key-here]
+```
+
+Set the config path via environment variable:
+
+```bash
+export LEAKER_PROVIDER_CONFIG=~/.config/leaker/provider-config.yml
+```
+
+Usage:
+
+```bash
+./yellow osint -d target.com --emails /path/to/emails.txt
+```
 
 #### Running fingerprinting
 

@@ -33,6 +33,9 @@ type StandardOptions struct {
 
 	// Ports to scan (comma-separated or ranges, e.g. "22,80,443,8000-9000")
 	Ports string
+
+	// File containing list of emails for credential leak checking
+	EmailsFilePath string
 }
 
 func GetDefaultOptions() StandardOptions {
@@ -47,6 +50,7 @@ func GetDefaultOptions() StandardOptions {
 		NoGobuster:      false,
 		PortScan:        false,
 		Ports:           "21,22,23,25,53,80,110,135,139,143,443,445,993,995,1723,3306,3389,5900,8080,8443,8888",
+		EmailsFilePath:  "",
 	}
 
 	return opts

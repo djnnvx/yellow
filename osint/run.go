@@ -12,11 +12,12 @@ import (
 )
 
 type OsintOpts struct {
-	domain    string
-	scanPath  string
-	proxy     string
-	dryRun    bool
-	rateLimit int32
+	domain     string
+	scanPath   string
+	proxy      string
+	dryRun     bool
+	rateLimit  int32
+	emailsFile string
 }
 
 func (opts *OsintOpts) SetRateLimit(data int32) {
@@ -37,6 +38,10 @@ func (opts *OsintOpts) SetProxy(data string) {
 
 func (opts *OsintOpts) SetDryRun(data bool) {
 	opts.dryRun = data
+}
+
+func (opts *OsintOpts) SetEmailsFile(data string) {
+	opts.emailsFile = data
 }
 
 func (opts OsintOpts) RunCleanup() {
@@ -140,6 +145,25 @@ func (opts OsintOpts) runDnsx() {
 	}
 }
 
+func (opts OsintOpts) runLeaker() {
+	leaker := Leaker{}
+	leakerCfg := make(map[string]any)
+
+	leakerOutfile := fmt.Sprintf("%s/leaks.txt", opts.scanPath)
+	leakerCfg["outfile"] = leakerOutfile
+	leakerCfg["emailsFile"] = opts.emailsFile
+	leakerCfg["proxy"] = opts.proxy
+
+	leaker.Configure(leakerCfg)
+	leaker.Info(opts.domain)
+
+	if opts.dryRun || !leaker.ShouldRun() {
+		return
+	}
+
+	leaker.Run(opts.domain)
+}
+
 func (opts OsintOpts) Run() {
 	fmt.Printf("\n[OSINT] domain: %s\n\n", opts.domain)
 
@@ -147,6 +171,7 @@ func (opts OsintOpts) Run() {
 	opts.runSubfinder()
 	opts.runAssetfinder()
 	opts.runDnsx()
+	opts.runLeaker()
 
 	asfFilepath := fmt.Sprintf("%s/assetfinder.txt", opts.scanPath)
 	dnsxFilepath := fmt.Sprintf("%s/dnsx.json", opts.scanPath)
