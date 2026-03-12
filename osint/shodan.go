@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -52,6 +53,15 @@ func (s *Shodan) Run(ip string) {
 	if ip == "" {
 		fmt.Println("err: empty ip provided")
 		return
+	}
+
+	if net.ParseIP(ip) == nil {
+		addrs, err := net.LookupHost(ip)
+		if err != nil || len(addrs) == 0 {
+			fmt.Printf("err: could not resolve %s to an IP: %v\n", ip, err)
+			return
+		}
+		ip = addrs[0]
 	}
 
 	if s.apiKey == "" {
@@ -131,7 +141,7 @@ func (s *Shodan) Run(ip string) {
 	fmt.Printf("[OSINT %s] Shodan summary appended to %s (json: %s)\n", ip, s.outfile, jsonPath)
 
 	// small sleep to be polite in case caller loops over many IPs
-	time.Sleep(200 * time.Millisecond)
+	time.Sleep(1 * time.Second)
 }
 
 func buildShodanSummaryFromJSON(r io.Reader, ip string) (string, error) {

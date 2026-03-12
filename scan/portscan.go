@@ -50,6 +50,15 @@ func (opts ScanOpts) runPortScan() {
 }
 
 func (p *PortScanner) Run(host string) {
+	if net.ParseIP(host) == nil {
+		addrs, err := net.LookupHost(host)
+		if err != nil || len(addrs) == 0 {
+			fmt.Printf("err: could not resolve %s to an IP: %v\n", host, err)
+			return
+		}
+		host = addrs[0]
+	}
+
 	ports, err := parsePorts(p.ports)
 	if err != nil {
 		fmt.Printf("[!] invalid ports spec: %v\n", err)
