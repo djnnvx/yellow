@@ -1,6 +1,7 @@
 package osint
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -80,7 +81,7 @@ func (l *Leaker) Run(target string) {
 		return
 	}
 
-	err = r.EnumerateMultipleEmails(emailsReader, []io.Writer{outFile})
+	err = r.EnumerateMultipleTargets(context.Background(), emailsReader, []io.Writer{outFile})
 	if err != nil {
 		fmt.Printf("[!] Leaker: enumeration failed: %v\n", err)
 		return

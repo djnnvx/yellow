@@ -1,5 +1,12 @@
 ## v0.0.5
 
+- feat(osint): adding support for leaker ~ @djnnvx
+- feat(scan): adding port-scanning ~ @djnnvx
+- fix(scan): nested directories while running scan ~ @djnnvx
+- fix(git): conflicts ~ @djnnvx
+- chore(deps): bump dependencies ~ @djnnvx
+- chore(deps): bump dependencies ~ @djnnvx
+
 
 ## v0.0.4
 
