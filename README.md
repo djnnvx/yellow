@@ -156,11 +156,17 @@ some domains that are not reachable anymore. To filter them out, you can run:
 
 #### Retrieving CVEs automatically:
 
-We use vulnx( https://github.com/projectdiscovery/cvemap) under the hood to query CVEs based on
-initial fingerprinting. To get this feature working, you will need to create an account
-on ProjectDiscovery (https://cloud.projectdiscovery.io/) and retrieve an API key.
+CVE lookups use the [NVD API v2](https://nvd.nist.gov/developers/vulnerabilities) (NIST National
+Vulnerability Database) — no account required. Results are queried by detected technology name and
+saved to `cves.json` in your scan path.
 
-Then you should set this key in your .bashrc (or equivalent) to VULNX_API_KEY.
+Without an API key, NVD allows 5 requests per 30 seconds (yellow sleeps 7s between queries to stay
+safe). For faster scans, grab a free key at https://nvd.nist.gov/developers/request-an-api-key
+and set it:
+
+```bash
+export NVD_API_KEY=your-key-here
+```
 
 #### Credential Leak Checking (Leaker)
 

@@ -6,7 +6,6 @@ require (
 	github.com/OJ/gobuster/v3 v3.8.2
 	github.com/bogdzn/gork v0.0.5
 	github.com/praetorian-inc/nerva v1.0.0
-	github.com/projectdiscovery/cvemap v1.0.0
 	github.com/projectdiscovery/dnsx v1.2.3
 	github.com/projectdiscovery/goflags v0.1.74
 	github.com/projectdiscovery/httpx v1.9.0
@@ -38,6 +37,7 @@ require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/bits-and-blooms/bitset v1.24.4 // indirect
+	github.com/bits-and-blooms/bloom/v3 v3.6.0 // indirect
 	github.com/bodgit/plumbing v1.3.0 // indirect
 	github.com/bodgit/sevenzip v1.6.1 // indirect
 	github.com/bodgit/windows v1.0.1 // indirect
@@ -64,7 +64,6 @@ require (
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/dsnet/compress v0.0.2-0.20230904184137-39efe44ab707 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
-	github.com/eiannone/keyboard v0.0.0-20220611211555-0d226195f203 // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/gaissmai/bart v0.26.0 // indirect
 	github.com/go-faker/faker/v4 v4.7.0 // indirect
@@ -94,7 +93,6 @@ require (
 	github.com/iangcarroll/cookiemonster v1.6.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/ishidawataru/sctp v0.0.0-20251114114122-19ddcbc6aae2 // indirect
-	github.com/jedib0t/go-pretty/v6 v6.7.8 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kataras/jwt v0.1.17 // indirect
 	github.com/kennygrant/sanitize v1.2.4 // indirect

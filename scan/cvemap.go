@@ -3,12 +3,22 @@ package scan
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
 	"os"
 	"strings"
-
-	"github.com/projectdiscovery/cvemap/pkg/runner"
-	"github.com/projectdiscovery/cvemap/pkg/types"
+	"time"
 )
+
+// NVD rate limits: 5 req/30s without key, 50 req/30s with key.
+// We sleep conservatively between queries to avoid 403s.
+const (
+	nvdDelayNoKey   = 7 * time.Second
+	nvdDelayWithKey = 1 * time.Second
+)
+
+const nvdBaseURL = "https://services.nvd.nist.gov/rest/json/cves/2.0"
 
 type Cvemap struct {
 	HTTPProxy string
@@ -17,6 +27,57 @@ type Cvemap struct {
 	Offset    int
 	Verbose   bool
 	Debug     bool
+}
+
+type nvdResponse struct {
+	TotalResults    int       `json:"totalResults"`
+	Vulnerabilities []nvdVuln `json:"vulnerabilities"`
+}
+
+type nvdVuln struct {
+	CVE nvdCVE `json:"cve"`
+}
+
+type nvdCVE struct {
+	ID           string     `json:"id"`
+	Published    string     `json:"published"`
+	LastModified string     `json:"lastModified"`
+	Descriptions []nvdDesc  `json:"descriptions"`
+	Metrics      nvdMetrics `json:"metrics"`
+	Weaknesses   []nvdWeak  `json:"weaknesses"`
+	References   []nvdRef   `json:"references"`
+}
+
+type nvdDesc struct {
+	Lang  string `json:"lang"`
+	Value string `json:"value"`
+}
+
+type nvdMetrics struct {
+	CVSSv31 []nvdCVSS `json:"cvssMetricV31,omitempty"`
+	CVSSv30 []nvdCVSS `json:"cvssMetricV30,omitempty"`
+	CVSSv2  []nvdCVSS `json:"cvssMetricV2,omitempty"`
+}
+
+type nvdCVSS struct {
+	Source   string      `json:"source"`
+	Type     string      `json:"type"`
+	CVSSData nvdCVSSData `json:"cvssData"`
+}
+
+type nvdCVSSData struct {
+	Version      string  `json:"version"`
+	BaseScore    float64 `json:"baseScore"`
+	BaseSeverity string  `json:"baseSeverity"`
+}
+
+type nvdWeak struct {
+	Description []nvdDesc `json:"description"`
+}
+
+type nvdRef struct {
+	URL    string `json:"url"`
+	Source string `json:"source"`
 }
 
 func (c *Cvemap) Info(target string) {
@@ -50,64 +111,114 @@ func (c *Cvemap) Configure(cfg any) {
 }
 
 func (c *Cvemap) Run(techs []string) {
-	runner.PDCPApiKey = os.Getenv("VULNX_API_KEY")
-	if runner.PDCPApiKey == "" {
-		println("[!] Automatic CVE research requires VULNX_API_KEY to be set in env...skipping")
-		return
-	}
-
-	options := runner.Options{
-		HTTPProxy: c.HTTPProxy,
-		Limit:     c.Limit,
-		Offset:    c.Offset,
-		Verbose:   c.Verbose,
-		Debug:     c.Debug,
-	}
-
-	rn, err := runner.New(&options)
-	if err != nil {
-		panic(err)
-	}
-
 	if len(techs) == 0 {
 		fmt.Println("[+] no technologies provided")
 		return
 	}
 
+	client := &http.Client{}
+	if c.HTTPProxy != "" {
+		proxyURL, err := url.Parse(c.HTTPProxy)
+		if err != nil {
+			fmt.Printf("[ERROR] invalid proxy URL: %v\n", err)
+			return
+		}
+		client.Transport = &http.Transport{Proxy: http.ProxyURL(proxyURL)}
+	}
+
+	apiKey := os.Getenv("NVD_API_KEY")
+	delay := nvdDelayNoKey
+	if apiKey != "" {
+		delay = nvdDelayWithKey
+	}
+
+	limit := c.Limit
+	if limit <= 0 {
+		limit = 50
+	}
+
+	var allCVEs []nvdCVE
+
+	queried := 0
 	for _, tech := range techs {
 		tech = strings.TrimSpace(tech)
 		if tech == "" {
 			continue
 		}
 
-		c.Info(tech)
+		// wappalyzer formats versioned results as "TechName:version" — skip unversioned ones
+		// since NVD results without a version are too noisy to be actionable
+		colonIdx := strings.Index(tech, ":")
+		if colonIdx == -1 {
+			fmt.Printf("[+] skipping %s (no version detected)\n", tech)
+			continue
+		}
+		name := tech[:colonIdx]
+		version := tech[colonIdx+1:]
+		query := name + " " + version
 
-		rn.Options.Search = tech
+		if queried > 0 {
+			time.Sleep(delay)
+		}
+		queried++
 
-		cvesResp, err := rn.GetCves()
+		c.Info(query)
+
+		cves, total, err := c.queryCVEs(client, apiKey, query, limit, c.Offset)
 		if err != nil {
 			fmt.Printf("[ERROR] query for '%s' failed: %v\n", tech, err)
 			continue
 		}
-		if cvesResp == nil {
-			fmt.Printf("[SCAN %s] no results\n\n", tech)
-			continue
-		}
 
-		total := 0
-		if cvesResp.TotalResults > 0 {
-			total = cvesResp.TotalResults
-		} else if cvesResp.Cves != nil {
-			total = len(cvesResp.Cves)
-		}
-
-		c.saveResults(cvesResp.Cves)
-		fmt.Printf("[SCAN %s] total results: %d (returned: %d)\n\n", tech, total, len(cvesResp.Cves))
+		fmt.Printf("[SCAN %s] total results: %d (returned: %d)\n\n", query, total, len(cves))
+		allCVEs = append(allCVEs, cves...)
 	}
+
+	c.saveResults(allCVEs)
 }
 
-func (c *Cvemap) saveResults(names []types.CVEData) {
-	data, err := json.MarshalIndent(names, "", "\t")
+func (c *Cvemap) queryCVEs(client *http.Client, apiKey, keyword string, limit, offset int) ([]nvdCVE, int, error) {
+	params := url.Values{}
+	params.Set("keywordSearch", keyword)
+	params.Set("resultsPerPage", fmt.Sprintf("%d", limit))
+	params.Set("startIndex", fmt.Sprintf("%d", offset))
+
+	reqURL := fmt.Sprintf("%s?%s", nvdBaseURL, params.Encode())
+
+	req, err := http.NewRequest("GET", reqURL, nil)
+	if err != nil {
+		return nil, 0, err
+	}
+	if apiKey != "" {
+		req.Header.Set("apiKey", apiKey)
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, 0, fmt.Errorf("HTTP %d: %s", resp.StatusCode, string(body))
+	}
+
+	var nvdResp nvdResponse
+	if err := json.NewDecoder(resp.Body).Decode(&nvdResp); err != nil {
+		return nil, 0, err
+	}
+
+	cves := make([]nvdCVE, len(nvdResp.Vulnerabilities))
+	for i, v := range nvdResp.Vulnerabilities {
+		cves[i] = v.CVE
+	}
+
+	return cves, nvdResp.TotalResults, nil
+}
+
+func (c *Cvemap) saveResults(cves []nvdCVE) {
+	data, err := json.MarshalIndent(cves, "", "\t")
 	if err != nil {
 		return
 	}
