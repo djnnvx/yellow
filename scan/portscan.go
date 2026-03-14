@@ -1,6 +1,7 @@
 package scan
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net"
@@ -138,7 +139,7 @@ func (p *PortScanner) fingerprint(host string, openPorts []int) []PortResult {
 	cfg := nervascan.Config{
 		DefaultTimeout: p.timeout,
 	}
-	nervaResults, err := nervascan.ScanTargets(targets, cfg)
+	nervaResults, err := nervascan.ScanTargets(context.Background(), targets, cfg)
 	if err != nil {
 		return fallbackResults(openPorts)
 	}
