@@ -1,3 +1,7 @@
+## v0.0.6
+
+- chore(meta): bump nerva library to 1.1.0
+
 ## v0.0.5
 
 - fix(scan): replace dead cvemap/vulnx API with NVD API v2 ~ @djnnvx
