@@ -1,5 +1,6 @@
 ## v0.0.6
 
+- chore(meta): bump nerva libarry to 1.2.0 + using the new --misconfig flag
 - chore(meta): bump nerva library to 1.1.0
 
 ## v0.0.5

@@ -22,11 +22,19 @@ type PortScanResult struct {
 	OpenPorts []PortResult `json:"open_ports"`
 }
 
+type SecurityFinding struct {
+	ID          string `json:"id"`
+	Severity    string `json:"severity"`
+	Description string `json:"description"`
+	Evidence    string `json:"evidence,omitempty"`
+}
+
 type PortResult struct {
-	Port    int    `json:"port"`
-	Proto   string `json:"proto"`
-	Service string `json:"service,omitempty"`
-	Version string `json:"version,omitempty"`
+	Port     int               `json:"port"`
+	Proto    string            `json:"proto"`
+	Service  string            `json:"service,omitempty"`
+	Version  string            `json:"version,omitempty"`
+	Findings []SecurityFinding `json:"findings,omitempty"`
 }
 
 type PortScanner struct {
@@ -138,6 +146,7 @@ func (p *PortScanner) fingerprint(host string, openPorts []int) []PortResult {
 
 	cfg := nervascan.Config{
 		DefaultTimeout: p.timeout,
+		Misconfigs:     true,
 	}
 	nervaResults, err := nervascan.ScanTargets(context.Background(), targets, cfg)
 	if err != nil {
@@ -146,11 +155,21 @@ func (p *PortScanner) fingerprint(host string, openPorts []int) []PortResult {
 
 	results := make([]PortResult, 0, len(nervaResults))
 	for _, r := range nervaResults {
+		var findings []SecurityFinding
+		for _, f := range r.SecurityFindings {
+			findings = append(findings, SecurityFinding{
+				ID:          f.ID,
+				Severity:    string(f.Severity),
+				Description: f.Description,
+				Evidence:    f.Evidence,
+			})
+		}
 		results = append(results, PortResult{
-			Port:    r.Port,
-			Proto:   "tcp",
-			Service: r.Protocol,
-			Version: r.Version,
+			Port:     r.Port,
+			Proto:    "tcp",
+			Service:  r.Protocol,
+			Version:  r.Version,
+			Findings: findings,
 		})
 	}
 	return results

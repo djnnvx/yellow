@@ -330,10 +330,8 @@ github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 h1:Jamvg5psRI
 github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55 h1:o4JXh1EVt9k/+g42oCprj/FisM4qX9L3sZB3upGN2ZU=
 github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55/go.mod h1:OmDBASR4679mdNQnz2pUhc2G8CO2JrUAVFDRBDP/hJE=
-github.com/praetorian-inc/nerva v1.0.0 h1:gytXoWUrfus4Ugplbyl76udr8e1q3R177dXnEMw1wNs=
-github.com/praetorian-inc/nerva v1.0.0/go.mod h1:IpgjigPcT/bWgb0ljDS1b93CKUHikbwOBs3425ABGRw=
-github.com/praetorian-inc/nerva v1.1.0 h1:CMO9qDa5pIT+p76hXaJOIyFc37KzcDiE5rbxpYZvjEw=
-github.com/praetorian-inc/nerva v1.1.0/go.mod h1:J+oNlnA8R/cc1ezckAnTECSptJ27saAZn2nTXfgwAuM=
+github.com/praetorian-inc/nerva v1.2.0 h1:IOp7DTRA0cIAewLs1xnk5h9fqhBD6ozd+duoSeKDHx0=
+github.com/praetorian-inc/nerva v1.2.0/go.mod h1:FHEc0IZVvyCu8NjjErOsd7rY2e4Yo76apBeFdWpYSBE=
 github.com/projectdiscovery/asnmap v1.1.1 h1:ImJiKIaACOT7HPx4Pabb5dksolzaFYsD1kID2iwsDqI=
 github.com/projectdiscovery/asnmap v1.1.1/go.mod h1:QT7jt9nQanj+Ucjr9BqGr1Q2veCCKSAVyUzLXfEcQ60=
 github.com/projectdiscovery/awesome-search-queries v0.0.0-20260104120501-961ef30f7193 h1:UCZRqs1BP1wsvhCwQxfIQc7NJcXGBhQvAnEw3awhsng=

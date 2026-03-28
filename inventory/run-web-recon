@@ -1,213 +1,275 @@
-#!/bin/env python
+#!/bin/env python3
 
 """
-    This script runs a various set of commands in a "smart" way to run recon.
-    It has a big set of dependencies, but should work against a standard kali
-    install.
+HTB recon script — uses yellow to set up the environment and run an initial
+port scan + web enum, then dispatches service-specific Kali tools based on
+what's actually open.
 """
 
 import argparse
-import os
-import subprocess
-import shutil
+import json
 import shlex
-from typing import Optional, Dict, Any
+import shutil
+import subprocess
+import sys
+from pathlib import Path
 
-class ShellCommandRunner:
+
+# ---------------------------------------------------------------------------
+# Execution helpers
+# ---------------------------------------------------------------------------
+
+def die(msg):
+    print(f"[!] {msg}", file=sys.stderr)
+    sys.exit(1)
+
+
+def run(command, check=True):
+    """Stream a command's output live and return it. Dies on failure if check=True."""
+    print(f"\n[>] {command}")
+    proc = subprocess.Popen(
+        shlex.split(command),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    buf = []
+    for line in proc.stdout:
+        print(line, end="", flush=True)
+        buf.append(line)
+    proc.wait()
+    print()
+    if check and proc.returncode != 0:
+        die(f"command failed (exit {proc.returncode}): {command}")
+    return "".join(buf)
+
+
+def try_run(command):
+    """Like run() but never dies — errors are printed and execution continues."""
+    return run(command, check=False)
+
+
+# ---------------------------------------------------------------------------
+# Port scan result parsing
+# ---------------------------------------------------------------------------
+
+def parse_portscan(target):
     """
-    A class for safely running shell commands and checking for program existence.
-
-    It uses the modern subprocess.run() API for execution and provides structured
-    results for easy parsing and decision-making in Python.
+    Yellow writes portscan.json to {target}/{target}/portscan.json because
+    ScanOpts.scanPath and ScanOpts.domain are both set to the -d value,
+    and runPortScan uses scanPath + "/" + domain as the output directory.
     """
-
-    def __init__(self):
-        """
-        Initializes the ShellCommandRunner.
-        """
-
-    def _get_program_name(self, command: str) -> str:
-        """
-        Internal helper to reliably extract the program name from a command string.
-        Uses shlex.split to handle quoted arguments correctly.
-        """
-        try:
-            parts = shlex.split(command)
-            return parts[0]
-        except ValueError:
-            return command.split()[0] if command.strip() else ""
-        except IndexError:
-            return ""
-
-    def is_callable(self, command: str) -> bool:
-        """
-        Checks if the main program specified in the command string is executable
-        and can be found in the system's PATH environment variable.
-
-        Args:
-            command: The full command string (e.g., 'ls -la /tmp').
-
-        Returns:
-            True if the program is found and executable, False otherwise.
-        """
-        program_name = self._get_program_name(command)
-        if not program_name:
-            return False
-
-        return shutil.which(program_name) is not None
-
-    def execute_command(self, command: str, timeout: int = 15) -> Dict[str, Any]:
-        """
-        Safely executes a shell command and captures its output and status.
-
-        Execution is performed without using shell=True for security.
-
-        Args:
-            command: The full command string (e.g., 'grep "error" logfile.txt').
-            timeout: Maximum time (in seconds) to wait for the command to finish.
-
-        Returns:
-            A dictionary containing:
-            - 'success': bool (True if execution succeeded and exit code was 0)
-            - 'exit_code': int (The return code of the command)
-            - 'stdout': str (Standard output)
-            - 'stderr': str (Standard error)
-            - 'error': Optional[str] (Python exception description if one occurred)
-        """
-        # Default failure result
-        result = {
-            'success': False,
-            'exit_code': -1,
-            'stdout': '',
-            'stderr': '',
-            'error': None
-        }
-
-        program_name = self._get_program_name(command)
-
-        if not self.is_callable(command):
-            result['error'] = f"Program '{program_name}' not found or is not callable on the system PATH."
-            return result
-
-        try:
-            args = shlex.split(command)
-
-            proc = subprocess.run(
-                args,
-                capture_output=True,
-                text=True,
-                check=False,
-                timeout=timeout
-            )
-
-            result['exit_code'] = proc.returncode
-            result['stdout'] = proc.stdout.strip()
-            result['stderr'] = proc.stderr.strip()
-            result['success'] = proc.returncode == 0
-
-        except subprocess.TimeoutExpired:
-            result['error'] = f"Command timed out after {timeout} seconds."
-        except OSError as e:
-            result['error'] = f"OS Error during execution: {e}"
-        except Exception as e:
-            result['error'] = f"An unexpected error occurred: {e}"
-
-        return result
-
-def shexec(command):
-
-    runner = ShellCommandRunner()
-    res = runner.execute_command(command)
-
-    if not res['success']:
-        print(res['stderr'])
-        os.exit(1)
-
-    print(f'>>> {command} <<<')
-    print(res['stdout'] + '\n--------------------------------------------------------------------------------------------\n\n')
-    return res['stdout']
+    candidates = [
+        Path(target) / target / "portscan.json",
+        Path(target) / "portscan.json",
+    ]
+    for path in candidates:
+        if path.exists():
+            with open(path) as f:
+                data = json.load(f)
+            return data.get("open_ports", [])
+    print("[!] portscan.json not found — skipping service-specific scans")
+    return []
 
 
-if __name__ == '__main__':
+# ---------------------------------------------------------------------------
+# Service-specific handlers
+# ---------------------------------------------------------------------------
 
-    # --- 1. Load arg-parser
-    parser = argparse.ArgumentParser(description="run reconaissance quickly & integrate mutliple tools (nmap, yellow, ...).")
-    parser.add_argument(
-        '--domain',
-        type=str,
-        required=True,
-        help='The primary domain to process (e.g., example.com)'
+def nmap_targeted(target, ports, outdir):
+    port_str = ",".join(str(p["port"]) for p in ports)
+    try_run(f"nmap -sV -sC -p {port_str} -oN {outdir}/nmap-services {target}")
+
+
+def handle_ftp(target, outdir):
+    try_run(f"nmap -sV -sC -p 21 --script ftp-anon,ftp-bounce,ftp-syst -oN {outdir}/nmap-ftp.txt {target}")
+
+
+def handle_ssh(target, outdir):
+    try_run(f"nmap -sV -sC -p 22 --script ssh-hostkey,ssh-auth-methods -oN {outdir}/nmap-ssh.txt {target}")
+
+
+def handle_smtp(target, outdir):
+    try_run(f"nmap -sV -sC -p 25 --script smtp-enum-users,smtp-commands -oN {outdir}/nmap-smtp.txt {target}")
+
+
+def handle_dns(target, outdir):
+    if shutil.which("dig"):
+        try_run(f"dig any {target} @{target}")
+        try_run(f"dig axfr {target} @{target}")
+    try_run(f"nmap -sV -sC -p 53 --script dns-zone-transfer -oN {outdir}/nmap-dns.txt {target}")
+
+
+def handle_smb(target, outdir):
+    if shutil.which("enum4linux-ng"):
+        try_run(f"enum4linux-ng -A {target} -oJ {outdir}/enum4linux")
+    elif shutil.which("enum4linux"):
+        try_run(f"enum4linux -a {target}")
+    if shutil.which("smbclient"):
+        try_run(f"smbclient -L //{target}/ -N")
+    netexec = shutil.which("nxc") or shutil.which("crackmapexec")
+    if netexec:
+        try_run(f"{netexec} smb {target}")
+
+
+def handle_ldap(target, outdir):
+    try_run(f"nmap -sV -sC -p 389 --script ldap-rootdse -oN {outdir}/nmap-ldap.txt {target}")
+    if shutil.which("ldapsearch"):
+        try_run(f"ldapsearch -x -H ldap://{target} -b '' -s base namingContexts")
+
+
+def handle_web(target, port, outdir):
+    scheme = "https" if port in (443, 8443) else "http"
+    url = f"{scheme}://{target}:{port}"
+    if shutil.which("nikto"):
+        try_run(f"nikto -h {url} -o {outdir}/nikto-{port}.txt")
+    wl = next(
+        (w for w in [
+            "/usr/share/wordlists/seclists/Discovery/Web-Content/raft-medium-directories.txt",
+            "/usr/share/wordlists/seclists/Discovery/Web-Content/common.txt",
+            "/usr/share/wordlists/dirb/common.txt",
+        ] if Path(w).exists()),
+        None,
     )
+    if wl:
+        if shutil.which("feroxbuster"):
+            try_run(f"feroxbuster -u {url} -w {wl} -o {outdir}/ferox-{port}.txt -q")
+        elif shutil.which("gobuster"):
+            try_run(f"gobuster dir -u {url} -w {wl} -o {outdir}/gobuster-{port}.txt -q")
 
-    parser.add_argument(
-        '--wordlist',
-        type=str,
-        required=False,
-        help='main wordlist to use'
+
+def handle_mysql(target, outdir):
+    try_run(f"nmap -sV -sC -p 3306 --script mysql-info,mysql-empty-password -oN {outdir}/nmap-mysql.txt {target}")
+
+
+def handle_mssql(target, outdir):
+    try_run(f"nmap -sV -sC -p 1433 --script ms-sql-info,ms-sql-empty-password -oN {outdir}/nmap-mssql.txt {target}")
+
+
+def handle_rdp(target, outdir):
+    try_run(f"nmap -sV -sC -p 3389 --script rdp-enum-encryption -oN {outdir}/nmap-rdp.txt {target}")
+
+
+def handle_winrm(target, outdir):
+    netexec = shutil.which("nxc") or shutil.which("crackmapexec")
+    if netexec:
+        try_run(f"{netexec} winrm {target}")
+
+
+def handle_vnc(target, outdir):
+    try_run(f"nmap -sV -sC -p 5900 --script vnc-info,realvnc-auth-bypass -oN {outdir}/nmap-vnc.txt {target}")
+
+
+# ---------------------------------------------------------------------------
+# Port → handler mapping
+# ---------------------------------------------------------------------------
+
+SERVICE_MAP = {
+    21:   ("FTP",    handle_ftp),
+    22:   ("SSH",    handle_ssh),
+    25:   ("SMTP",   handle_smtp),
+    53:   ("DNS",    handle_dns),
+    80:   ("HTTP",   lambda t, o: handle_web(t, 80, o)),
+    139:  ("SMB",    handle_smb),
+    389:  ("LDAP",   handle_ldap),
+    443:  ("HTTPS",  lambda t, o: handle_web(t, 443, o)),
+    445:  ("SMB",    handle_smb),
+    1433: ("MSSQL",  handle_mssql),
+    3306: ("MySQL",  handle_mysql),
+    3389: ("RDP",    handle_rdp),
+    5900: ("VNC",    handle_vnc),
+    5985: ("WinRM",  handle_winrm),
+    5986: ("WinRM",  handle_winrm),
+    8080: ("HTTP",   lambda t, o: handle_web(t, 8080, o)),
+    8443: ("HTTPS",  lambda t, o: handle_web(t, 8443, o)),
+    8888: ("HTTP",   lambda t, o: handle_web(t, 8888, o)),
+}
+
+# Ports that share the same handler and should only run once
+DEDUP_GROUPS = [
+    {139, 445},   # SMB
+    {5985, 5986}, # WinRM
+]
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="HTB recon — yellow setup + port scan + service-specific tools"
     )
-
-    parser.add_argument(
-        '--proxy',
-        type=str,
-        required=False,
-        help='proxy to use if any'
-    )
-
-    parser.add_argument(
-        '--rate-limit',
-        dest='rate_limit',
-        type=int,
-        default=1000,
-        help='The maximum number of requests per unit of time (integer).'
-    )
-
-    parser.add_argument(
-        '--force-insecure',
-        action='store_true',
-        help='Force HTTP instead of HTTPS'
-    )
-
-    parser.add_argument(
-        '--verbose',
-        action='store_true',
-        help='Enable verbose output for debugging and detailed logging.'
-    )
-
+    parser.add_argument("-t", "--target", required=True, help="target IP or hostname (e.g. 10.10.10.10)")
+    parser.add_argument("-w", "--wordlist", help="custom wordlist for dir brute-forcing")
+    parser.add_argument("-p", "--proxy", help="proxy URL")
+    parser.add_argument("-r", "--rate-limit", type=int, default=0, dest="rate_limit")
+    parser.add_argument("-k", "--insecure", action="store_true", help="force HTTP / skip SSL")
+    parser.add_argument("--osint", action="store_true", help="run yellow osint step (useful for domains, not bare IPs)")
+    parser.add_argument("--ports", default="21,22,23,25,53,80,110,135,139,143,389,443,445,993,995,1433,1723,3306,3389,5900,5985,5986,8080,8443,8888",
+                        help="ports for yellow --port-scan")
     args = parser.parse_args()
-    runner = ShellCommandRunner()
 
-    # --- 2. Check dependencies
-    deps = ['yellow', 'nmap'] # TODO: , 'nxc', 'ffuf', 'nikto', 'sqlmap']
-    for d in deps:
-        if not runner.is_callable(d):
-            print(f'[!] missing dependency: {d}')
-            os.exit(1)
+    target = args.target
 
+    if not shutil.which("yellow"):
+        die("yellow not found in PATH")
+    if not shutil.which("nmap"):
+        die("nmap not found in PATH")
 
-    ratelimit_opt = ''
-    if args.rate_limit:
-        ratelimit_opt = f'--rate-limit {ratelimit}'
+    proxy_opt   = f"-p {args.proxy}"      if args.proxy      else ""
+    rate_opt    = f"-r {args.rate_limit}" if args.rate_limit else ""
+    insecure_opt = "-k"                   if args.insecure   else ""
 
-    insecure_opt = ''
-    if args.force_insecure:
-        insecure_opt = f'--insecure'
+    # 1. create directory structure
+    run(f"yellow -d {target}")
 
-    ratelimit_opt = ''
-    if args.proxy:
-        proxy_opt = f'--proxy {proxy}'
+    # 2. osint (optional — mostly useful when target is a real domain)
+    if args.osint:
+        try_run(f"yellow osint -d {target} {proxy_opt} {rate_opt}".strip())
 
-    # --- 3. run yellow
-    if args.verbose:
-        print('[+] running yellow (osint & scan)')
+    # 3. scan with yellow (port scan + web enum)
+    run(
+        " ".join(filter(None, [
+            "yellow scan",
+            f"-d {target}",
+            "--port-scan",
+            f"--ports {args.ports}",
+            proxy_opt, rate_opt, insecure_opt,
+        ]))
+    )
 
-    shexec(f'yellow -d {parser.domain}')
-    shexec(f'yellow osint -d {parser.domain} {proxy_opt} {ratelimit_opt} ')
-    shexec(f'yellow scan -d {parser.domain} {proxy_opt} {ratelimit_opt} {insecure_opt} --file {parser.domain}/scans/domains.txt')
+    # 4. parse what yellow found
+    open_ports = parse_portscan(target)
+    if not open_ports:
+        print("[*] no port scan results found — done")
+        sys.exit(0)
 
-    os.chdir(parser.domain)
+    print(f"\n[+] open ports: {[p['port'] for p in open_ports]}")
 
-    # --- 3. nmap all IPs quickly
-    nmap_scan = shexec('nmap -sS -T4 -iL scans/domains.txt -oN scans/global-nmap')
+    scans_dir = Path(target) / "scans"
+    scans_dir.mkdir(parents=True, exist_ok=True)
 
+    # 5. nmap targeted — full service + script detection on confirmed open ports
+    nmap_targeted(target, open_ports, scans_dir)
 
+    # 6. service-specific tools
+    seen = set()
+    for port_info in open_ports:
+        port = port_info["port"]
+        entry = SERVICE_MAP.get(port)
+        if entry is None:
+            continue
 
+        # deduplicate ports that share a handler (SMB on 139+445, WinRM on 5985+5986)
+        group_key = next((frozenset(g) for g in DEDUP_GROUPS if port in g), None)
+        if group_key:
+            if group_key in seen:
+                continue
+            seen.add(group_key)
+
+        label, handler = entry
+        print(f"\n[+] {label} on port {port} — launching tools")
+        handler(target, scans_dir)
+
+    print(f"\n[+] done. results in ./{target}/")

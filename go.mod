@@ -5,7 +5,7 @@ go 1.25.7
 require (
 	github.com/OJ/gobuster/v3 v3.8.2
 	github.com/bogdzn/gork v0.0.5
-	github.com/praetorian-inc/nerva v1.1.0
+	github.com/praetorian-inc/nerva v1.2.0
 	github.com/projectdiscovery/dnsx v1.2.3
 	github.com/projectdiscovery/goflags v0.1.74
 	github.com/projectdiscovery/httpx v1.9.0
