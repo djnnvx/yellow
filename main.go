@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"evil.djnn.sh/djnn/yellow/cli"
 )
 
@@ -36,7 +38,7 @@ const ASCII_ART = `
 `
 
 func main() {
-	println(ASCII_ART)
+	fmt.Print(ASCII_ART)
 
 	opts := cli.GetDefaultOptions()
 	parser := cli.GetParser(&opts)

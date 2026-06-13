@@ -28,6 +28,12 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 				os.Exit(1)
 			}
 
+			if opts.OutName == "" {
+				fmt.Println("[!] Error: output path cannot be empty. Please run with --out [something]")
+				fmt.Println("\nIf you're confused, feel free to use --help option. :)~")
+				os.Exit(1)
+			}
+
 			pruneOpts := prune.PruneOpts{}
 			pruneOpts.SetProxy(opts.Proxy)
 			pruneOpts.SetDryRun(opts.RunDry)
@@ -56,7 +62,7 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 			helper.DisplayNetInfo()
 
 			if opts.OutName == "" || !helper.Exists(opts.OutName) {
-				println("[!] collected assets will be sent to current working directory")
+				fmt.Println("[!] collected assets will be sent to current working directory")
 			}
 
 			scanOpts := scan.ScanOpts{}
@@ -102,7 +108,7 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 			helper.DisplayNetInfo()
 
 			if opts.OutName == "" || !helper.Exists(opts.OutName) {
-				println("[!] collected assets will be sent to current working directory")
+				fmt.Println("[!] collected assets will be sent to current working directory")
 			}
 
 			scanOpts := scan.ScanOpts{}
@@ -150,7 +156,7 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 			helper.DisplayNetInfo()
 
 			if opts.OutName == "" || !helper.Exists(opts.OutName) {
-				println("[!] collected assets will be sent to current working directory")
+				fmt.Println("[!] collected assets will be sent to current working directory")
 			}
 
 			osintOpts := osint.OsintOpts{}
@@ -233,7 +239,6 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 	scanCmd.Flags().StringVarP(&opts.Ports, "ports", "", defaults.Ports, "Ports to scan, comma-separated or ranges (e.g. 22,80,443,8000-9000)")
 
 	rootCmd.AddCommand(pruneCmd)
-	pruneCmd.Flags().StringVarP(&opts.OutName, "dir-name", "d", defaults.OutName, "Outfile directory name (if no target-file is specified, will also be target domain)")
 	pruneCmd.Flags().StringVarP(&opts.Proxy, "proxy", "p", defaults.Proxy, "Proxy URL (used for the tools supporting it. Other will prompt a warning msg)")
 	pruneCmd.Flags().BoolVarP(&opts.UseHttpInsecure, "insecure", "k", defaults.UseHttpInsecure, "Ignore SSL warnings and force http")
 	pruneCmd.Flags().StringVarP(&opts.TargetFilePath, "file", "f", defaults.TargetFilePath, "File containing list of targets (should be a list of IP Addresses or domains)")

@@ -14,7 +14,10 @@ func SetUpDirectoryArchitecture(target string) {
 	dirname := ReplaceWithHyphen(target)
 	fmt.Println("[+] setting up directory architecture for", dirname)
 
-	_ = os.MkdirAll(dirname, 0775)
+	if err := os.MkdirAll(dirname, 0775); err != nil {
+		fmt.Printf("[!] could not create %s: %v\n", dirname, err)
+		return
+	}
 	CreateDirectory(dirname, []Folder{
 		{
 			Name:     "scans",
@@ -39,7 +42,9 @@ func Exists(path string) bool {
 func CreateDirectory(base string, folders []Folder) {
 	for _, f := range folders {
 		current := fmt.Sprintf("%s/%s", base, f.Name)
-		_ = os.Mkdir(current, 0775)
+		if err := os.Mkdir(current, 0775); err != nil && !os.IsExist(err) {
+			fmt.Printf("[!] could not create %s: %v\n", current, err)
+		}
 		if len(f.Children) != 0 {
 			CreateDirectory(current, f.Children)
 		}
@@ -47,7 +52,7 @@ func CreateDirectory(base string, folders []Folder) {
 }
 
 func FolderNameFactory(names ...string) []Folder {
-	f := make([]Folder, len(names))
+	f := make([]Folder, 0, len(names))
 	for _, name := range names {
 		f = append(f, Folder{Name: name})
 	}

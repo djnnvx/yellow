@@ -43,12 +43,14 @@ func (h *Httpx) Run(domain string) {
 	}
 
 	if err := options.ValidateOptions(); err != nil {
-		panic(err)
+		fmt.Printf("[!] httpx: invalid options for %s: %v\n", domain, err)
+		return
 	}
 
 	httpxRunner, err := runner.New(&options)
 	if err != nil {
-		panic(err)
+		fmt.Printf("[!] httpx: could not create runner for %s: %v\n", domain, err)
+		return
 	}
 	defer httpxRunner.Close()
 

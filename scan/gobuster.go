@@ -53,7 +53,8 @@ func (g *Gobuster) Run(rawUrl string) {
 
 	u, err := url.Parse(rawUrl)
 	if err != nil {
-		panic("[gobuster] Invalid URL: " + rawUrl)
+		fmt.Printf("[!] gobuster: invalid URL %s: %v\n", rawUrl, err)
+		return
 	}
 
 	pluginOpts := gobusterdir.NewOptions()
@@ -70,7 +71,8 @@ func (g *Gobuster) Run(rawUrl string) {
 	log := libgobuster.NewLogger(globalOpts.Debug)
 	plugin, err := gobusterdir.New(&globalOpts, pluginOpts, log)
 	if err != nil {
-		panic("[gobuster] cannot load plugin: " + err.Error())
+		fmt.Printf("[!] gobuster: cannot load plugin: %v\n", err)
+		return
 	}
 
 	mainContext, cancel := context.WithCancel(context.Background())

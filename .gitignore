@@ -35,6 +35,7 @@ target.txt
 dist/
 yellow
 nuclei-templates/
+inventory/__pycache__/
 
 # Out files
 .yellow

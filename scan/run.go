@@ -180,9 +180,9 @@ func (opts *ScanOpts) Run() {
 		fmt.Printf("[SCAN %s] web panel online....running web scans\n", opts.domain)
 
 		pathForDomain := opts.scanPath + "/" + opts.domain
-		err := os.MkdirAll(pathForDomain, 0755)
-		if err != nil {
-			panic(err)
+		if err := os.MkdirAll(pathForDomain, 0755); err != nil {
+			fmt.Printf("[!] scan: could not create %s, skipping %s: %v\n", pathForDomain, opts.domain, err)
+			return
 		}
 
 		/* modifying opts.scanPath directly would cause nested directories */

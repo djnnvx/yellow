@@ -49,7 +49,7 @@ For next version, i want to take care of at least two items described here:
 
 ## 2.a Bugfixes
 
-* sitemap should be stored to a file & fetch robots.txt
+* sitemap should be stored to a file
 
 feel free to suggest more ideas. :)~
 if you'd like to do so, reach me by mail or on social media: https://djnn.sh/pgp
@@ -62,7 +62,7 @@ am able to maintain it afterwards.
 
 # 3. Installing
 
-Using go v1.25.
+Using go v1.26.
 
 ```bash
 git clone https://evil.djnn.sh/yellow.git

@@ -53,7 +53,10 @@ func (opts ScanOpts) runPortScan() {
 	}
 	fmt.Printf("[+] Running port scan on %s\n", opts.domain)
 	if !opts.dryRun {
-		os.MkdirAll(ps.scanPath, 0755)
+		if err := os.MkdirAll(ps.scanPath, 0755); err != nil {
+			fmt.Printf("[!] port scan: could not create %s: %v\n", ps.scanPath, err)
+			return
+		}
 		ps.Run(opts.domain)
 	}
 }
@@ -84,7 +87,9 @@ func (p *PortScanner) Run(host string) {
 	}
 
 	data, _ := json.MarshalIndent(out, "", "  ")
-	os.WriteFile(p.scanPath+"/portscan.json", data, 0644)
+	if err := os.WriteFile(p.scanPath+"/portscan.json", data, 0644); err != nil {
+		fmt.Printf("[!] port scan: could not write %s/portscan.json: %v\n", p.scanPath, err)
+	}
 
 	fmt.Printf("[SCAN %s] port scan done — %d open ports\n\n", host, len(open))
 }

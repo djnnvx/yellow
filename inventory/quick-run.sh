@@ -1,6 +1,6 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 
-set -euo
+set -euo pipefail
 
 
 ./yellow --help || make

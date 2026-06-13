@@ -58,18 +58,18 @@ func GetCurrentIP() string {
 	resp, err := cli.Do(req)
 
 	if err != nil || resp == nil {
-		fmt.Printf("[!] Could not query public IP address: %s\n", err.Error())
-		return ""
+		fmt.Printf("[!] Could not query public IP address: %v\n", err)
+		return "127.0.0.1" // service offline or unreachable, we should be able to keep going
 	}
 	defer resp.Body.Close()
 
 	result, err := io.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Printf("[!] Could not IP address: %s\n", err.Error())
-		return ""
+		fmt.Printf("[!] Could not read public IP address: %v\n", err)
+		return "127.0.0.1"
 	}
 
-	return string(result)
+	return strings.TrimSpace(string(result))
 }
 
 func DisplayNetInfo() {

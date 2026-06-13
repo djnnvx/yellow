@@ -1,14 +1,34 @@
-## v0.0.7
+## v0.0.6
 
+- fix(scan): perform the real robots.txt fetch (was duplicating the sitemap scan)
+- fix(net): add HTTP client timeouts and close response bodies (prevents hangs and fd leaks)
+- fix(net): keep running when the public IP lookup fails instead of exiting the program
+- fix(helpers): exit cleanly on an unreadable target file instead of a nil-deref panic
+- fix(osint): replace panics and log.Fatal with graceful skips (subfinder, dnsx, file aggregation)
+- fix(scan): skip a target instead of panicking when its output dir cannot be created
+- fix(scan): report port scan write failures instead of silently dropping results
+- fix(scan): check request errors in robots/sitemap and release the gobuster scan context
+- fix(cli): remove the vestigial prune --dir-name flag that collided with --out
+- fix(cli): correct the scan command help to match the tools it actually runs
+- fix(helpers): FolderNameFactory no longer allocates phantom empty folders
+- fix(helpers): report directory-creation failures in the create command instead of silently doing nothing
+- fix(scripts): quick-run.sh now uses set -euo pipefail (pipefail was off and the options table was dumped)
+- fix(scripts): use portable /usr/bin/env shebangs in the inventory scripts
+- fix(scan): convert remaining cvemap/gobuster/httpx panics to graceful skips
+- fix(osint): graceful error on the final domains.txt write instead of panicking
+- fix(cli): prune validates the --out path up front instead of losing results after the work
+- fix(net): trim the trailing newline from the detected public IP
+- chore(cleanup): replace the builtin println with fmt across main, cli, and osint
+- docs(readme): drop the already-implemented robots.txt item from the roadmap
+- chore(cleanup): drop dead code (ParseDomain, AssetfinderConfig) and satisfy staticcheck
+- chore(build): align Go version to 1.26 across Dockerfile, README, and CI
+- chore(build): copy go.sum in the Docker dependency layer for verified builds
 - chore(deps): bump nerva to 1.18.0
 - chore(deps): bump subfinder to 2.14.0
 - chore(deps): bump wappalyzergo to 0.2.84
 - chore(deps): bump vflame6/leaker to 1.6.7
 - chore(deps): bump golang.org/x/* packages (crypto, net, sys, term, text)
 - chore(deps): bump modernc.org/sqlite to 1.51.0, shirou/gopsutil to v4
-
-## v0.0.6
-
 - chore(deps): bump go version to 1.26
 - chore(deps): bump nerva to 1.3.0
 - chore(deps): bump vflame6/leaker to 1.6.4
@@ -16,7 +36,7 @@
 - chore(deps): bump golang.org/x/* packages (crypto, net, sys, text, tools, etc.)
 - chore(deps): bump grpc to 1.80.0, miekg/dns to 1.1.72, klauspost/compress to 1.18.5
 - chore(deps): bump go-exploit to 1.58.0
-- chore(meta): bump nerva libarry to 1.2.0 + using the new --misconfig flag
+- chore(meta): bump nerva library to 1.2.0 + using the new --misconfig flag
 - chore(meta): bump nerva library to 1.1.0
 
 ## v0.0.5

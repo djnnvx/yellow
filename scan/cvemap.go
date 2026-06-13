@@ -225,6 +225,6 @@ func (c *Cvemap) saveResults(cves []nvdCVE) {
 
 	filename := c.scanPath + "/cves.json"
 	if err := os.WriteFile(filename, data, 0644); err != nil {
-		panic(err)
+		fmt.Printf("[!] cvemap: could not write %s: %v\n", filename, err)
 	}
 }

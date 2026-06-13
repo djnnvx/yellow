@@ -26,9 +26,9 @@ func (opts *ScanOpts) Fingerprint() {
 		pathForDomain := opts.scanPath + "/" + opts.domain
 		opts.SetScanPath(pathForDomain)
 
-		err := os.MkdirAll(opts.scanPath, 0755)
-		if err != nil {
-			panic(err)
+		if err := os.MkdirAll(opts.scanPath, 0755); err != nil {
+			fmt.Printf("[!] fingerprint: could not create %s, skipping %s: %v\n", opts.scanPath, opts.domain, err)
+			return
 		}
 
 		opts.SetDomain(fullDomain)

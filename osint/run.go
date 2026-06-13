@@ -45,7 +45,7 @@ func (opts *OsintOpts) SetEmailsFile(data string) {
 }
 
 func (opts OsintOpts) RunCleanup() {
-	println("[+] cleaning up...")
+	fmt.Println("[+] cleaning up...")
 
 	/* remove superfluous files */
 	asfFilepath := fmt.Sprintf("%s/assetfinder.txt", opts.scanPath)
@@ -210,9 +210,9 @@ func (opts OsintOpts) Run() {
 
 	// now add all assets together, line by line
 	uniqueOutfile := fmt.Sprintf("%s/domains.txt", opts.scanPath)
-	err := os.WriteFile(uniqueOutfile, domainBuffer.Bytes(), 0644)
-	if err != nil {
-		panic(err)
+	if err := os.WriteFile(uniqueOutfile, domainBuffer.Bytes(), 0644); err != nil {
+		fmt.Printf("[!] osint: could not write %s: %v\n", uniqueOutfile, err)
+		return
 	}
 
 	fmt.Printf("[OSINT %s] Registered %v IP addresses and assets.\n", opts.domain, len(domains))
