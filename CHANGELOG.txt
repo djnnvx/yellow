@@ -1,49 +1,20 @@
 ## v0.0.6
 
-- refactor(core): introduce a shared Module interface and Context (replaces per-tool map[string]any config and the wappalyzerResults global)
-- feat(scan): add tlsx module for TLS certificate grabbing (saves tls.json, surfaces cert SANs)
-- feat(scan): add nuclei module for vulnerability scanning (opt-in via --nuclei; installs templates up front)
-- change(cli): gobuster is now opt-in via --gobuster (replaces the default-on --disable-dirbusting)
-- feat(osint): add gau historical URL discovery (saved to urls.txt; discovered hostnames merged into domains.txt)
-- feat(osint): add alterx active subdomain permutation (generates + resolves via dnsx within a time budget; live finds merged into domains.txt)
-- fix(scan): perform the real robots.txt fetch (was duplicating the sitemap scan)
-- fix(net): add HTTP client timeouts and close response bodies (prevents hangs and fd leaks)
-- fix(net): keep running when the public IP lookup fails instead of exiting the program
-- fix(helpers): exit cleanly on an unreadable target file instead of a nil-deref panic
-- fix(osint): replace panics and log.Fatal with graceful skips (subfinder, dnsx, file aggregation)
-- fix(scan): skip a target instead of panicking when its output dir cannot be created
-- fix(scan): report port scan write failures instead of silently dropping results
-- fix(scan): check request errors in robots/sitemap and release the gobuster scan context
-- fix(cli): remove the vestigial prune --dir-name flag that collided with --out
-- fix(cli): correct the scan command help to match the tools it actually runs
-- fix(helpers): FolderNameFactory no longer allocates phantom empty folders
-- fix(helpers): report directory-creation failures in the create command instead of silently doing nothing
-- fix(scripts): quick-run.sh now uses set -euo pipefail (pipefail was off and the options table was dumped)
-- fix(scripts): use portable /usr/bin/env shebangs in the inventory scripts
-- fix(scan): convert remaining cvemap/gobuster/httpx panics to graceful skips
-- fix(osint): graceful error on the final domains.txt write instead of panicking
-- fix(cli): prune validates the --out path up front instead of losing results after the work
-- fix(net): trim the trailing newline from the detected public IP
-- chore(cleanup): replace the builtin println with fmt across main, cli, and osint
-- docs(readme): drop the already-implemented robots.txt item from the roadmap
-- chore(cleanup): drop dead code (ParseDomain, AssetfinderConfig) and satisfy staticcheck
-- chore(build): align Go version to 1.26 across Dockerfile, README, and CI
-- chore(build): copy go.sum in the Docker dependency layer for verified builds
-- chore(deps): bump nerva to 1.18.0
-- chore(deps): bump subfinder to 2.14.0
-- chore(deps): bump wappalyzergo to 0.2.84
-- chore(deps): bump vflame6/leaker to 1.6.7
-- chore(deps): bump golang.org/x/* packages (crypto, net, sys, term, text)
-- chore(deps): bump modernc.org/sqlite to 1.51.0, shirou/gopsutil to v4
-- chore(deps): bump go version to 1.26
-- chore(deps): bump nerva to 1.3.0
-- chore(deps): bump vflame6/leaker to 1.6.4
-- chore(deps): bump wappalyzergo to 0.2.75
-- chore(deps): bump golang.org/x/* packages (crypto, net, sys, text, tools, etc.)
-- chore(deps): bump grpc to 1.80.0, miekg/dns to 1.1.72, klauspost/compress to 1.18.5
-- chore(deps): bump go-exploit to 1.58.0
-- chore(meta): bump nerva library to 1.2.0 + using the new --misconfig flag
-- chore(meta): bump nerva library to 1.1.0
+- refactor(core): shared Module interface + Context for all scan/osint tools ~ @djnnvx
+- feat(scan): add tlsx TLS certificate grabbing ~ @djnnvx
+- feat(scan): add nuclei vulnerability scanning (opt-in, --nuclei) ~ @djnnvx
+- feat(osint): add gau historical URL discovery ~ @djnnvx
+- feat(osint): add alterx subdomain permutation + resolution ~ @djnnvx
+- change(cli): gobuster is now opt-in via --gobuster ~ @djnnvx
+- fix(scan): fetch the real robots.txt (was duplicating the sitemap) ~ @djnnvx
+- fix(net): HTTP timeouts, close response bodies, survive IP-lookup failure ~ @djnnvx
+- fix: replace panics and log.Fatal with graceful skips across scan/osint ~ @djnnvx
+- fix(cli): prune flag fixes and accurate scan help ~ @djnnvx
+- fix(helpers): clean exits and directory-creation error reporting ~ @djnnvx
+- fix(scripts): set -euo pipefail and portable shebangs ~ @djnnvx
+- chore(cleanup): drop dead code, fmt over builtin println, satisfy staticcheck ~ @djnnvx
+- chore(build): align Go to 1.26, copy go.sum in Docker ~ @djnnvx
+- chore(deps): bump dependencies ~ @djnnvx
 
 ## v0.0.5
 
