@@ -7,85 +7,77 @@ import (
 	"os"
 	"time"
 
+	"evil.djnn.sh/djnn/yellow/core"
 	"github.com/vflame6/leaker/runner"
 )
 
-type Leaker struct {
-	outfile        string
-	emailsFile     string
-	proxy          string
-	providerConfig string
-}
+type Leaker struct{}
 
-func (l *Leaker) Info(target string) {
-	fmt.Printf("[+] Running leaker for credential leak checking (target: %s)\n", target)
-	if l.emailsFile != "" {
-		fmt.Printf("    Emails file: %s\n", l.emailsFile)
+func (*Leaker) Name() string { return "leaker" }
+
+func (*Leaker) Run(ctx *core.Context) error {
+	fmt.Printf("[+] Running leaker for credential leak checking (target: %s)\n", ctx.Domain)
+
+	emailsFile := ctx.EmailsFile
+	if emailsFile != "" {
+		fmt.Printf("    Emails file: %s\n", emailsFile)
 	}
-	if l.providerConfig != "" {
-		fmt.Printf("    Provider config: %s\n", l.providerConfig)
+
+	providerConfig := os.Getenv("LEAKER_PROVIDER_CONFIG")
+	if providerConfig != "" {
+		fmt.Printf("    Provider config: %s\n", providerConfig)
 	}
-}
 
-func (l *Leaker) Configure(c any) {
-	cfg := c.(map[string]any)
-	l.outfile = cfg["outfile"].(string)
-	l.emailsFile = cfg["emailsFile"].(string)
-	l.proxy = cfg["proxy"].(string)
-	l.providerConfig = os.Getenv("LEAKER_PROVIDER_CONFIG")
-}
+	if ctx.DryRun {
+		return nil
+	}
 
-func (l *Leaker) ShouldRun() bool {
-	if l.emailsFile == "" {
+	if emailsFile == "" {
 		fmt.Println("[!] Leaker: no emails file provided, skipping")
-		return false
+		return nil
+	}
+	if _, err := os.Stat(emailsFile); os.IsNotExist(err) {
+		fmt.Printf("[!] Leaker: emails file %s does not exist, skipping\n", emailsFile)
+		return nil
 	}
 
-	if _, err := os.Stat(l.emailsFile); os.IsNotExist(err) {
-		fmt.Printf("[!] Leaker: emails file %s does not exist, skipping\n", l.emailsFile)
-		return false
-	}
+	outfile := fmt.Sprintf("%s/leaks.txt", ctx.ScanPath)
 
-	return true
-}
-
-func (l *Leaker) Run(target string) {
-	emailsReader, err := os.Open(l.emailsFile)
+	emailsReader, err := os.Open(emailsFile)
 	if err != nil {
 		fmt.Printf("[!] Leaker: failed to open emails file: %v\n", err)
-		return
+		return nil
 	}
 	defer emailsReader.Close()
 
-	outFile, err := os.Create(l.outfile)
+	outFile, err := os.Create(outfile)
 	if err != nil {
 		fmt.Printf("[!] Leaker: failed to create output file: %v\n", err)
-		return
+		return nil
 	}
 	defer outFile.Close()
 
 	opts := &runner.Options{
 		Timeout:        60 * time.Second,
-		OutputFile:     l.outfile,
-		ProviderConfig: l.providerConfig,
+		OutputFile:     outfile,
+		ProviderConfig: providerConfig,
 		Quiet:          true,
 	}
-
-	if l.proxy != "" {
-		opts.Proxy = l.proxy
+	if ctx.Proxy != "" {
+		opts.Proxy = ctx.Proxy
 	}
 
 	r, err := runner.NewRunner(opts)
 	if err != nil {
 		fmt.Printf("[!] Leaker: failed to create runner: %v\n", err)
-		return
+		return nil
 	}
 
-	err = r.EnumerateMultipleTargets(context.Background(), emailsReader, []io.Writer{outFile})
-	if err != nil {
+	if err := r.EnumerateMultipleTargets(context.Background(), emailsReader, []io.Writer{outFile}); err != nil {
 		fmt.Printf("[!] Leaker: enumeration failed: %v\n", err)
-		return
+		return nil
 	}
 
-	fmt.Printf("[OSINT %s] Leaker results are stored in %s\n", target, l.outfile)
+	fmt.Printf("[OSINT %s] Leaker results are stored in %s\n", ctx.Domain, outfile)
+	return nil
 }

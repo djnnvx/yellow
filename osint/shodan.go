@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"evil.djnn.sh/djnn/yellow/core"
 	"evil.djnn.sh/djnn/yellow/helpers"
 	"github.com/shadowscatcher/shodan"
 	"github.com/shadowscatcher/shodan/search"
@@ -37,18 +38,27 @@ func (s *Shodan) Info(target string) {
 	}
 }
 
-func (s *Shodan) Configure(c any) {
-	s.apiKey = os.Getenv("SHODAN_API_KEY")
+func (*Shodan) Name() string { return "shodan" }
 
-	s.outfile = c.(map[string]any)["outfile"].(string)
+func (s *Shodan) Run(ctx *core.Context) error {
+	s.apiKey = os.Getenv("SHODAN_API_KEY")
+	s.outfile = fmt.Sprintf("%s/shodan.txt", ctx.ScanPath)
 	if s.HTTPClient == nil {
-		s.HTTPClient = &http.Client{
-			Timeout: 15 * time.Second,
-		}
+		s.HTTPClient = &http.Client{Timeout: 15 * time.Second}
 	}
+
+	s.Info(ctx.Domain)
+	if ctx.DryRun || !s.ShouldRun() {
+		return nil
+	}
+
+	for _, d := range ctx.Domains {
+		s.scanIP(d)
+	}
+	return nil
 }
 
-func (s *Shodan) Run(ip string) {
+func (s *Shodan) scanIP(ip string) {
 	ip = strings.TrimSpace(ip)
 	if ip == "" {
 		fmt.Println("err: empty ip provided")

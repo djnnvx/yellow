@@ -73,7 +73,7 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 			scanOpts.SetRateLimit(opts.RateLimit)
 			scanOpts.SetWordlistPath(opts.WordlistPath)
 			scanOpts.SetForceInsecure(opts.UseHttpInsecure)
-			scanOpts.SetNoGobuster(opts.NoGobuster)
+			scanOpts.SetGobuster(opts.Gobuster)
 
 			if opts.TargetFilePath == "" {
 				scanOpts.Run()
@@ -94,7 +94,7 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 	var scanCmd = &cobra.Command{
 		Use:   "scan",
 		Short: "Run active scanning tools to perform enumeration",
-		Long:  "Runs active scanning (sitemap, robots.txt, wappalyzergo, cvemap, httpx, gobuster, and optional TCP port-scan)",
+		Long:  "Runs active scanning (sitemap, robots.txt, tlsx, wappalyzergo, cvemap, httpx, optional gobuster, optional TCP port-scan and optional nuclei)",
 		Args:  cobra.MinimumNArgs(0),
 		Run: func(cmd *cobra.Command, args []string) {
 
@@ -119,9 +119,10 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 			scanOpts.SetRateLimit(opts.RateLimit)
 			scanOpts.SetWordlistPath(opts.WordlistPath)
 			scanOpts.SetForceInsecure(opts.UseHttpInsecure)
-			scanOpts.SetNoGobuster(opts.NoGobuster)
+			scanOpts.SetGobuster(opts.Gobuster)
 			scanOpts.SetPortScan(opts.PortScan)
 			scanOpts.SetPorts(opts.Ports)
+			scanOpts.SetNuclei(opts.Nuclei)
 
 			if opts.TargetFilePath == "" {
 				scanOpts.Run()
@@ -230,13 +231,14 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 	scanCmd.Flags().StringVarP(&opts.OutName, "dir-name", "d", defaults.OutName, "Outfile directory name (if no target-file is specified, will also be target domain)")
 	scanCmd.Flags().StringVarP(&opts.Proxy, "proxy", "p", defaults.Proxy, "Proxy URL (used for the tools supporting it. Other will prompt a warning msg)")
 	scanCmd.Flags().BoolVarP(&opts.RunDry, "dry", "", defaults.RunDry, "Run a dry-run (test mode)")
-	scanCmd.Flags().BoolVarP(&opts.NoGobuster, "disable-dirbusting", "", defaults.NoGobuster, "Disable directory bruteforce (sometimes you don't need it yk...)")
+	scanCmd.Flags().BoolVarP(&opts.Gobuster, "gobuster", "", defaults.Gobuster, "Run gobuster directory bruteforce")
 	scanCmd.Flags().BoolVarP(&opts.UseHttpInsecure, "insecure", "k", defaults.UseHttpInsecure, "Ignore SSL warnings and force http")
 	scanCmd.Flags().Int32VarP(&opts.RateLimit, "rate-limit", "r", defaults.RateLimit, "Requests rate-limit (used for the tools supporting it. Other will prompt a warning msg)")
 	scanCmd.Flags().StringVarP(&opts.WordlistPath, "wordlist", "w", defaults.WordlistPath, "Wordlist to use")
 	scanCmd.Flags().StringVarP(&opts.TargetFilePath, "file", "f", defaults.TargetFilePath, "File containing list of targets (should be a list of IP Addresses or domains)")
 	scanCmd.Flags().BoolVarP(&opts.PortScan, "port-scan", "", defaults.PortScan, "Run TCP port scan and service fingerprinting")
 	scanCmd.Flags().StringVarP(&opts.Ports, "ports", "", defaults.Ports, "Ports to scan, comma-separated or ranges (e.g. 22,80,443,8000-9000)")
+	scanCmd.Flags().BoolVarP(&opts.Nuclei, "nuclei", "", defaults.Nuclei, "Run nuclei template-based vulnerability scanning (downloads templates on first run)")
 
 	rootCmd.AddCommand(pruneCmd)
 	pruneCmd.Flags().StringVarP(&opts.Proxy, "proxy", "p", defaults.Proxy, "Proxy URL (used for the tools supporting it. Other will prompt a warning msg)")

@@ -3,34 +3,32 @@ package osint
 import (
 	"fmt"
 
+	"evil.djnn.sh/djnn/yellow/core"
 	dorks "github.com/bogdzn/gork/cmd"
 )
 
-type Dorks struct {
-	outfile string
-	proxy   string
-}
+type Dorks struct{}
 
-func (d *Dorks) Info(url string) {
-	fmt.Println("[+] Running dorks on", url)
-}
+func (*Dorks) Name() string { return "dorks" }
 
-func (d *Dorks) Configure(c any) {
-	d.outfile = c.(map[string]any)["outfile"].(string)
-	d.proxy = c.(map[string]any)["proxy"].(string)
-}
+func (*Dorks) Run(ctx *core.Context) error {
+	fmt.Println("[+] Running dorks on", ctx.Domain)
+	if ctx.DryRun {
+		return nil
+	}
 
-func (d *Dorks) Run(domain string) {
+	outfile := fmt.Sprintf("%s/dorks.txt", ctx.ScanPath)
 	opts := &dorks.Options{
-		Proxy:         d.proxy,
-		Outfile:       d.outfile,
+		Proxy:         ctx.Proxy,
+		Outfile:       outfile,
 		AppendResults: false,
 		Extensions:    dorks.DefaultFileExtensions(),
 		Exclusions:    dorks.DefaultExclusions(),
 		UserAgent:     dorks.DefaultUserAgent(),
-		Target:        domain,
+		Target:        ctx.Domain,
 	}
 
 	dorks.Run(opts)
-	fmt.Printf("[OSINT %s] Dorks are stored in %s\n\n", domain, d.outfile)
+	fmt.Printf("[OSINT %s] Dorks are stored in %s\n\n", ctx.Domain, outfile)
+	return nil
 }

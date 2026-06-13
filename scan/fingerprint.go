@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"evil.djnn.sh/djnn/yellow/core"
 	helper "evil.djnn.sh/djnn/yellow/helpers"
 )
 
@@ -22,20 +23,20 @@ func (opts *ScanOpts) Fingerprint() {
 		fullDomain = "http://" + opts.domain
 	}
 
-	if !helper.HasUnavailableWebInterface(fullDomain) {
-		pathForDomain := opts.scanPath + "/" + opts.domain
-		opts.SetScanPath(pathForDomain)
-
-		if err := os.MkdirAll(opts.scanPath, 0755); err != nil {
-			fmt.Printf("[!] fingerprint: could not create %s, skipping %s: %v\n", opts.scanPath, opts.domain, err)
-			return
-		}
-
-		opts.SetDomain(fullDomain)
-
-		opts.RunWappalyzerGo()
-		opts.RunCvemap()
-	} else {
+	if helper.HasUnavailableWebInterface(fullDomain) {
 		fmt.Printf("[FINGERPRINT %s] => no web panel online. skipping\n", opts.domain)
+		return
 	}
+
+	pathForDomain := opts.scanPath + "/" + opts.domain
+	if err := os.MkdirAll(pathForDomain, 0755); err != nil {
+		fmt.Printf("[!] fingerprint: could not create %s, skipping %s: %v\n", pathForDomain, opts.domain, err)
+		return
+	}
+
+	ctx := opts.context()
+	ctx.Domain = fullDomain
+	ctx.ScanPath = pathForDomain
+
+	core.RunModules(ctx, []core.Module{&WappalyzerGo{}, &Cvemap{}})
 }

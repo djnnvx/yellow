@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	"evil.djnn.sh/djnn/yellow/core"
 	// old fork that dissociates main from runner
 	// (repo was deleted but module still exists, and the tool has not
 	// been updated in 4 years so...)
@@ -14,21 +15,18 @@ import (
 
 type fetchFn func(string) ([]string, error)
 
-type Assetfinder struct {
-	outfile   string
-	functions []fetchFn
-	scanPath  string
-}
+type Assetfinder struct{}
 
-func (a *Assetfinder) Info(url string) {
-	fmt.Println("[+] Running Assetfinder on ", url)
-}
+func (*Assetfinder) Name() string { return "assetfinder" }
 
-func (a *Assetfinder) Configure(c any) {
-	a.scanPath = c.(map[string]any)["scanPath"].(string)
-	a.outfile = c.(map[string]any)["outfile"].(string)
+func (*Assetfinder) Run(ctx *core.Context) error {
+	fmt.Println("[+] Running Assetfinder on ", ctx.Domain)
+	if ctx.DryRun {
+		return nil
+	}
 
-	a.functions = []fetchFn{
+	outfile := fmt.Sprintf("%s/assetfinder.txt", ctx.ScanPath)
+	functions := []fetchFn{
 		assetfinder.CertSpotter,
 		assetfinder.HackerTarget,
 		assetfinder.ThreatCrowd,
@@ -39,15 +37,12 @@ func (a *Assetfinder) Configure(c any) {
 		assetfinder.Urlscan,
 		assetfinder.BufferOverrun,
 	}
-}
 
-func (a *Assetfinder) Run(url string) {
 	var wg sync.WaitGroup
-
 	rl := assetfinder.NewRateLimiter(time.Second)
 	out := make(chan string)
 
-	for _, f := range a.functions {
+	for _, f := range functions {
 		wg.Add(1)
 		fn := f
 
@@ -55,7 +50,7 @@ func (a *Assetfinder) Run(url string) {
 			defer wg.Done()
 
 			rl.Block(fmt.Sprintf("%#v", fn))
-			names, err := fn(url)
+			names, err := fn(ctx.Domain)
 
 			if err != nil {
 				return
@@ -74,9 +69,9 @@ func (a *Assetfinder) Run(url string) {
 	}()
 
 	printed := make(map[string]bool)
-	file, err := os.OpenFile(a.outfile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(outfile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		return
+		return nil
 	}
 	defer file.Close()
 
@@ -86,8 +81,9 @@ func (a *Assetfinder) Run(url string) {
 		}
 		printed[n] = true
 		fmt.Println(n)
-		file.WriteString(n + string('\n'))
+		file.WriteString(n + "\n")
 	}
 
-	fmt.Printf("[OSINT %s] Assetfinder done.\n\n", url)
+	fmt.Printf("[OSINT %s] Assetfinder done.\n\n", ctx.Domain)
+	return nil
 }

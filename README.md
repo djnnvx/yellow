@@ -51,6 +51,30 @@ For next version, i want to take care of at least two items described here:
 
 * sitemap should be stored to a file
 
+## 2.b Integrations
+
+Every tool is a `core.Module` (see `core/module.go`), so adding one is just
+implementing the interface and appending it to a pipeline. yellow leans on the
+projectdiscovery ecosystem and a few other golang libraries, wired in as
+libraries (not shelled out).
+
+Still on the radar, roughly by area:
+
+scan:
+
+* `katana` (projectdiscovery) crawling to feed more endpoints into gobuster/nuclei
+
+osint:
+
+* `gau` (lc/gau) — historical URLs from Wayback / CommonCrawl / OTX
+* `alterx` (projectdiscovery) subdomain permutations to feed dnsx
+* `asnmap` (projectdiscovery) domain/org to ASN to netblocks for scope expansion
+
+other:
+
+* `cdncheck` (projectdiscovery) skip port-scanning CDN/WAF ranges
+* `subjack` / `subzy` subdomain takeover detection on enumerated subdomains
+
 feel free to suggest more ideas. :)~
 if you'd like to do so, reach me by mail or on social media: https://djnn.sh/pgp
 
@@ -133,6 +157,17 @@ cat *.gnmap | grep -i "open/tcp" | cut -d " " -f2 | sort -u > djnn.sh/scans/web-
 # you can also just run the domains.txt file directly
 
 ./yellow scan -d djnn.sh/scans/infra --file djnn.sh/scans/web-targets.txt
+```
+
+By default the scan runs the lightweight steps (sitemap, robots.txt, tlsx, wappalyzergo, cvemap, httpx).
+The heavier steps are opt-in:
+
+```bash
+# add directory bruteforce
+./yellow scan -d djnn.sh --gobuster
+
+# add nuclei template scanning (downloads ~hundreds of MB of templates on first run)
+./yellow scan -d djnn.sh --nuclei
 ```
 
 #### Running port scans:

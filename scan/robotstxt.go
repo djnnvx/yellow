@@ -6,23 +6,21 @@ import (
 	"net/http"
 	"strings"
 
+	"evil.djnn.sh/djnn/yellow/core"
 	"evil.djnn.sh/djnn/yellow/helpers"
 )
 
-type RobotsTxt struct {
-	Proxy string
-}
+type RobotsTxt struct{}
 
-func (d *RobotsTxt) Info(url string) {
-	fmt.Println("[+] Running RobotsTxt on", url)
-}
+func (*RobotsTxt) Name() string { return "robots.txt" }
 
-func (d *RobotsTxt) Configure(c any) {
-	d.Proxy = c.(map[string]any)["Proxy"].(string)
-}
+func (*RobotsTxt) Run(ctx *core.Context) error {
+	fmt.Println("[+] Running RobotsTxt on", ctx.Domain)
+	if ctx.DryRun {
+		return nil
+	}
 
-func (d *RobotsTxt) Run(domain string) {
-	domain = strings.TrimSuffix(domain, "/")
+	domain := strings.TrimSuffix(ctx.Domain, "/")
 
 	client := helper.GetHttpClient(true)
 
@@ -55,4 +53,5 @@ func (d *RobotsTxt) Run(domain string) {
 	}
 
 	fmt.Printf("[SCAN %s] RobotsTxt scan for %s completed\n\n", domain, domain)
+	return nil
 }

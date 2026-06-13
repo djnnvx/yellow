@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"evil.djnn.sh/djnn/yellow/core"
 	"evil.djnn.sh/djnn/yellow/helpers"
 )
 
@@ -15,20 +16,14 @@ type ScanOpts struct {
 	rateLimit     int32
 	wordlistPath  string
 	forceInsecure bool
-	noGoBuster    bool
+	gobuster      bool
 	portScan      bool
 	ports         string
+	nuclei        bool
 }
 
-/*
-save in shared memory to avoid having to read a write from files all the time
-*/
-var (
-	wappalyzerResults []string
-)
-
-func (opts *ScanOpts) SetNoGobuster(data bool) {
-	opts.noGoBuster = data
+func (opts *ScanOpts) SetGobuster(data bool) {
+	opts.gobuster = data
 }
 
 func (opts *ScanOpts) SetForceInsecure(data bool) {
@@ -67,100 +62,41 @@ func (opts *ScanOpts) SetPorts(data string) {
 	opts.ports = data
 }
 
-func (opts ScanOpts) runRobots() {
+func (opts *ScanOpts) SetNuclei(data bool) {
+	opts.nuclei = data
+}
 
-	rb := RobotsTxt{}
-	rbCfg := make(map[string]any)
-
-	rbCfg["Proxy"] = opts.proxy
-
-	rb.Configure(rbCfg)
-	rb.Info(opts.domain)
-	if !opts.dryRun {
-		rb.Run(opts.domain)
+// context builds a per-target Context from the current options.
+func (opts *ScanOpts) context() *core.Context {
+	return &core.Context{
+		Domain:    opts.domain,
+		ScanPath:  opts.scanPath,
+		Proxy:     opts.proxy,
+		DryRun:    opts.dryRun,
+		RateLimit: opts.rateLimit,
+		Wordlist:  opts.wordlistPath,
+		Insecure:  opts.forceInsecure,
 	}
 }
 
-func (opts ScanOpts) RunWappalyzerGo() {
-	wappalyzerResults = make([]string, 0)
-
-	wp := WappalyzerGo{}
-	wpCfg := make(map[string]any)
-
-	wpCfg["Proxy"] = opts.proxy
-	wpCfg["ScanPath"] = opts.scanPath
-
-	wp.Configure(wpCfg)
-	wp.Info(opts.domain)
-	if !opts.dryRun {
-		wappalyzerResults = wp.Run(opts.domain)
+// webModules is the ordered web-scan pipeline. Gobuster is appended unless
+// directory bruteforcing was disabled.
+func (opts *ScanOpts) webModules() []core.Module {
+	modules := []core.Module{
+		&Sitemap{},
+		&RobotsTxt{},
+		&Tlsx{},
+		&WappalyzerGo{},
+		&Cvemap{},
+		&Httpx{},
 	}
-}
-
-func (opts ScanOpts) RunCvemap() {
-	cv := Cvemap{}
-	cvCfg := make(map[string]any)
-
-	cvCfg["Proxy"] = opts.proxy
-	cvCfg["ScanPath"] = opts.scanPath
-	cv.Configure(cvCfg)
-	cv.Info(opts.domain)
-
-	if !opts.dryRun {
-		cv.Run(wappalyzerResults)
-		wappalyzerResults = make([]string, 0)
+	if opts.nuclei {
+		modules = append(modules, &Nuclei{})
 	}
-}
-
-func (opts ScanOpts) runSitemap() {
-
-	sm := Sitemap{}
-	smCfg := make(map[string]any)
-
-	smCfg["Proxy"] = opts.proxy
-
-	sm.Configure(smCfg)
-	sm.Info(opts.domain)
-	if !opts.dryRun {
-		sm.Run(opts.domain)
+	if opts.gobuster {
+		modules = append(modules, &Gobuster{})
 	}
-}
-
-func (opts *ScanOpts) runHttpx() {
-	httpx := Httpx{}
-	httpxCfg := make(map[string]any)
-
-	httpxOutdir := fmt.Sprintf("%s/httpx", opts.scanPath)
-
-	httpxCfg["OutDirPath"] = httpxOutdir
-	httpxCfg["Proxy"] = opts.proxy
-	httpxCfg["RateLimit"] = opts.rateLimit
-	httpxCfg["Insecure"] = opts.forceInsecure
-
-	httpx.Configure(httpxCfg)
-	httpx.Info(opts.domain)
-
-	if !opts.dryRun {
-		httpx.Run(opts.domain)
-	}
-}
-
-func (opts ScanOpts) runGobusterDir() {
-
-	nb := Gobuster{}
-	nbCfg := make(map[string]any)
-
-	nbCfg["scanPath"] = opts.scanPath
-	nbCfg["proxy"] = opts.proxy
-	nbCfg["rateLimit"] = opts.rateLimit
-	nbCfg["wordlist"] = opts.wordlistPath
-	nbCfg["insecure"] = opts.forceInsecure
-
-	nb.Configure(nbCfg)
-	nb.Info(opts.domain)
-	if !opts.dryRun {
-		nb.Run(opts.domain)
-	}
+	return modules
 }
 
 func (opts *ScanOpts) Run() {
@@ -175,31 +111,23 @@ func (opts *ScanOpts) Run() {
 		opts.runPortScan()
 	}
 
-	if !helper.HasUnavailableWebInterface(fullDomain) {
-
-		fmt.Printf("[SCAN %s] web panel online....running web scans\n", opts.domain)
-
-		pathForDomain := opts.scanPath + "/" + opts.domain
-		if err := os.MkdirAll(pathForDomain, 0755); err != nil {
-			fmt.Printf("[!] scan: could not create %s, skipping %s: %v\n", pathForDomain, opts.domain, err)
-			return
-		}
-
-		/* modifying opts.scanPath directly would cause nested directories */
-		runOpts := *opts
-		runOpts.scanPath = pathForDomain
-		runOpts.domain = fullDomain
-
-		runOpts.runSitemap()
-		runOpts.runRobots()
-		runOpts.RunWappalyzerGo()
-		runOpts.RunCvemap()
-		runOpts.runHttpx()
-
-		if !runOpts.noGoBuster {
-			runOpts.runGobusterDir()
-		}
-	} else {
+	if helper.HasUnavailableWebInterface(fullDomain) {
 		fmt.Printf("[SCAN %s] => no web panel online. skipping\n", opts.domain)
+		return
 	}
+
+	fmt.Printf("[SCAN %s] web panel online....running web scans\n", opts.domain)
+
+	/* per-domain output dir; setting opts.scanPath directly would nest dirs */
+	pathForDomain := opts.scanPath + "/" + opts.domain
+	if err := os.MkdirAll(pathForDomain, 0755); err != nil {
+		fmt.Printf("[!] scan: could not create %s, skipping %s: %v\n", pathForDomain, opts.domain, err)
+		return
+	}
+
+	ctx := opts.context()
+	ctx.Domain = fullDomain
+	ctx.ScanPath = pathForDomain
+
+	core.RunModules(ctx, opts.webModules())
 }

@@ -8,6 +8,7 @@ import (
 	"slices"
 	"strings"
 
+	"evil.djnn.sh/djnn/yellow/core"
 	"evil.djnn.sh/djnn/yellow/helpers"
 )
 
@@ -44,6 +45,18 @@ func (opts *OsintOpts) SetEmailsFile(data string) {
 	opts.emailsFile = data
 }
 
+// context builds a Context from the current options.
+func (opts *OsintOpts) context() *core.Context {
+	return &core.Context{
+		Domain:     opts.domain,
+		ScanPath:   opts.scanPath,
+		Proxy:      opts.proxy,
+		DryRun:     opts.dryRun,
+		RateLimit:  opts.rateLimit,
+		EmailsFile: opts.emailsFile,
+	}
+}
+
 func (opts OsintOpts) RunCleanup() {
 	fmt.Println("[+] cleaning up...")
 
@@ -58,117 +71,43 @@ func (opts OsintOpts) RunCleanup() {
 	}
 }
 
-func (opts OsintOpts) runShodan(domains []string) {
-
-	shodanExec := Shodan{}
-	shodanCfg := make(map[string]any)
-
-	shodanCfg["outfile"] = fmt.Sprintf("%s/shodan.txt", opts.scanPath)
-	shodanExec.Configure(shodanCfg)
-
-	shodanExec.Info(opts.domain)
-	if opts.dryRun || !shodanExec.ShouldRun() {
-		return
-	}
-
-	for _, d := range domains {
-		shodanExec.Run(d)
-	}
-}
-
-func (opts OsintOpts) runGoogleDorks() {
-
-	dorks := Dorks{}
-	dorksCfg := make(map[string]any)
-
-	dorksOutfile := fmt.Sprintf("%s/dorks.txt", opts.scanPath)
-	dorksCfg["outfile"] = dorksOutfile
-	dorksCfg["proxy"] = opts.proxy
-
-	dorks.Configure(dorksCfg)
-	dorks.Info(opts.domain)
-	if !opts.dryRun {
-		dorks.Run(opts.domain)
-	}
-}
-
-func (opts OsintOpts) runSubfinder() {
-	sbf := Subfinder{}
-	sbfCfg := make(map[string]any)
-
-	sbfOutfile := fmt.Sprintf("%s/subfinder.txt", opts.scanPath)
-	sbfCfg["outfile"] = sbfOutfile
-
-	sbf.Configure(sbfCfg)
-	sbf.Info(opts.domain)
-
-	if !opts.dryRun {
-		sbf.Run(opts.domain)
-	}
-
-}
-
-func (opts OsintOpts) runAssetfinder() {
-	asf := Assetfinder{}
-	asfCfg := make(map[string]any)
-
-	asfOutfile := fmt.Sprintf("%s/assetfinder.txt", opts.scanPath)
-
-	asfCfg["scanPath"] = opts.scanPath
-	asfCfg["outfile"] = asfOutfile
-
-	asf.Configure(asfCfg)
-	asf.Info(opts.domain)
-
-	if !opts.dryRun {
-		asf.Run(opts.domain)
-	}
-}
-
-func (opts OsintOpts) runDnsx() {
-	dnsx := Dnsx{}
-	dnsxCfg := make(map[string]any)
-
-	dnsxOutfile := fmt.Sprintf("%s/dnsx.json", opts.scanPath)
-	dnsxCfg["outfile"] = dnsxOutfile
-	dnsxCfg["proxy"] = opts.proxy
-
-	dnsx.Configure(dnsxCfg)
-	dnsx.Info(opts.domain)
-
-	if !opts.dryRun {
-		dnsx.Run(opts.domain)
-	}
-}
-
-func (opts OsintOpts) runLeaker() {
-	leaker := Leaker{}
-	leakerCfg := make(map[string]any)
-
-	leakerOutfile := fmt.Sprintf("%s/leaks.txt", opts.scanPath)
-	leakerCfg["outfile"] = leakerOutfile
-	leakerCfg["emailsFile"] = opts.emailsFile
-	leakerCfg["proxy"] = opts.proxy
-
-	leaker.Configure(leakerCfg)
-	leaker.Info(opts.domain)
-
-	if opts.dryRun || !leaker.ShouldRun() {
-		return
-	}
-
-	leaker.Run(opts.domain)
-}
-
-func (opts OsintOpts) Run() {
+func (opts *OsintOpts) Run() {
 	fmt.Printf("\n[OSINT] domain: %s\n\n", opts.domain)
 
-	opts.runGoogleDorks()
-	opts.runSubfinder()
-	opts.runAssetfinder()
-	opts.runDnsx()
-	opts.runLeaker()
+	ctx := opts.context()
 
+	core.RunModules(ctx, []core.Module{
+		&Dorks{},
+		&Subfinder{},
+		&Assetfinder{},
+		&Dnsx{},
+		&Leaker{},
+	})
+
+	// aggregate the assets the enumeration modules wrote, then let shodan
+	// consume the unique list.
+	domains, buf := opts.aggregateDomains()
+	ctx.Domains = domains
+
+	core.RunModules(ctx, []core.Module{&Shodan{}})
+
+	uniqueOutfile := fmt.Sprintf("%s/domains.txt", opts.scanPath)
+	if err := os.WriteFile(uniqueOutfile, buf, 0644); err != nil {
+		fmt.Printf("[!] osint: could not write %s: %v\n", uniqueOutfile, err)
+		return
+	}
+
+	fmt.Printf("[OSINT %s] Registered %v IP addresses and assets.\n", opts.domain, len(domains))
+	fmt.Printf("[OSINT %s] Location of unique domain names: %s\n", opts.domain, uniqueOutfile)
+	fmt.Printf("[OSINT %s] done.\n", opts.domain)
+
+	opts.RunCleanup()
+}
+
+// aggregateDomains reads the asset files written by the enumeration modules,
+// keeps valid (and unique) IPs and domain names, and returns the unique list
+// together with a newline-joined buffer ready to be written to disk.
+func (opts *OsintOpts) aggregateDomains() ([]string, []byte) {
 	asfFilepath := fmt.Sprintf("%s/assetfinder.txt", opts.scanPath)
 	dnsxFilepath := fmt.Sprintf("%s/dnsx.json", opts.scanPath)
 	sbfOutfile := fmt.Sprintf("%s/subfinder.txt", opts.scanPath)
@@ -183,10 +122,8 @@ func (opts OsintOpts) Run() {
 			continue
 		}
 
-		/* check if valid IP address / domain & if it's already in the list */
 		lines := strings.Split(strings.ReplaceAll(string(newDomains), "\r\n", "\n"), "\n")
 		for _, domain := range lines {
-
 			parsedDomain := strings.Trim(domain, "\t \",")
 
 			// already exists in list
@@ -194,30 +131,15 @@ func (opts OsintOpts) Run() {
 				continue
 			}
 
-			// is IP address ?
-			addr := net.ParseIP(parsedDomain)
-
-			// does it look like a domain name ? at least one .
+			// is it a valid IP address, or does it at least look like a domain?
 			// (hacky, but no need to make it better for now)
+			addr := net.ParseIP(parsedDomain)
 			if addr != nil || (!helper.StringHasUnwantedCharactersForDomainName(parsedDomain) && parsedDomain != "") {
 				domains = append(domains, parsedDomain)
-				domainBuffer.Write([]byte(string(parsedDomain) + "\n"))
+				domainBuffer.WriteString(parsedDomain + "\n")
 			}
 		}
 	}
 
-	opts.runShodan(domains)
-
-	// now add all assets together, line by line
-	uniqueOutfile := fmt.Sprintf("%s/domains.txt", opts.scanPath)
-	if err := os.WriteFile(uniqueOutfile, domainBuffer.Bytes(), 0644); err != nil {
-		fmt.Printf("[!] osint: could not write %s: %v\n", uniqueOutfile, err)
-		return
-	}
-
-	fmt.Printf("[OSINT %s] Registered %v IP addresses and assets.\n", opts.domain, len(domains))
-	fmt.Printf("[OSINT %s] Location of unique domain names: %s\n", opts.domain, uniqueOutfile)
-	fmt.Printf("[OSINT %s] done.\n", opts.domain)
-
-	opts.RunCleanup()
+	return domains, domainBuffer.Bytes()
 }

@@ -8,29 +8,26 @@ import (
 	"log"
 	"os"
 
+	"evil.djnn.sh/djnn/yellow/core"
 	"github.com/projectdiscovery/subfinder/v2/pkg/runner"
 )
 
-type Subfinder struct {
-	outfile string
-}
+type Subfinder struct{}
 
-func (s *Subfinder) Info(url string) {
-	fmt.Println("[+] Running subfinder on", url)
-}
+func (*Subfinder) Name() string { return "subfinder" }
 
-func (s *Subfinder) Configure(c any) {
-	s.outfile = c.(map[string]any)["outfile"].(string)
-}
+func (*Subfinder) Run(ctx *core.Context) error {
+	fmt.Println("[+] Running subfinder on", ctx.Domain)
+	if ctx.DryRun {
+		return nil
+	}
 
-func (s *Subfinder) Run(domain string) {
+	outfile := fmt.Sprintf("%s/subfinder.txt", ctx.ScanPath)
+
 	subfinderOpts := &runner.Options{
-		Threads:            10, // Thread controls the number of threads to use for active enumerations
-		Timeout:            15, // Timeout is the seconds to wait for sources to respond
-		MaxEnumerationTime: 3,  // MaxEnumerationTime is the maximum amount of time in mins to wait for enumeration
-		// ResultCallback: func(s *resolve.HostEntry) {
-		// callback function executed after each unique subdomain is found
-		// },
+		Threads:            10, // number of threads to use for active enumerations
+		Timeout:            15, // seconds to wait for sources to respond
+		MaxEnumerationTime: 3,  // max minutes to wait for enumeration
 	}
 
 	log.SetFlags(0)
@@ -38,27 +35,28 @@ func (s *Subfinder) Run(domain string) {
 	subfinder, err := runner.NewRunner(subfinderOpts)
 	if err != nil {
 		fmt.Printf("[!] Subfinder: failed to create runner: %v\n", err)
-		return
+		return nil
 	}
 
 	output := &bytes.Buffer{}
-	_, err = subfinder.EnumerateSingleDomainWithCtx(context.Background(), domain, []io.Writer{output})
+	_, err = subfinder.EnumerateSingleDomainWithCtx(context.Background(), ctx.Domain, []io.Writer{output})
 	if err != nil {
-		fmt.Printf("[!] Subfinder: failed to enumerate %s: %v\n", domain, err)
-		return
+		fmt.Printf("[!] Subfinder: failed to enumerate %s: %v\n", ctx.Domain, err)
+		return nil
 	}
 
-	fo, err := os.Create(s.outfile)
+	fo, err := os.Create(outfile)
 	if err != nil {
-		fmt.Printf("[!] Subfinder: failed to create %s: %v\n", s.outfile, err)
-		return
+		fmt.Printf("[!] Subfinder: failed to create %s: %v\n", outfile, err)
+		return nil
 	}
 	defer fo.Close()
 
 	if _, err := fo.Write(output.Bytes()); err != nil {
-		fmt.Printf("[!] Subfinder: failed to write %s: %v\n", s.outfile, err)
-		return
+		fmt.Printf("[!] Subfinder: failed to write %s: %v\n", outfile, err)
+		return nil
 	}
 
-	fmt.Printf("[OSINT %s] Subfinder are stored in %s\n\n", domain, s.outfile)
+	fmt.Printf("[OSINT %s] Subfinder are stored in %s\n\n", ctx.Domain, outfile)
+	return nil
 }

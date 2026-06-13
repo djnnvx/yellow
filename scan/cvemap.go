@@ -9,6 +9,8 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"evil.djnn.sh/djnn/yellow/core"
 )
 
 // NVD rate limits: 5 req/30s without key, 50 req/30s with key.
@@ -25,8 +27,6 @@ type Cvemap struct {
 	scanPath  string
 	Limit     int
 	Offset    int
-	Verbose   bool
-	Debug     bool
 }
 
 type nvdResponse struct {
@@ -80,40 +80,21 @@ type nvdRef struct {
 	Source string `json:"source"`
 }
 
-func (c *Cvemap) Info(target string) {
-	fmt.Println("[+] Running cvemap for", target)
-}
+func (*Cvemap) Name() string { return "cvemap" }
 
-func (c *Cvemap) Configure(cfg any) {
-	if cfg == nil {
-		return
+func (c *Cvemap) Run(ctx *core.Context) error {
+	fmt.Println("[+] Running cvemap for", ctx.Domain)
+	if ctx.DryRun {
+		return nil
 	}
-	m := cfg.(map[string]any)
 
-	if v, ok := m["Proxy"].(string); ok {
-		c.HTTPProxy = v
-	}
-	if v, ok := m["Limit"].(int); ok {
-		c.Limit = v
-	}
-	if v, ok := m["Offset"].(int); ok {
-		c.Offset = v
-	}
-	if v, ok := m["Verbose"].(bool); ok {
-		c.Verbose = v
-	}
-	if v, ok := m["Debug"].(bool); ok {
-		c.Debug = v
-	}
-	if v, ok := m["ScanPath"].(string); ok {
-		c.scanPath = v
-	}
-}
+	c.HTTPProxy = ctx.Proxy
+	c.scanPath = ctx.ScanPath
 
-func (c *Cvemap) Run(techs []string) {
+	techs := ctx.Techs
 	if len(techs) == 0 {
 		fmt.Println("[+] no technologies provided")
-		return
+		return nil
 	}
 
 	client := &http.Client{Timeout: 30 * time.Second}
@@ -121,7 +102,7 @@ func (c *Cvemap) Run(techs []string) {
 		proxyURL, err := url.Parse(c.HTTPProxy)
 		if err != nil {
 			fmt.Printf("[ERROR] invalid proxy URL: %v\n", err)
-			return
+			return nil
 		}
 		client.Transport = &http.Transport{Proxy: http.ProxyURL(proxyURL)}
 	}
@@ -162,7 +143,7 @@ func (c *Cvemap) Run(techs []string) {
 		}
 		queried++
 
-		c.Info(query)
+		fmt.Println("[+] Running cvemap for", query)
 
 		cves, total, err := c.queryCVEs(client, apiKey, query, limit, c.Offset)
 		if err != nil {
@@ -175,6 +156,7 @@ func (c *Cvemap) Run(techs []string) {
 	}
 
 	c.saveResults(allCVEs)
+	return nil
 }
 
 func (c *Cvemap) queryCVEs(client *http.Client, apiKey, keyword string, limit, offset int) ([]nvdCVE, int, error) {

@@ -1,5 +1,9 @@
 ## v0.0.6
 
+- refactor(core): introduce a shared Module interface and Context (replaces per-tool map[string]any config and the wappalyzerResults global)
+- feat(scan): add tlsx module for TLS certificate grabbing (saves tls.json, surfaces cert SANs)
+- feat(scan): add nuclei module for vulnerability scanning (opt-in via --nuclei; installs templates up front)
+- change(cli): gobuster is now opt-in via --gobuster (replaces the default-on --disable-dirbusting)
 - fix(scan): perform the real robots.txt fetch (was duplicating the sitemap scan)
 - fix(net): add HTTP client timeouts and close response bodies (prevents hangs and fd leaks)
 - fix(net): keep running when the public IP lookup fails instead of exiting the program

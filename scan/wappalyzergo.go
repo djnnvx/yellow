@@ -9,34 +9,29 @@ import (
 	"reflect"
 	"sort"
 
+	"evil.djnn.sh/djnn/yellow/core"
 	helper "evil.djnn.sh/djnn/yellow/helpers"
 	wappalyzer "github.com/projectdiscovery/wappalyzergo"
 )
 
-type WappalyzerGo struct {
-	Proxy    string
-	ScanPath string
-}
+type WappalyzerGo struct{}
 
-func (d *WappalyzerGo) Info(url string) {
-	fmt.Println("[+] Running WappalyzerGo on", url)
-}
+func (*WappalyzerGo) Name() string { return "wappalyzergo" }
 
-func (d *WappalyzerGo) Configure(c any) {
-	d.Proxy = c.(map[string]any)["Proxy"].(string)
-	d.ScanPath = c.(map[string]any)["ScanPath"].(string)
-}
+func (d *WappalyzerGo) Run(ctx *core.Context) error {
+	fmt.Println("[+] Running WappalyzerGo on", ctx.Domain)
+	if ctx.DryRun {
+		return nil
+	}
 
-func (d *WappalyzerGo) Run(targetURL string) []string {
-	var names = make([]string, 0)
-
+	targetURL := ctx.Domain
 	client := d.newHTTPClient()
 
 	resp, body, err := d.fetchResponse(client, targetURL)
 	if err != nil {
 		fmt.Printf("error fetching %s: %v\n", targetURL, err)
 		fmt.Printf("[SCAN %s] WappalyzerGo scan for %s completed\n\n", targetURL, targetURL)
-		return names
+		return nil
 	}
 	if resp != nil {
 		defer resp.Body.Close()
@@ -46,11 +41,11 @@ func (d *WappalyzerGo) Run(targetURL string) []string {
 	if err != nil {
 		fmt.Printf("error fingerprinting %s: %v\n", targetURL, err)
 		fmt.Printf("[SCAN %s] WappalyzerGo scan for %s completed\n\n", targetURL, targetURL)
-		return names
+		return nil
 	}
 
-	names = techNamesFromResults(results)
-	filename, err := d.saveNames(names, targetURL)
+	names := techNamesFromResults(results)
+	filename, err := d.saveNames(names, ctx.ScanPath)
 	if err != nil {
 		fmt.Printf("error saving results for %s: %v\n", targetURL, err)
 	} else {
@@ -59,7 +54,9 @@ func (d *WappalyzerGo) Run(targetURL string) []string {
 
 	fmt.Printf("%v\n", names)
 	fmt.Printf("[SCAN %s] WappalyzerGo scan for %s completed\n\n", targetURL, targetURL)
-	return names
+
+	ctx.Techs = names
+	return nil
 }
 
 func (d *WappalyzerGo) newHTTPClient() *http.Client {
@@ -100,13 +97,13 @@ func (d *WappalyzerGo) fingerprint(resp *http.Response, body []byte) (any, error
 	return results, nil
 }
 
-func (d *WappalyzerGo) saveNames(names []string, targetURL string) (string, error) {
+func (d *WappalyzerGo) saveNames(names []string, scanPath string) (string, error) {
 	data, err := json.MarshalIndent(names, "", "\t")
 	if err != nil {
 		return "", fmt.Errorf("marshal names: %w", err)
 	}
 
-	filename := d.ScanPath + "/wappalyzer.json"
+	filename := scanPath + "/wappalyzer.json"
 	if err := os.WriteFile(filename, data, 0644); err != nil {
 		return "", fmt.Errorf("write file %s: %w", filename, err)
 	}

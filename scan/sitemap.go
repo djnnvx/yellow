@@ -7,25 +7,23 @@ import (
 	"net/url"
 	"strings"
 
+	"evil.djnn.sh/djnn/yellow/core"
 	"evil.djnn.sh/djnn/yellow/helpers"
 )
 
 var GlobalHeaders = []string{"Server", "X-XSS-Protection", "Access-Control-Allow-Credentials", "Content-Security-Policy", "X-Powered-By", "Strict-Transport-Security"}
 
-type Sitemap struct {
-	Proxy string
-}
+type Sitemap struct{}
 
-func (d *Sitemap) Info(url string) {
-	fmt.Println("[+] Running Sitemap on", url)
-}
+func (*Sitemap) Name() string { return "sitemap" }
 
-func (d *Sitemap) Configure(c any) {
-	d.Proxy = c.(map[string]any)["Proxy"].(string)
-}
+func (*Sitemap) Run(ctx *core.Context) error {
+	fmt.Println("[+] Running Sitemap on", ctx.Domain)
+	if ctx.DryRun {
+		return nil
+	}
 
-func (d *Sitemap) Run(domain string) {
-	domain = strings.TrimSuffix(domain, "/")
+	domain := strings.TrimSuffix(ctx.Domain, "/")
 
 	client := helper.GetHttpClient(true)
 
@@ -64,6 +62,7 @@ func (d *Sitemap) Run(domain string) {
 	}
 
 	fmt.Printf("[SCAN %s] Sitemap scan for %s completed\n\n", domain, domain)
+	return nil
 }
 
 func contains(slice []string, item string) bool {

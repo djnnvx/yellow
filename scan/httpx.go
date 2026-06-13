@@ -4,34 +4,27 @@ import (
 	"fmt"
 	"time"
 
+	"evil.djnn.sh/djnn/yellow/core"
 	"github.com/projectdiscovery/goflags"
 	"github.com/projectdiscovery/httpx/runner"
 )
 
-type Httpx struct {
-	Proxy      string
-	OutDirPath string
-	RateLimit  int32
-	Insecure   bool
-}
+type Httpx struct{}
 
-func (h *Httpx) Info(url string) {
-	fmt.Println("[+] Running httpx on ", url)
-}
+func (*Httpx) Name() string { return "httpx" }
 
-func (h *Httpx) Configure(c any) {
-	h.OutDirPath = c.(map[string]any)["OutDirPath"].(string)
-	h.Proxy = c.(map[string]any)["Proxy"].(string)
-	h.RateLimit = c.(map[string]any)["RateLimit"].(int32)
-	h.Insecure = c.(map[string]any)["Insecure"].(bool)
-}
+func (*Httpx) Run(ctx *core.Context) error {
+	fmt.Println("[+] Running httpx on ", ctx.Domain)
+	if ctx.DryRun {
+		return nil
+	}
 
-func (h *Httpx) Run(domain string) {
+	domain := ctx.Domain
 	options := runner.Options{
 		Methods:                   "GET",
 		InputTargetHost:           goflags.StringSlice{domain},
-		HTTPProxy:                 h.Proxy,
-		StoreResponseDir:          h.OutDirPath,
+		HTTPProxy:                 ctx.Proxy,
+		StoreResponseDir:          fmt.Sprintf("%s/httpx", ctx.ScanPath),
 		Screenshot:                true,
 		ScreenshotTimeout:         10 * time.Second,
 		ScreenshotIdle:            1 * time.Second,
@@ -39,21 +32,22 @@ func (h *Httpx) Run(domain string) {
 		UseInstalledChrome:        false,
 		HeadlessOptionalArguments: nil,
 		NoHeadlessBody:            false,
-		RateLimit:                 int(h.RateLimit),
+		RateLimit:                 int(ctx.RateLimit),
 	}
 
 	if err := options.ValidateOptions(); err != nil {
 		fmt.Printf("[!] httpx: invalid options for %s: %v\n", domain, err)
-		return
+		return nil
 	}
 
 	httpxRunner, err := runner.New(&options)
 	if err != nil {
 		fmt.Printf("[!] httpx: could not create runner for %s: %v\n", domain, err)
-		return
+		return nil
 	}
 	defer httpxRunner.Close()
 
 	httpxRunner.RunEnumeration()
 	fmt.Printf("[SCAN %s] httpx completed.\n\n", domain)
+	return nil
 }
