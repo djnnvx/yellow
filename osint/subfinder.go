@@ -37,27 +37,27 @@ func (s *Subfinder) Run(domain string) {
 
 	subfinder, err := runner.NewRunner(subfinderOpts)
 	if err != nil {
-		log.Fatalf("failed to create subfinder runner: %v", err)
+		fmt.Printf("[!] Subfinder: failed to create runner: %v\n", err)
+		return
 	}
 
 	output := &bytes.Buffer{}
 	_, err = subfinder.EnumerateSingleDomainWithCtx(context.Background(), domain, []io.Writer{output})
 	if err != nil {
-		log.Fatalf("failed to enumerate single domain: %v", err)
+		fmt.Printf("[!] Subfinder: failed to enumerate %s: %v\n", domain, err)
+		return
 	}
 
 	fo, err := os.Create(s.outfile)
 	if err != nil {
-		panic(err)
+		fmt.Printf("[!] Subfinder: failed to create %s: %v\n", s.outfile, err)
+		return
 	}
-	defer func() {
-		if err := fo.Close(); err != nil {
-			panic(err)
-		}
-	}()
+	defer fo.Close()
 
 	if _, err := fo.Write(output.Bytes()); err != nil {
-		panic(err)
+		fmt.Printf("[!] Subfinder: failed to write %s: %v\n", s.outfile, err)
+		return
 	}
 
 	fmt.Printf("[OSINT %s] Subfinder are stored in %s\n\n", domain, s.outfile)

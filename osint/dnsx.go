@@ -83,16 +83,14 @@ func (d *Dnsx) Run(domain string) {
 
 	fo, err := os.Create(d.outfile)
 	if err != nil {
-		panic(err)
+		fmt.Printf("[!] Dnsx: failed to create %s: %v\n", d.outfile, err)
+		return
 	}
-	defer func() {
-		if err := fo.Close(); err != nil {
-			panic(err)
-		}
-	}()
+	defer fo.Close()
 
 	if _, err := fo.Write(prettyJSON.Bytes()); err != nil {
-		panic(err)
+		fmt.Printf("[!] Dnsx: failed to write %s: %v\n", d.outfile, err)
+		return
 	}
 
 	fmt.Printf("[OSINT %s] Dnsx results are stored in %s\n", domain, d.outfile)

@@ -15,7 +15,8 @@ type FileScanner struct {
 func LoadTargetFile(targetPath string) *FileScanner {
 	file, err := os.Open(targetPath)
 	if err != nil {
-		fmt.Printf("%v, %+v", err, targetPath)
+		fmt.Printf("[!] Could not open target file %q: %v\n", targetPath, err)
+		os.Exit(1)
 	}
 
 	scanner := bufio.NewScanner(file)

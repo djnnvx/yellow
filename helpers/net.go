@@ -14,19 +14,6 @@ import (
 
 const HttpTimeout = 15 * time.Second
 
-func ParseDomain(website string) string {
-	if strings.HasPrefix(website, "http") {
-		parsedUrl, err := url.Parse(website)
-		if err != nil {
-			fmt.Printf("%s", err)
-		}
-
-		website = parsedUrl.Host
-	}
-
-	return website
-}
-
 func GetHttpTransport() *http.Transport {
 	var proxy = os.Getenv("HTTP_PROXY")
 	url, err := url.Parse(proxy)
@@ -74,6 +61,7 @@ func GetCurrentIP() string {
 		fmt.Printf("[!] Could not query public IP address: %s\n", err.Error())
 		return ""
 	}
+	defer resp.Body.Close()
 
 	result, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -118,12 +106,10 @@ func HasUnavailableWebInterface(url string) bool {
 	}
 	req.Header.Add("User-Agent", GetUserAgent())
 	resp, err := client.Do(req)
-	if err != nil {
+	if err != nil || resp == nil {
 		return true
 	}
+	defer resp.Body.Close()
 
-	if resp == nil || resp.StatusCode >= http.StatusBadGateway {
-		return true
-	}
-	return false
+	return resp.StatusCode >= http.StatusBadGateway
 }

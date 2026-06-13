@@ -38,12 +38,12 @@ func (d *Sitemap) Run(domain string) {
 		req.Header.Add("User-Agent", helper.GetUserAgent())
 
 		resp, err := client.Do(req)
-
 		if err != nil {
 			fmt.Printf("%v", err)
+			continue
 		}
 
-		if resp != nil && resp.StatusCode != http.StatusNotFound {
+		if resp.StatusCode != http.StatusNotFound {
 			body, err := io.ReadAll(resp.Body)
 			if err != nil {
 				fmt.Printf("%v", err)
@@ -60,6 +60,7 @@ func (d *Sitemap) Run(domain string) {
 		} else {
 			fmt.Println("-----  Sorry, got 404 status code for sitemap.xml -----")
 		}
+		resp.Body.Close()
 	}
 
 	fmt.Printf("[SCAN %s] Sitemap scan for %s completed\n\n", domain, domain)
