@@ -1,7 +1,6 @@
 package osint
 
 import (
-	"bytes"
 	"fmt"
 	"net"
 	"net/url"
@@ -45,7 +44,6 @@ func (opts *OsintOpts) SetEmailsFile(data string) {
 	opts.emailsFile = data
 }
 
-// context builds a Context from the current options.
 func (opts *OsintOpts) context() *core.Context {
 	return &core.Context{
 		Domain:     opts.domain,
@@ -85,29 +83,29 @@ func (opts *OsintOpts) Run() {
 		&Leaker{},
 	})
 
-	// aggregate the assets the enumeration modules wrote, then let shodan
-	// consume the unique list.
-	domains, buf := opts.aggregateDomains()
-	ctx.Domains = domains
+	ctx.Domains = opts.aggregateDomains()
 
-	core.RunModules(ctx, []core.Module{&Shodan{}})
+	core.RunModules(ctx, []core.Module{&Alterx{}, &Shodan{}})
 
 	uniqueOutfile := fmt.Sprintf("%s/domains.txt", opts.scanPath)
-	if err := os.WriteFile(uniqueOutfile, buf, 0644); err != nil {
+	content := strings.Join(ctx.Domains, "\n")
+	if content != "" {
+		content += "\n"
+	}
+	if err := os.WriteFile(uniqueOutfile, []byte(content), 0644); err != nil {
 		fmt.Printf("[!] osint: could not write %s: %v\n", uniqueOutfile, err)
 		return
 	}
 
-	fmt.Printf("[OSINT %s] Registered %v IP addresses and assets.\n", opts.domain, len(domains))
+	fmt.Printf("[OSINT %s] Registered %v IP addresses and assets.\n", opts.domain, len(ctx.Domains))
 	fmt.Printf("[OSINT %s] Location of unique domain names: %s\n", opts.domain, uniqueOutfile)
 	fmt.Printf("[OSINT %s] done.\n", opts.domain)
 
 	opts.RunCleanup()
 }
 
-func (opts *OsintOpts) aggregateDomains() ([]string, []byte) {
+func (opts *OsintOpts) aggregateDomains() []string {
 	var domains []string
-	var domainBuffer bytes.Buffer
 	seen := map[string]struct{}{}
 
 	add := func(candidate string) {
@@ -118,12 +116,10 @@ func (opts *OsintOpts) aggregateDomains() ([]string, []byte) {
 		if _, ok := seen[candidate]; ok {
 			return
 		}
-		// IPv4, or something that roughly looks like a domain; IPv6 carries colons that break downstream
 		ip := net.ParseIP(candidate)
 		if (ip != nil && ip.To4() != nil) || (ip == nil && !helper.StringHasUnwantedCharactersForDomainName(candidate)) {
 			seen[candidate] = struct{}{}
 			domains = append(domains, candidate)
-			domainBuffer.WriteString(candidate + "\n")
 		}
 	}
 
@@ -151,5 +147,5 @@ func (opts *OsintOpts) aggregateDomains() ([]string, []byte) {
 		}
 	}
 
-	return domains, domainBuffer.Bytes()
+	return domains
 }

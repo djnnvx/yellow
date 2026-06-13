@@ -875,6 +875,8 @@ github.com/praetorian-inc/fingerprintx v1.1.15 h1:CVIxrIQARbmdk5h8E9tIJZbvFoY2sG
 github.com/praetorian-inc/fingerprintx v1.1.15/go.mod h1:hqRroITBwKpP8BOGF+n/A+qv9wSF7OSVinmu5NCyOUI=
 github.com/praetorian-inc/nerva v1.18.0 h1:KwvgHtfqd69afnqKKtXbBmiKx2X5bLWZ4LfcK5KAUX8=
 github.com/praetorian-inc/nerva v1.18.0/go.mod h1:FHEc0IZVvyCu8NjjErOsd7rY2e4Yo76apBeFdWpYSBE=
+github.com/projectdiscovery/alterx v0.1.0 h1:oMi/CV/RcaIvg21PbqBYqlGDtXodvEfPohQ8Y2BthO0=
+github.com/projectdiscovery/alterx v0.1.0/go.mod h1:PNilhIp5zjvgKD8A0sZ56RyZRBcOhCWlVp2O299nc4M=
 github.com/projectdiscovery/asnmap v1.1.1 h1:ImJiKIaACOT7HPx4Pabb5dksolzaFYsD1kID2iwsDqI=
 github.com/projectdiscovery/asnmap v1.1.1/go.mod h1:QT7jt9nQanj+Ucjr9BqGr1Q2veCCKSAVyUzLXfEcQ60=
 github.com/projectdiscovery/awesome-search-queries v0.0.0-20260411001519-47ff919ec921 h1:8LLtUicd7P3A+DrY2PUlq4DGkttViWnu/QbQ5ooo8Zc=

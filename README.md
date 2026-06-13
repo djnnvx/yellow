@@ -66,7 +66,6 @@ scan:
 
 osint:
 
-* `alterx` (projectdiscovery) subdomain permutations to feed dnsx
 * `asnmap` (projectdiscovery) domain/org to ASN to netblocks for scope expansion
 
 other:
@@ -143,6 +142,9 @@ Run various scans to retrieve more targets, using OSINT techniques.
 ```
 
 osint also runs `gau` to pull historical URLs (Wayback, CommonCrawl, OTX, URLScan).
+
+osint also runs `alterx`: it generates permutations of the discovered subdomains, resolves
+them (time-bounded), and merges the live ones into `domains.txt` (and `alterx.txt`).
 
 ## 4.c Run active scans
 

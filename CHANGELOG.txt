@@ -5,6 +5,7 @@
 - feat(scan): add nuclei module for vulnerability scanning (opt-in via --nuclei; installs templates up front)
 - change(cli): gobuster is now opt-in via --gobuster (replaces the default-on --disable-dirbusting)
 - feat(osint): add gau historical URL discovery (saved to urls.txt; discovered hostnames merged into domains.txt)
+- feat(osint): add alterx active subdomain permutation (generates + resolves via dnsx within a time budget; live finds merged into domains.txt)
 - fix(scan): perform the real robots.txt fetch (was duplicating the sitemap scan)
 - fix(net): add HTTP client timeouts and close response bodies (prevents hangs and fd leaks)
 - fix(net): keep running when the public IP lookup fails instead of exiting the program

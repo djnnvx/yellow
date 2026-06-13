@@ -8,6 +8,7 @@ require (
 	github.com/deckarep/golang-set/v2 v2.3.0
 	github.com/lc/gau/v2 v2.2.4
 	github.com/praetorian-inc/nerva v1.18.0
+	github.com/projectdiscovery/alterx v0.1.0
 	github.com/projectdiscovery/dnsx v1.2.3
 	github.com/projectdiscovery/goflags v0.1.74
 	github.com/projectdiscovery/httpx v1.9.0
