@@ -143,7 +143,7 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 	var osintCmd = &cobra.Command{
 		Use:   "osint",
 		Short: "Run OSINT tools to retrieve IP addresses and interesting assets",
-		Long:  "Runs dorks, subfinder, assetfinder & dnsx on all domains to find subdomains & assets",
+		Long:  "Runs dorks, subfinder, assetfinder, dnsx & gau to find subdomains, assets & historical URLs",
 		Args:  cobra.MinimumNArgs(0),
 		Run: func(cmd *cobra.Command, args []string) {
 

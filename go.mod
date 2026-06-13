@@ -5,6 +5,8 @@ go 1.26
 require (
 	github.com/OJ/gobuster/v3 v3.8.2
 	github.com/bogdzn/gork v0.0.5
+	github.com/deckarep/golang-set/v2 v2.3.0
+	github.com/lc/gau/v2 v2.2.4
 	github.com/praetorian-inc/nerva v1.18.0
 	github.com/projectdiscovery/dnsx v1.2.3
 	github.com/projectdiscovery/goflags v0.1.74
@@ -16,6 +18,7 @@ require (
 	github.com/shadowscatcher/shodan v1.0.8
 	github.com/spf13/cobra v1.10.2
 	github.com/spiral-sec/assetfinder v0.2.0
+	github.com/valyala/fasthttp v1.31.0
 	github.com/vflame6/leaker v1.6.7
 )
 
@@ -86,6 +89,7 @@ require (
 	github.com/bits-and-blooms/bitset v1.24.4 // indirect
 	github.com/bits-and-blooms/bloom/v3 v3.6.0 // indirect
 	github.com/bluele/gcache v0.0.2 // indirect
+	github.com/bobesa/go-domain-util v0.0.0-20190911083921-4033b5f7dd89 // indirect
 	github.com/bodgit/plumbing v1.3.0 // indirect
 	github.com/bodgit/sevenzip v1.6.1 // indirect
 	github.com/bodgit/windows v1.0.1 // indirect

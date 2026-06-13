@@ -66,7 +66,6 @@ scan:
 
 osint:
 
-* `gau` (lc/gau) — historical URLs from Wayback / CommonCrawl / OTX
 * `alterx` (projectdiscovery) subdomain permutations to feed dnsx
 * `asnmap` (projectdiscovery) domain/org to ASN to netblocks for scope expansion
 
@@ -142,6 +141,8 @@ Run various scans to retrieve more targets, using OSINT techniques.
 # or, if in a hurry
 ./yellow osint -d djnn.sh
 ```
+
+osint also runs `gau` to pull historical URLs (Wayback, CommonCrawl, OTX, URLScan).
 
 ## 4.c Run active scans
 

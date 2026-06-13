@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"net"
+	"net/url"
 	"os"
-	"slices"
 	"strings"
 
 	"evil.djnn.sh/djnn/yellow/core"
@@ -81,6 +81,7 @@ func (opts *OsintOpts) Run() {
 		&Subfinder{},
 		&Assetfinder{},
 		&Dnsx{},
+		&Gau{},
 		&Leaker{},
 	})
 
@@ -104,39 +105,48 @@ func (opts *OsintOpts) Run() {
 	opts.RunCleanup()
 }
 
-// aggregateDomains reads the asset files written by the enumeration modules,
-// keeps valid (and unique) IPs and domain names, and returns the unique list
-// together with a newline-joined buffer ready to be written to disk.
 func (opts *OsintOpts) aggregateDomains() ([]string, []byte) {
+	var domains []string
+	var domainBuffer bytes.Buffer
+	seen := map[string]struct{}{}
+
+	add := func(candidate string) {
+		candidate = strings.Trim(candidate, "\t \",")
+		if candidate == "" {
+			return
+		}
+		if _, ok := seen[candidate]; ok {
+			return
+		}
+		// IPv4, or something that roughly looks like a domain; IPv6 carries colons that break downstream
+		ip := net.ParseIP(candidate)
+		if (ip != nil && ip.To4() != nil) || (ip == nil && !helper.StringHasUnwantedCharactersForDomainName(candidate)) {
+			seen[candidate] = struct{}{}
+			domains = append(domains, candidate)
+			domainBuffer.WriteString(candidate + "\n")
+		}
+	}
+
 	asfFilepath := fmt.Sprintf("%s/assetfinder.txt", opts.scanPath)
 	dnsxFilepath := fmt.Sprintf("%s/dnsx.json", opts.scanPath)
 	sbfOutfile := fmt.Sprintf("%s/subfinder.txt", opts.scanPath)
 
-	domainsFiles := []string{asfFilepath, dnsxFilepath, sbfOutfile}
-	var domains []string
-	var domainBuffer bytes.Buffer
-	for _, file := range domainsFiles {
-		newDomains, err := os.ReadFile(file)
+	for _, file := range []string{asfFilepath, dnsxFilepath, sbfOutfile} {
+		data, err := os.ReadFile(file)
 		if err != nil {
 			fmt.Printf("[!] osint: could not read %s, skipping: %v\n", file, err)
 			continue
 		}
+		for _, line := range strings.Split(strings.ReplaceAll(string(data), "\r\n", "\n"), "\n") {
+			add(line)
+		}
+	}
 
-		lines := strings.Split(strings.ReplaceAll(string(newDomains), "\r\n", "\n"), "\n")
-		for _, domain := range lines {
-			parsedDomain := strings.Trim(domain, "\t \",")
-
-			// already exists in list
-			if slices.Contains(domains, parsedDomain) {
-				continue
-			}
-
-			// is it a valid IP address, or does it at least look like a domain?
-			// (hacky, but no need to make it better for now)
-			addr := net.ParseIP(parsedDomain)
-			if addr != nil || (!helper.StringHasUnwantedCharactersForDomainName(parsedDomain) && parsedDomain != "") {
-				domains = append(domains, parsedDomain)
-				domainBuffer.WriteString(parsedDomain + "\n")
+	urlsFile := fmt.Sprintf("%s/urls.txt", opts.scanPath)
+	if data, err := os.ReadFile(urlsFile); err == nil {
+		for _, line := range strings.Split(strings.ReplaceAll(string(data), "\r\n", "\n"), "\n") {
+			if u, err := url.Parse(strings.TrimSpace(line)); err == nil {
+				add(u.Hostname())
 			}
 		}
 	}
