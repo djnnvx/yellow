@@ -69,7 +69,7 @@ func (opts *ScanOpts) SetPorts(data string) {
 
 func (opts ScanOpts) runRobots() {
 
-	rb := Sitemap{}
+	rb := RobotsTxt{}
 	rbCfg := make(map[string]any)
 
 	rbCfg["Proxy"] = opts.proxy

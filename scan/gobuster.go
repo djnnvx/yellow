@@ -73,7 +73,8 @@ func (g *Gobuster) Run(rawUrl string) {
 		panic("[gobuster] cannot load plugin: " + err.Error())
 	}
 
-	mainContext, _ := context.WithCancel(context.Background())
+	mainContext, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	if err := cli.Gobuster(mainContext, &globalOpts, plugin, log); err != nil {
 
 		var wErr *gobusterdir.WildcardError

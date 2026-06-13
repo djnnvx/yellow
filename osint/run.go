@@ -51,14 +51,10 @@ func (opts OsintOpts) RunCleanup() {
 	asfFilepath := fmt.Sprintf("%s/assetfinder.txt", opts.scanPath)
 	sbfOutfile := fmt.Sprintf("%s/subfinder.txt", opts.scanPath)
 
-	err := os.Remove(asfFilepath)
-	if err != nil {
-		panic(err)
-	}
-
-	err = os.Remove(sbfOutfile)
-	if err != nil {
-		panic(err)
+	for _, f := range []string{asfFilepath, sbfOutfile} {
+		if err := os.Remove(f); err != nil && !os.IsNotExist(err) {
+			fmt.Printf("[!] cleanup: could not remove %s: %v\n", f, err)
+		}
 	}
 }
 
@@ -183,7 +179,8 @@ func (opts OsintOpts) Run() {
 	for _, file := range domainsFiles {
 		newDomains, err := os.ReadFile(file)
 		if err != nil {
-			panic(err)
+			fmt.Printf("[!] osint: could not read %s, skipping: %v\n", file, err)
+			continue
 		}
 
 		/* check if valid IP address / domain & if it's already in the list */

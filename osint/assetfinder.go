@@ -14,11 +14,6 @@ import (
 
 type fetchFn func(string) ([]string, error)
 
-type AssetfinderConfig struct {
-	scanPath string
-	outfile  string
-}
-
 type Assetfinder struct {
 	outfile   string
 	functions []fetchFn

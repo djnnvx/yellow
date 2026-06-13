@@ -1,7 +1,6 @@
 package scan
 
 import (
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -64,12 +63,7 @@ func (d *WappalyzerGo) Run(targetURL string) []string {
 }
 
 func (d *WappalyzerGo) newHTTPClient() *http.Client {
-	transport := helper.GetHttpTransport()
-	transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-
-	return &http.Client{
-		Transport: transport,
-	}
+	return helper.GetHttpClient(true)
 }
 
 func (d *WappalyzerGo) fetchResponse(client *http.Client, targetURL string) (*http.Response, []byte, error) {

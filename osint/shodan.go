@@ -121,7 +121,7 @@ func (s *Shodan) Run(ip string) {
 
 	summary, perr := buildShodanSummaryFromJSON(bytes.NewReader(pretty.Bytes()), ip)
 	if perr != nil {
-		summary = fmt.Sprintf("IP: %s\n\n(Unable to build structured summary: %v)\n\n%s\n", ip, perr, string(pretty.Bytes()))
+		summary = fmt.Sprintf("IP: %s\n\n(Unable to build structured summary: %v)\n\n%s\n", ip, perr, pretty.String())
 	}
 
 	f, err := os.OpenFile(s.outfile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)

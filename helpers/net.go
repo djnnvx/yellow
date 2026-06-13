@@ -6,10 +6,13 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"time"
 
 	"os"
 	"strings"
 )
+
+const HttpTimeout = 15 * time.Second
 
 func ParseDomain(website string) string {
 	if strings.HasPrefix(website, "http") {
@@ -37,17 +40,26 @@ func GetHttpTransport() *http.Transport {
 	return &http.Transport{}
 }
 
+func GetHttpClient(insecure bool) *http.Client {
+	transport := GetHttpTransport()
+	if insecure {
+		transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	}
+
+	return &http.Client{
+		Transport: transport,
+		Timeout:   HttpTimeout,
+	}
+}
+
 func GetUserAgent() string {
 	return "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
 }
 
 func GetCurrentIP() string {
-	ht := GetHttpTransport()
 	ua := GetUserAgent()
 
-	cli := &http.Client{
-		Transport: ht,
-	}
+	cli := GetHttpClient(false)
 
 	req, err := http.NewRequest("GET", "http://icanhazip.com", nil)
 	if err != nil {
@@ -98,12 +110,7 @@ func CheckProxy(proxy string) {
 func HasUnavailableWebInterface(url string) bool {
 	url = strings.TrimSuffix(url, "/")
 
-	transport := GetHttpTransport()
-	transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-
-	client := &http.Client{
-		Transport: transport,
-	}
+	client := GetHttpClient(true)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {

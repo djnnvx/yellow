@@ -88,7 +88,7 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 	var scanCmd = &cobra.Command{
 		Use:   "scan",
 		Short: "Run active scanning tools to perform enumeration",
-		Long:  "Runs active scanning (wappalyzergo, sitemap, robots.txt, gobuster, nuclei, httpx, gowitness)",
+		Long:  "Runs active scanning (sitemap, robots.txt, wappalyzergo, cvemap, httpx, gobuster, and optional TCP port-scan)",
 		Args:  cobra.MinimumNArgs(0),
 		Run: func(cmd *cobra.Command, args []string) {
 

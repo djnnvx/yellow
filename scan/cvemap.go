@@ -116,7 +116,7 @@ func (c *Cvemap) Run(techs []string) {
 		return
 	}
 
-	client := &http.Client{}
+	client := &http.Client{Timeout: 30 * time.Second}
 	if c.HTTPProxy != "" {
 		proxyURL, err := url.Parse(c.HTTPProxy)
 		if err != nil {

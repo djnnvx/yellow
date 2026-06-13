@@ -1,7 +1,6 @@
 package scan
 
 import (
-	"crypto/tls"
 	"fmt"
 	"io"
 	"net/http"
@@ -28,15 +27,14 @@ func (d *Sitemap) Configure(c any) {
 func (d *Sitemap) Run(domain string) {
 	domain = strings.TrimSuffix(domain, "/")
 
-	transport := helper.GetHttpTransport()
-	transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-
-	client := &http.Client{
-		Transport: transport,
-	}
+	client := helper.GetHttpClient(true)
 
 	for _, u := range getUrls(domain) {
 		req, err := http.NewRequest("GET", fmt.Sprint(u, "/sitemap.xml"), nil)
+		if err != nil {
+			fmt.Printf("%v", err)
+			continue
+		}
 		req.Header.Add("User-Agent", helper.GetUserAgent())
 
 		resp, err := client.Do(req)
