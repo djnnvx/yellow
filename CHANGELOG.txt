@@ -1,3 +1,12 @@
+## v0.0.7
+
+- chore(deps): bump nerva to 1.18.0
+- chore(deps): bump subfinder to 2.14.0
+- chore(deps): bump wappalyzergo to 0.2.84
+- chore(deps): bump vflame6/leaker to 1.6.7
+- chore(deps): bump golang.org/x/* packages (crypto, net, sys, term, text)
+- chore(deps): bump modernc.org/sqlite to 1.51.0, shirou/gopsutil to v4
+
 ## v0.0.6
 
 - chore(deps): bump go version to 1.26
