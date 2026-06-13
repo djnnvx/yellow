@@ -1,3 +1,6 @@
+## v0.0.7
+
+
 ## v0.0.6
 
 - refactor(core): shared Module interface + Context for all scan/osint tools ~ @djnnvx
