@@ -19,13 +19,6 @@ func LoadTargetFile(targetPath string) *FileScanner {
 		os.Exit(1)
 	}
 
-	scanner := bufio.NewScanner(file)
-	body, err := os.ReadFile(targetPath)
-	if err != nil {
-		fmt.Printf("%v, %+v", err, targetPath)
-	}
-
-	fmt.Println("[+] Loaded targets: \n", string(body))
-
-	return &FileScanner{file, scanner}
+	fmt.Println("[+] Loaded targets from", targetPath)
+	return &FileScanner{file, bufio.NewScanner(file)}
 }

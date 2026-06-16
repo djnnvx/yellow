@@ -22,22 +22,10 @@ func ReplaceWithHyphen(input string) string {
 // if its not a valid domain in the end, not too big of a deal,
 // we just want an approximate response
 func StringHasUnwantedCharactersForDomainName(url string) bool {
-	badChars := ":;\t\n, +\\\"[]{}()="
-	for _, b := range badChars {
-		if strings.Contains(url, string(b)) {
-			return true
-		}
-	}
-
-	if strings.HasSuffix(url, ".") {
+	if strings.ContainsAny(url, ":;\t\n, +\\\"[]{}()=") {
 		return true
 	}
-
-	if strings.HasPrefix(url, "Name") {
-		return true
-	}
-
-	return false
+	return strings.HasSuffix(url, ".") || strings.HasPrefix(url, "Name")
 }
 
 func ExtractString(m map[string]any, k string) string {

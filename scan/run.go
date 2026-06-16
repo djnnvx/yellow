@@ -9,73 +9,29 @@ import (
 )
 
 type ScanOpts struct {
-	domain        string
-	scanPath      string
-	proxy         string
-	dryRun        bool
-	rateLimit     int32
-	wordlistPath  string
-	forceInsecure bool
-	gobuster      bool
-	portScan      bool
-	ports         string
-	nuclei        bool
-}
-
-func (opts *ScanOpts) SetGobuster(data bool) {
-	opts.gobuster = data
-}
-
-func (opts *ScanOpts) SetForceInsecure(data bool) {
-	opts.forceInsecure = data
-}
-
-func (opts *ScanOpts) SetWordlistPath(data string) {
-	opts.wordlistPath = data
-}
-
-func (opts *ScanOpts) SetRateLimit(data int32) {
-	opts.rateLimit = data
-}
-
-func (opts *ScanOpts) SetDomain(data string) {
-	opts.domain = data
-}
-
-func (opts *ScanOpts) SetScanPath(data string) {
-	opts.scanPath = data
-}
-
-func (opts *ScanOpts) SetProxy(data string) {
-	opts.proxy = data
-}
-
-func (opts *ScanOpts) SetDryRun(data bool) {
-	opts.dryRun = data
-}
-
-func (opts *ScanOpts) SetPortScan(data bool) {
-	opts.portScan = data
-}
-
-func (opts *ScanOpts) SetPorts(data string) {
-	opts.ports = data
-}
-
-func (opts *ScanOpts) SetNuclei(data bool) {
-	opts.nuclei = data
+	Domain        string
+	ScanPath      string
+	Proxy         string
+	DryRun        bool
+	RateLimit     int32
+	WordlistPath  string
+	ForceInsecure bool
+	Gobuster      bool
+	PortScan      bool
+	Ports         string
+	Nuclei        bool
 }
 
 // context builds a per-target Context from the current options.
 func (opts *ScanOpts) context() *core.Context {
 	return &core.Context{
-		Domain:    opts.domain,
-		ScanPath:  opts.scanPath,
-		Proxy:     opts.proxy,
-		DryRun:    opts.dryRun,
-		RateLimit: opts.rateLimit,
-		Wordlist:  opts.wordlistPath,
-		Insecure:  opts.forceInsecure,
+		Domain:    opts.Domain,
+		ScanPath:  opts.ScanPath,
+		Proxy:     opts.Proxy,
+		DryRun:    opts.DryRun,
+		RateLimit: opts.RateLimit,
+		Wordlist:  opts.WordlistPath,
+		Insecure:  opts.ForceInsecure,
 	}
 }
 
@@ -90,38 +46,38 @@ func (opts *ScanOpts) webModules() []core.Module {
 		&Cvemap{},
 		&Httpx{},
 	}
-	if opts.nuclei {
+	if opts.Nuclei {
 		modules = append(modules, &Nuclei{})
 	}
-	if opts.gobuster {
+	if opts.Gobuster {
 		modules = append(modules, &Gobuster{})
 	}
 	return modules
 }
 
 func (opts *ScanOpts) Run() {
-	fmt.Printf("\n[SCAN] domain: %s\n", opts.domain)
+	fmt.Printf("\n[SCAN] domain: %s\n", opts.Domain)
 
-	fullDomain := "https://" + opts.domain
-	if opts.forceInsecure {
-		fullDomain = "http://" + opts.domain
+	fullDomain := "https://" + opts.Domain
+	if opts.ForceInsecure {
+		fullDomain = "http://" + opts.Domain
 	}
 
-	if opts.portScan {
+	if opts.PortScan {
 		opts.runPortScan()
 	}
 
 	if helper.HasUnavailableWebInterface(fullDomain) {
-		fmt.Printf("[SCAN %s] => no web panel online. skipping\n", opts.domain)
+		fmt.Printf("[SCAN %s] => no web panel online. skipping\n", opts.Domain)
 		return
 	}
 
-	fmt.Printf("[SCAN %s] web panel online....running web scans\n", opts.domain)
+	fmt.Printf("[SCAN %s] web panel online....running web scans\n", opts.Domain)
 
-	/* per-domain output dir; setting opts.scanPath directly would nest dirs */
-	pathForDomain := opts.scanPath + "/" + opts.domain
+	/* per-domain output dir; setting opts.ScanPath directly would nest dirs */
+	pathForDomain := opts.ScanPath + "/" + opts.Domain
 	if err := os.MkdirAll(pathForDomain, 0755); err != nil {
-		fmt.Printf("[!] scan: could not create %s, skipping %s: %v\n", pathForDomain, opts.domain, err)
+		fmt.Printf("[!] scan: could not create %s, skipping %s: %v\n", pathForDomain, opts.Domain, err)
 		return
 	}
 

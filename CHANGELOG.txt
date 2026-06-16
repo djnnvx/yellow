@@ -1,5 +1,7 @@
 ## v0.0.7
 
+- refactor(core): dead code deletion, simplification ~ @djnnvx
+- fix(osint): gau init errors for one provider dont bring everything down  ~ @djnnvx
 
 ## v0.0.6
 

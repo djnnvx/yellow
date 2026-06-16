@@ -34,12 +34,13 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 				os.Exit(1)
 			}
 
-			pruneOpts := prune.PruneOpts{}
-			pruneOpts.SetProxy(opts.Proxy)
-			pruneOpts.SetDryRun(opts.RunDry)
-			pruneOpts.SetForceInsecure(opts.UseHttpInsecure)
-			pruneOpts.SetInFilePath(opts.TargetFilePath)
-			pruneOpts.SetOutFilePath(opts.OutName)
+			pruneOpts := prune.PruneOpts{
+				Proxy:         opts.Proxy,
+				DryRun:        opts.RunDry,
+				ForceInsecure: opts.UseHttpInsecure,
+				InFilePath:    opts.TargetFilePath,
+				OutFilePath:   opts.OutName,
+			}
 
 			pruneOpts.Run()
 		},
@@ -65,15 +66,16 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 				fmt.Println("[!] collected assets will be sent to current working directory")
 			}
 
-			scanOpts := scan.ScanOpts{}
-			scanOpts.SetDomain(opts.OutName)
-			scanOpts.SetScanPath(opts.OutName)
-			scanOpts.SetProxy(opts.Proxy)
-			scanOpts.SetDryRun(opts.RunDry)
-			scanOpts.SetRateLimit(opts.RateLimit)
-			scanOpts.SetWordlistPath(opts.WordlistPath)
-			scanOpts.SetForceInsecure(opts.UseHttpInsecure)
-			scanOpts.SetGobuster(opts.Gobuster)
+			scanOpts := scan.ScanOpts{
+				Domain:        opts.OutName,
+				ScanPath:      opts.OutName,
+				Proxy:         opts.Proxy,
+				DryRun:        opts.RunDry,
+				RateLimit:     opts.RateLimit,
+				WordlistPath:  opts.WordlistPath,
+				ForceInsecure: opts.UseHttpInsecure,
+				Gobuster:      opts.Gobuster,
+			}
 
 			if opts.TargetFilePath == "" {
 				scanOpts.Run()
@@ -84,8 +86,7 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 			defer scanner.Close()
 
 			for scanner.Scan() {
-				targetDomain := scanner.Text()
-				scanOpts.SetDomain(targetDomain)
+				scanOpts.Domain = scanner.Text()
 				scanOpts.Fingerprint()
 			}
 		},
@@ -111,18 +112,19 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 				fmt.Println("[!] collected assets will be sent to current working directory")
 			}
 
-			scanOpts := scan.ScanOpts{}
-			scanOpts.SetDomain(opts.OutName)
-			scanOpts.SetScanPath(opts.OutName)
-			scanOpts.SetProxy(opts.Proxy)
-			scanOpts.SetDryRun(opts.RunDry)
-			scanOpts.SetRateLimit(opts.RateLimit)
-			scanOpts.SetWordlistPath(opts.WordlistPath)
-			scanOpts.SetForceInsecure(opts.UseHttpInsecure)
-			scanOpts.SetGobuster(opts.Gobuster)
-			scanOpts.SetPortScan(opts.PortScan)
-			scanOpts.SetPorts(opts.Ports)
-			scanOpts.SetNuclei(opts.Nuclei)
+			scanOpts := scan.ScanOpts{
+				Domain:        opts.OutName,
+				ScanPath:      opts.OutName,
+				Proxy:         opts.Proxy,
+				DryRun:        opts.RunDry,
+				RateLimit:     opts.RateLimit,
+				WordlistPath:  opts.WordlistPath,
+				ForceInsecure: opts.UseHttpInsecure,
+				Gobuster:      opts.Gobuster,
+				PortScan:      opts.PortScan,
+				Ports:         opts.Ports,
+				Nuclei:        opts.Nuclei,
+			}
 
 			if opts.TargetFilePath == "" {
 				scanOpts.Run()
@@ -133,8 +135,7 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 			defer scanner.Close()
 
 			for scanner.Scan() {
-				targetDomain := scanner.Text()
-				scanOpts.SetDomain(targetDomain)
+				scanOpts.Domain = scanner.Text()
 				scanOpts.Run()
 			}
 		},
@@ -160,17 +161,18 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 				fmt.Println("[!] collected assets will be sent to current working directory")
 			}
 
-			osintOpts := osint.OsintOpts{}
-			osintOpts.SetDomain(opts.OutName)
-			osintOpts.SetScanPath(opts.OutName)
-			osintOpts.SetProxy(opts.Proxy)
-			osintOpts.SetDryRun(opts.RunDry)
-			osintOpts.SetRateLimit(opts.RateLimit)
-			osintOpts.SetEmailsFile(opts.EmailsFilePath)
+			osintOpts := osint.OsintOpts{
+				Domain:     opts.OutName,
+				ScanPath:   opts.OutName,
+				Proxy:      opts.Proxy,
+				DryRun:     opts.RunDry,
+				RateLimit:  opts.RateLimit,
+				EmailsFile: opts.EmailsFilePath,
+			}
 
 			// if used create subcommand, put the results in scans
 			if helper.Exists(opts.OutName + "/scans/") {
-				osintOpts.SetScanPath(opts.OutName + "/scans")
+				osintOpts.ScanPath = opts.OutName + "/scans"
 			}
 
 			if opts.TargetFilePath == "" {
@@ -182,8 +184,7 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 			defer scanner.Close()
 
 			for scanner.Scan() {
-				targetDomain := scanner.Text()
-				osintOpts.SetDomain(targetDomain)
+				osintOpts.Domain = scanner.Text()
 				osintOpts.Run()
 			}
 		},

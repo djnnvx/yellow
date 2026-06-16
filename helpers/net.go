@@ -76,10 +76,6 @@ func DisplayNetInfo() {
 	ip := GetCurrentIP()
 	ua := GetUserAgent()
 
-	if ip == "" {
-		os.Exit(1)
-	}
-
 	fmt.Println("[~] Current Public IP: " + ip)
 	fmt.Println("[~] Prefered User-Agent: " + ua)
 }

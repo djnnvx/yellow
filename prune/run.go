@@ -2,54 +2,33 @@ package prune
 
 import (
 	"fmt"
-	"os"
-	"strings"
 
+	"evil.djnn.sh/djnn/yellow/core"
 	helper "evil.djnn.sh/djnn/yellow/helpers"
 )
 
 type PruneOpts struct {
-	proxy         string
-	dryRun        bool
-	forceInsecure bool
+	Proxy         string
+	DryRun        bool
+	ForceInsecure bool
 
-	inFilePath  string
-	outFilePath string
-}
-
-func (opts *PruneOpts) SetInFilePath(data string) {
-	opts.inFilePath = data
-}
-
-func (opts *PruneOpts) SetOutFilePath(data string) {
-	opts.outFilePath = data
-}
-
-func (opts *PruneOpts) SetForceInsecure(data bool) {
-	opts.forceInsecure = data
-}
-
-func (opts *PruneOpts) SetProxy(data string) {
-	opts.proxy = data
-}
-
-func (opts *PruneOpts) SetDryRun(data bool) {
-	opts.dryRun = data
+	InFilePath  string
+	OutFilePath string
 }
 
 func (opts *PruneOpts) Run() {
 
-	helper.CheckProxy(opts.proxy)
+	helper.CheckProxy(opts.Proxy)
 	helper.DisplayNetInfo()
 
 	results := make([]string, 0)
-	scanner := helper.LoadTargetFile(opts.inFilePath)
+	scanner := helper.LoadTargetFile(opts.InFilePath)
 	defer scanner.Close()
 
 	for scanner.Scan() {
 		targetDomain := scanner.Text()
 		httpAddr := "https://" + targetDomain
-		if opts.forceInsecure {
+		if opts.ForceInsecure {
 			httpAddr = "http://" + targetDomain
 		}
 
@@ -59,9 +38,7 @@ func (opts *PruneOpts) Run() {
 		}
 	}
 
-	content := strings.Join(results, "\n")
-	err := os.WriteFile(opts.outFilePath, []byte(content), 0644)
-	if err != nil {
+	if err := core.WriteLines(opts.OutFilePath, results); err != nil {
 		fmt.Printf("Error writing to file: %v\n", err)
 		return
 	}

@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net/url"
-	"os"
 	"strings"
 	"time"
 
@@ -50,9 +49,16 @@ func (*Gau) Run(ctx *core.Context) error {
 		// URLScan.Host left empty so gau uses its built-in default base URL
 	}
 
+	// init providers one at a time so a single unreachable one (commoncrawl
+	// fetches its index at instantiation) doesn't take down the rest.
 	gau := &runner.Runner{}
-	if err := gau.Init(config, config.Providers, providers.Filters{}); err != nil {
-		fmt.Printf("[!] gau: could not init: %v\n", err)
+	for _, p := range config.Providers {
+		if err := gau.Init(config, []string{p}, providers.Filters{}); err != nil {
+			fmt.Printf("[!] gau: skipping provider %s: %v\n", p, err)
+		}
+	}
+	if len(gau.Providers) == 0 {
+		fmt.Println("[!] gau: no providers available, skipping")
 		return nil
 	}
 
@@ -86,11 +92,7 @@ func (*Gau) Run(ctx *core.Context) error {
 	<-done
 
 	outfile := fmt.Sprintf("%s/urls.txt", ctx.ScanPath)
-	content := strings.Join(urls, "\n")
-	if content != "" {
-		content += "\n"
-	}
-	if err := os.WriteFile(outfile, []byte(content), 0644); err != nil {
+	if err := core.WriteLines(outfile, urls); err != nil {
 		fmt.Printf("[!] gau: could not write %s: %v\n", outfile, err)
 		return nil
 	}

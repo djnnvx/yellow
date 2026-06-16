@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"os"
-	"strings"
 	"sync"
 	"time"
 
@@ -76,11 +74,7 @@ func (*Alterx) Run(ctx *core.Context) error {
 	ctx.Domains = append(ctx.Domains, added...)
 
 	outfile := fmt.Sprintf("%s/alterx.txt", ctx.ScanPath)
-	content := strings.Join(added, "\n")
-	if content != "" {
-		content += "\n"
-	}
-	if err := os.WriteFile(outfile, []byte(content), 0644); err != nil {
+	if err := core.WriteLines(outfile, added); err != nil {
 		fmt.Printf("[!] alterx: could not write %s: %v\n", outfile, err)
 	}
 

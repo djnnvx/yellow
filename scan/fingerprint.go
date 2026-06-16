@@ -16,21 +16,21 @@ import (
 */
 
 func (opts *ScanOpts) Fingerprint() {
-	fmt.Printf("\n[SCAN] domain: %s\n", opts.domain)
+	fmt.Printf("\n[SCAN] domain: %s\n", opts.Domain)
 
-	fullDomain := "https://" + opts.domain
-	if opts.forceInsecure {
-		fullDomain = "http://" + opts.domain
+	fullDomain := "https://" + opts.Domain
+	if opts.ForceInsecure {
+		fullDomain = "http://" + opts.Domain
 	}
 
 	if helper.HasUnavailableWebInterface(fullDomain) {
-		fmt.Printf("[FINGERPRINT %s] => no web panel online. skipping\n", opts.domain)
+		fmt.Printf("[FINGERPRINT %s] => no web panel online. skipping\n", opts.Domain)
 		return
 	}
 
-	pathForDomain := opts.scanPath + "/" + opts.domain
+	pathForDomain := opts.ScanPath + "/" + opts.Domain
 	if err := os.MkdirAll(pathForDomain, 0755); err != nil {
-		fmt.Printf("[!] fingerprint: could not create %s, skipping %s: %v\n", pathForDomain, opts.domain, err)
+		fmt.Printf("[!] fingerprint: could not create %s, skipping %s: %v\n", pathForDomain, opts.Domain, err)
 		return
 	}
 

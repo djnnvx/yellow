@@ -12,46 +12,22 @@ import (
 )
 
 type OsintOpts struct {
-	domain     string
-	scanPath   string
-	proxy      string
-	dryRun     bool
-	rateLimit  int32
-	emailsFile string
-}
-
-func (opts *OsintOpts) SetRateLimit(data int32) {
-	opts.rateLimit = data
-}
-
-func (opts *OsintOpts) SetDomain(domain string) {
-	opts.domain = domain
-}
-
-func (opts *OsintOpts) SetScanPath(data string) {
-	opts.scanPath = data
-}
-
-func (opts *OsintOpts) SetProxy(data string) {
-	opts.proxy = data
-}
-
-func (opts *OsintOpts) SetDryRun(data bool) {
-	opts.dryRun = data
-}
-
-func (opts *OsintOpts) SetEmailsFile(data string) {
-	opts.emailsFile = data
+	Domain     string
+	ScanPath   string
+	Proxy      string
+	DryRun     bool
+	RateLimit  int32
+	EmailsFile string
 }
 
 func (opts *OsintOpts) context() *core.Context {
 	return &core.Context{
-		Domain:     opts.domain,
-		ScanPath:   opts.scanPath,
-		Proxy:      opts.proxy,
-		DryRun:     opts.dryRun,
-		RateLimit:  opts.rateLimit,
-		EmailsFile: opts.emailsFile,
+		Domain:     opts.Domain,
+		ScanPath:   opts.ScanPath,
+		Proxy:      opts.Proxy,
+		DryRun:     opts.DryRun,
+		RateLimit:  opts.RateLimit,
+		EmailsFile: opts.EmailsFile,
 	}
 }
 
@@ -59,8 +35,8 @@ func (opts OsintOpts) RunCleanup() {
 	fmt.Println("[+] cleaning up...")
 
 	/* remove superfluous files */
-	asfFilepath := fmt.Sprintf("%s/assetfinder.txt", opts.scanPath)
-	sbfOutfile := fmt.Sprintf("%s/subfinder.txt", opts.scanPath)
+	asfFilepath := fmt.Sprintf("%s/assetfinder.txt", opts.ScanPath)
+	sbfOutfile := fmt.Sprintf("%s/subfinder.txt", opts.ScanPath)
 
 	for _, f := range []string{asfFilepath, sbfOutfile} {
 		if err := os.Remove(f); err != nil && !os.IsNotExist(err) {
@@ -70,7 +46,7 @@ func (opts OsintOpts) RunCleanup() {
 }
 
 func (opts *OsintOpts) Run() {
-	fmt.Printf("\n[OSINT] domain: %s\n\n", opts.domain)
+	fmt.Printf("\n[OSINT] domain: %s\n\n", opts.Domain)
 
 	ctx := opts.context()
 
@@ -87,19 +63,15 @@ func (opts *OsintOpts) Run() {
 
 	core.RunModules(ctx, []core.Module{&Alterx{}, &Shodan{}})
 
-	uniqueOutfile := fmt.Sprintf("%s/domains.txt", opts.scanPath)
-	content := strings.Join(ctx.Domains, "\n")
-	if content != "" {
-		content += "\n"
-	}
-	if err := os.WriteFile(uniqueOutfile, []byte(content), 0644); err != nil {
+	uniqueOutfile := fmt.Sprintf("%s/domains.txt", opts.ScanPath)
+	if err := core.WriteLines(uniqueOutfile, ctx.Domains); err != nil {
 		fmt.Printf("[!] osint: could not write %s: %v\n", uniqueOutfile, err)
 		return
 	}
 
-	fmt.Printf("[OSINT %s] Registered %v IP addresses and assets.\n", opts.domain, len(ctx.Domains))
-	fmt.Printf("[OSINT %s] Location of unique domain names: %s\n", opts.domain, uniqueOutfile)
-	fmt.Printf("[OSINT %s] done.\n", opts.domain)
+	fmt.Printf("[OSINT %s] Registered %v IP addresses and assets.\n", opts.Domain, len(ctx.Domains))
+	fmt.Printf("[OSINT %s] Location of unique domain names: %s\n", opts.Domain, uniqueOutfile)
+	fmt.Printf("[OSINT %s] done.\n", opts.Domain)
 
 	opts.RunCleanup()
 }
@@ -123,9 +95,9 @@ func (opts *OsintOpts) aggregateDomains() []string {
 		}
 	}
 
-	asfFilepath := fmt.Sprintf("%s/assetfinder.txt", opts.scanPath)
-	dnsxFilepath := fmt.Sprintf("%s/dnsx.json", opts.scanPath)
-	sbfOutfile := fmt.Sprintf("%s/subfinder.txt", opts.scanPath)
+	asfFilepath := fmt.Sprintf("%s/assetfinder.txt", opts.ScanPath)
+	dnsxFilepath := fmt.Sprintf("%s/dnsx.json", opts.ScanPath)
+	sbfOutfile := fmt.Sprintf("%s/subfinder.txt", opts.ScanPath)
 
 	for _, file := range []string{asfFilepath, dnsxFilepath, sbfOutfile} {
 		data, err := os.ReadFile(file)
@@ -138,7 +110,7 @@ func (opts *OsintOpts) aggregateDomains() []string {
 		}
 	}
 
-	urlsFile := fmt.Sprintf("%s/urls.txt", opts.scanPath)
+	urlsFile := fmt.Sprintf("%s/urls.txt", opts.ScanPath)
 	if data, err := os.ReadFile(urlsFile); err == nil {
 		for _, line := range strings.Split(strings.ReplaceAll(string(data), "\r\n", "\n"), "\n") {
 			if u, err := url.Parse(strings.TrimSpace(line)); err == nil {

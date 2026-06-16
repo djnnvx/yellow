@@ -46,18 +46,18 @@ type PortScanner struct {
 
 func (opts ScanOpts) runPortScan() {
 	ps := PortScanner{
-		scanPath: opts.scanPath + "/" + opts.domain,
-		ports:    opts.ports,
+		scanPath: opts.ScanPath + "/" + opts.Domain,
+		ports:    opts.Ports,
 		timeout:  2 * time.Second,
 		workers:  100,
 	}
-	fmt.Printf("[+] Running port scan on %s\n", opts.domain)
-	if !opts.dryRun {
+	fmt.Printf("[+] Running port scan on %s\n", opts.Domain)
+	if !opts.DryRun {
 		if err := os.MkdirAll(ps.scanPath, 0755); err != nil {
 			fmt.Printf("[!] port scan: could not create %s: %v\n", ps.scanPath, err)
 			return
 		}
-		ps.Run(opts.domain)
+		ps.Run(opts.Domain)
 	}
 }
 
