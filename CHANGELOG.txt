@@ -1,5 +1,6 @@
 ## v0.0.7
 
+- fix(scan): open ports nerva cannot fingerprint no longer vanish from portscan.json ~ @djnnvx
 - chore(deps): bump dependencies ~ @djnnvx
 - refactor(core): dead code deletion, simplification ~ @djnnvx
 - fix(osint): gau init errors for one provider dont bring everything down  ~ @djnnvx

@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/netip"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -117,6 +118,7 @@ func (p *PortScanner) tcpScan(host string, ports []int) []int {
 		}(port)
 	}
 	wg.Wait()
+	sort.Ints(open)
 	return open
 }
 
@@ -158,7 +160,7 @@ func (p *PortScanner) fingerprint(host string, openPorts []int) []PortResult {
 		return fallbackResults(openPorts)
 	}
 
-	results := make([]PortResult, 0, len(nervaResults))
+	enriched := make(map[int]PortResult, len(nervaResults))
 	for _, r := range nervaResults {
 		var findings []SecurityFinding
 		for _, f := range r.SecurityFindings {
@@ -169,13 +171,26 @@ func (p *PortScanner) fingerprint(host string, openPorts []int) []PortResult {
 				Evidence:    f.Evidence,
 			})
 		}
-		results = append(results, PortResult{
+		enriched[r.Port] = PortResult{
 			Port:     r.Port,
 			Proto:    "tcp",
 			Service:  r.Protocol,
 			Version:  r.Version,
 			Findings: findings,
-		})
+		}
+	}
+
+	return mergePortResults(openPorts, enriched)
+}
+
+func mergePortResults(openPorts []int, enriched map[int]PortResult) []PortResult {
+	results := make([]PortResult, len(openPorts))
+	for i, port := range openPorts {
+		if r, ok := enriched[port]; ok {
+			results[i] = r
+			continue
+		}
+		results[i] = PortResult{Port: port, Proto: "tcp"}
 	}
 	return results
 }
