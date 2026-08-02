@@ -31,10 +31,10 @@ func TestLookupCDNClassifiesRealRanges(t *testing.T) {
 		ip       string
 		wantType string
 	}{
-		{"1.1.1.1", "waf"},       // cloudflare
-		{"104.16.1.1", "waf"},    // cloudflare
-		{"34.84.126.186", "cdn"}, // GCE compute, must NOT be skipped
-		{"192.168.1.1", ""},      // private, no match
+		{"1.1.1.1", "waf"},    // cloudflare
+		{"104.16.1.1", "waf"}, // cloudflare
+		{"8.8.8.8", "cdn"},    // google, must NOT be skipped
+		{"192.168.1.1", ""},   // private, no match
 	}
 
 	for _, tt := range tests {
@@ -52,8 +52,8 @@ func TestLookupCDNClassifiesRealRanges(t *testing.T) {
 }
 
 func TestGCEOriginIsNeverSkipped(t *testing.T) {
-	// shadow.kage.engineering: real origin with 22/80/443 open.
-	if SkipPortScan(LookupCDN(net.ParseIP("34.84.126.186"))) {
+	// google ranges cover ordinary compute, so a real origin lives here
+	if SkipPortScan(LookupCDN(net.ParseIP("8.8.8.8"))) {
 		t.Fatal("GCE origin would be skipped, losing real attack surface")
 	}
 	if !SkipPortScan(LookupCDN(net.ParseIP("1.1.1.1"))) {

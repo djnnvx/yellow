@@ -61,7 +61,7 @@ func (opts *OsintOpts) Run() {
 
 	ctx.Domains = opts.aggregateDomains()
 
-	core.RunModules(ctx, []core.Module{&Alterx{}, &Shodan{}})
+	core.RunModules(ctx, []core.Module{&Alterx{}, &Shodan{}, &ASN{}})
 
 	uniqueOutfile := fmt.Sprintf("%s/domains.txt", opts.ScanPath)
 	if err := core.WriteLines(uniqueOutfile, ctx.Domains); err != nil {

@@ -60,10 +60,6 @@ libraries (not shelled out).
 Still on the radar, roughly by area:
 
 
-osint:
-
-* `asnmap` (projectdiscovery) domain/org to ASN to netblocks for scope expansion
-
 other:
 
 * `subjack` / `subzy` subdomain takeover detection on enumerated subdomains
@@ -140,6 +136,18 @@ osint also runs `gau` to pull historical URLs (Wayback, CommonCrawl, OTX, URLSca
 
 osint also runs `alterx`: it generates permutations of the discovered subdomains, resolves
 them (time-bounded), and merges the live ones into `domains.txt` (and `alterx.txt`).
+
+osint also maps every discovered IP to its ASN and BGP prefix (`asn.json`), over DNS via
+Team Cymru with Shadowserver as a fallback. No API key needed.
+
+This output is **informational only and is never fed back into scanning**. For a
+cloud-hosted target the prefix belongs to the provider, not the client, and can span
+millions of unrelated addresses. Those ranges are flagged `hosting_provider: true` so it is
+obvious they sit outside client scope. ASN data pays off when the target owns its ASN;
+otherwise treat it as a scope boundary, not a target list.
+
+For very large scopes, use Team Cymru's bulk netcat interface rather than hammering the
+DNS one.
 
 ## 4.c Run active scans
 

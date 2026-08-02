@@ -1,5 +1,6 @@
 ## v0.0.7
 
+- feat(osint): ASN/prefix lookup over DNS (cymru, shadowserver fallback), flags provider-owned ranges ~ @djnnvx
 - feat(scan): cdncheck annotates resolved IPs, skips port-scanning WAF edges ~ @djnnvx
 - fix(osint): shodan dedupes by resolved IP instead of querying once per hostname ~ @djnnvx
 - feat(scan): katana headless crawl, feeds discovered URLs into nuclei and gobuster ~ @djnnvx
