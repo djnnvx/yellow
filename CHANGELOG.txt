@@ -1,5 +1,6 @@
 ## v0.0.7
 
+- feat(meta): ship the run-yellow claude skill in-repo ~ @djnnvx
 - feat(scan): gitleaks secret scanning of crawled responses ~ @djnnvx
 - feat(osint): ASN/prefix lookup over DNS (cymru, shadowserver fallback), flags provider-owned ranges ~ @djnnvx
 - feat(scan): cdncheck annotates resolved IPs, skips port-scanning WAF edges ~ @djnnvx

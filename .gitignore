@@ -41,3 +41,6 @@ inventory/__pycache__/
 .yellow
 .pki
 .cache
+
+# Local claude settings
+.claude/settings.local.json
