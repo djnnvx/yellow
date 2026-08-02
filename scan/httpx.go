@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"evil.djnn.sh/djnn/yellow/core"
+	helper "evil.djnn.sh/djnn/yellow/helpers"
 	"github.com/projectdiscovery/goflags"
 	"github.com/projectdiscovery/httpx/runner"
 )
@@ -29,7 +30,7 @@ func (*Httpx) Run(ctx *core.Context) error {
 		ScreenshotTimeout:         10 * time.Second,
 		ScreenshotIdle:            1 * time.Second,
 		RandomAgent:               true,
-		UseInstalledChrome:        false,
+		UseInstalledChrome:        helper.SystemChromePath() != "",
 		HeadlessOptionalArguments: nil,
 		NoHeadlessBody:            false,
 		RateLimit:                 int(ctx.RateLimit),

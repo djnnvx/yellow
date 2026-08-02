@@ -14,20 +14,37 @@ import (
 	"github.com/OJ/gobuster/v3/libgobuster"
 )
 
-type Gobuster struct{}
+type Gobuster struct {
+	MaxURLs int
+}
 
 func (*Gobuster) Name() string { return "gobuster" }
 
-func (*Gobuster) Run(ctx *core.Context) error {
+func (g *Gobuster) Run(ctx *core.Context) error {
 	fmt.Println("Running gobuster on", ctx.Domain)
 	if ctx.DryRun {
 		return nil
 	}
 
-	rawUrl := ctx.Domain
+	roots := capURLs(dirRoots(ctx.URLs), g.MaxURLs, "gobuster")
+	if len(roots) == 0 {
+		roots = []string{ctx.Domain}
+	}
+
+	for i, root := range roots {
+		outfile := ctx.ScanPath + "/gobuster.txt"
+		if len(roots) > 1 {
+			outfile = fmt.Sprintf("%s/gobuster-%d.txt", ctx.ScanPath, i+1)
+		}
+		bustDir(ctx, root, outfile)
+	}
+	return nil
+}
+
+func bustDir(ctx *core.Context, rawUrl, outfile string) {
 	globalOpts := libgobuster.Options{}
 	globalOpts.Wordlist = ctx.Wordlist
-	globalOpts.OutputFilename = ctx.ScanPath + "/gobuster.txt"
+	globalOpts.OutputFilename = outfile
 	globalOpts.Quiet = false
 	globalOpts.Threads = 50
 
@@ -43,7 +60,7 @@ func (*Gobuster) Run(ctx *core.Context) error {
 	u, err := url.Parse(rawUrl)
 	if err != nil {
 		fmt.Printf("[!] gobuster: invalid URL %s: %v\n", rawUrl, err)
-		return nil
+		return
 	}
 
 	pluginOpts := gobusterdir.NewOptions()
@@ -61,7 +78,7 @@ func (*Gobuster) Run(ctx *core.Context) error {
 	plugin, err := gobusterdir.New(&globalOpts, pluginOpts, log)
 	if err != nil {
 		fmt.Printf("[!] gobuster: cannot load plugin: %v\n", err)
-		return nil
+		return
 	}
 
 	mainContext, cancel := context.WithCancel(context.Background())
@@ -72,10 +89,9 @@ func (*Gobuster) Run(ctx *core.Context) error {
 		if errors.As(err, &wErr) {
 			fmt.Printf("%v.\nTo continue please exclude the status code or the length\n", wErr)
 			fmt.Printf("\nSince gobuster cannot make the difference between good and bad urls, it will be skipped.\n\n")
-			return nil
+			return
 		}
 	}
 
 	fmt.Printf("[SCAN %s] Gobuster scan for %s completed\n\n", rawUrl, rawUrl)
-	return nil
 }

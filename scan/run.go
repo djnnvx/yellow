@@ -3,6 +3,7 @@ package scan
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"evil.djnn.sh/djnn/yellow/core"
 	"evil.djnn.sh/djnn/yellow/helpers"
@@ -20,6 +21,10 @@ type ScanOpts struct {
 	PortScan      bool
 	Ports         string
 	Nuclei        bool
+	NoKatana      bool
+	KatanaDepth   int
+	KatanaMaxTime time.Duration
+	KatanaMaxURLs int
 }
 
 // context builds a per-target Context from the current options.
@@ -41,16 +46,17 @@ func (opts *ScanOpts) webModules() []core.Module {
 	modules := []core.Module{
 		&Sitemap{},
 		&RobotsTxt{},
-		&Tlsx{},
-		&WappalyzerGo{},
-		&Cvemap{},
-		&Httpx{},
 	}
+	if !opts.NoKatana {
+		modules = append(modules, &Katana{Depth: opts.KatanaDepth, Duration: opts.KatanaMaxTime})
+	}
+	modules = append(modules, &Tlsx{}, &WappalyzerGo{}, &Cvemap{}, &Httpx{})
+
 	if opts.Nuclei {
-		modules = append(modules, &Nuclei{})
+		modules = append(modules, &Nuclei{MaxURLs: opts.KatanaMaxURLs})
 	}
 	if opts.Gobuster {
-		modules = append(modules, &Gobuster{})
+		modules = append(modules, &Gobuster{MaxURLs: opts.KatanaMaxURLs})
 	}
 	return modules
 }

@@ -16,6 +16,7 @@ type Context struct {
 
 	Techs   []string // scan: wappalyzer detections, consumed by cvemap
 	Domains []string // osint: discovered assets, consumed by shodan
+	URLs    []string // scan: katana crawl results, consumed by nuclei/gobuster
 }
 
 // Module is a single recon step. Run reports its own progress to stdout and

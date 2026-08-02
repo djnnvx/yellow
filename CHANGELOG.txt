@@ -1,5 +1,7 @@
 ## v0.0.7
 
+- feat(scan): katana headless crawl, feeds discovered URLs into nuclei and gobuster ~ @djnnvx
+- fix(docker): multi-stage image with chromium, CGO off, httpx screenshots work again ~ @djnnvx
 - fix(net): probe https then fall back to http, http-only hosts were skipped ~ @djnnvx
 - fix(scan): open ports nerva cannot fingerprint no longer vanish from portscan.json ~ @djnnvx
 - chore(deps): bump dependencies ~ @djnnvx

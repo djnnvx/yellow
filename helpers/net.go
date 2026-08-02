@@ -10,6 +10,8 @@ import (
 
 	"os"
 	"strings"
+
+	"github.com/go-rod/rod/lib/launcher"
 )
 
 const HttpTimeout = 15 * time.Second
@@ -37,6 +39,16 @@ func GetHttpClient(insecure bool) *http.Client {
 		Transport: transport,
 		Timeout:   HttpTimeout,
 	}
+}
+
+// SystemChromePath returns an installed Chrome/Chromium, or "" to let the
+// headless tooling download its own.
+func SystemChromePath() string {
+	path, ok := launcher.LookPath()
+	if !ok {
+		return ""
+	}
+	return path
 }
 
 func GetUserAgent() string {

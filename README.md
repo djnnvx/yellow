@@ -42,9 +42,8 @@ Please use at your own risk, in a controlled environnement. Thanks<3
 
 # 2. Roadmap
 
-For next version, i want to take care of at least two items described here:
+Contributions would be appreciated for these ones:
 
-* scan: integrate browser-dependant tools (katana, ...) (still TBD),
 * osint: add support for more dorks
 
 ## 2.a Bugfixes
@@ -60,9 +59,6 @@ libraries (not shelled out).
 
 Still on the radar, roughly by area:
 
-scan:
-
-* `katana` (projectdiscovery) crawling to feed more endpoints into gobuster/nuclei
 
 osint:
 
@@ -162,16 +158,32 @@ cat *.gnmap | grep -i "open/tcp" | cut -d " " -f2 | sort -u > djnn.sh/scans/web-
 ./yellow scan -d djnn.sh/scans/infra --file djnn.sh/scans/web-targets.txt
 ```
 
-By default the scan runs the lightweight steps (sitemap, robots.txt, tlsx, wappalyzergo, cvemap, httpx).
+By default the scan runs sitemap, robots.txt, a katana headless crawl, tlsx, wappalyzergo,
+cvemap and httpx. Katana drives a real browser, so it also picks up endpoints that only
+appear once JavaScript has run. Its URLs are fed into gobuster and nuclei when those are
+enabled.
+
+```bash
+# skip the crawl (it is the slowest default step)
+./yellow scan -d djnn.sh --no-katana
+
+# tune the crawl
+./yellow scan -d djnn.sh --katana-depth 4 --katana-duration 10m --katana-max-urls 1000
+```
+
 The heavier steps are opt-in:
 
 ```bash
-# add directory bruteforce
+# add directory bruteforce, rooted at every directory katana found
 ./yellow scan -d djnn.sh --gobuster
 
 # add nuclei template scanning (downloads ~hundreds of MB of templates on first run)
 ./yellow scan -d djnn.sh --nuclei
 ```
+
+Katana needs a Chrome or Chromium. It uses an installed one if present, otherwise it
+downloads its own (~150MB) on first run. The docker image ships chromium, so nothing is
+downloaded there.
 
 #### Running port scans:
 
@@ -195,7 +207,7 @@ some domains that are not reachable anymore. To filter them out, you can run:
 #### Retrieving CVEs automatically:
 
 CVE lookups use the [NVD API v2](https://nvd.nist.gov/developers/vulnerabilities) (NIST National
-Vulnerability Database) — no account required. Results are queried by detected technology name and
+Vulnerability Database), no account required. Results are queried by detected technology name and
 saved to `cves.json` in your scan path.
 
 Without an API key, NVD allows 5 requests per 30 seconds (yellow sleeps 7s between queries to stay

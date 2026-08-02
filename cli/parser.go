@@ -95,7 +95,7 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 	var scanCmd = &cobra.Command{
 		Use:   "scan",
 		Short: "Run active scanning tools to perform enumeration",
-		Long:  "Runs active scanning (sitemap, robots.txt, tlsx, wappalyzergo, cvemap, httpx, optional gobuster, optional TCP port-scan and optional nuclei)",
+		Long:  "Runs active scanning (sitemap, robots.txt, katana crawl, tlsx, wappalyzergo, cvemap, httpx, optional gobuster, optional TCP port-scan and optional nuclei)",
 		Args:  cobra.MinimumNArgs(0),
 		Run: func(cmd *cobra.Command, args []string) {
 
@@ -124,6 +124,10 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 				PortScan:      opts.PortScan,
 				Ports:         opts.Ports,
 				Nuclei:        opts.Nuclei,
+				NoKatana:      opts.NoKatana,
+				KatanaDepth:   opts.KatanaDepth,
+				KatanaMaxTime: opts.KatanaMaxTime,
+				KatanaMaxURLs: opts.KatanaMaxURLs,
 			}
 
 			if opts.TargetFilePath == "" {
@@ -240,6 +244,10 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 	scanCmd.Flags().BoolVarP(&opts.PortScan, "port-scan", "", defaults.PortScan, "Run TCP port scan and service fingerprinting")
 	scanCmd.Flags().StringVarP(&opts.Ports, "ports", "", defaults.Ports, "Ports to scan, comma-separated or ranges (e.g. 22,80,443,8000-9000)")
 	scanCmd.Flags().BoolVarP(&opts.Nuclei, "nuclei", "", defaults.Nuclei, "Run nuclei template-based vulnerability scanning (downloads templates on first run)")
+	scanCmd.Flags().BoolVarP(&opts.NoKatana, "no-katana", "", defaults.NoKatana, "Disable the katana headless crawl (runs by default)")
+	scanCmd.Flags().IntVarP(&opts.KatanaDepth, "katana-depth", "", defaults.KatanaDepth, "Katana crawl depth")
+	scanCmd.Flags().DurationVarP(&opts.KatanaMaxTime, "katana-duration", "", defaults.KatanaMaxTime, "Katana crawl time budget per target")
+	scanCmd.Flags().IntVarP(&opts.KatanaMaxURLs, "katana-max-urls", "", defaults.KatanaMaxURLs, "Cap on crawled URLs fed into nuclei/gobuster (0 = unlimited)")
 
 	rootCmd.AddCommand(pruneCmd)
 	pruneCmd.Flags().StringVarP(&opts.Proxy, "proxy", "p", defaults.Proxy, "Proxy URL (used for the tools supporting it. Other will prompt a warning msg)")

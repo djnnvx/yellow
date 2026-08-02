@@ -20,11 +20,13 @@ type nucleiFinding struct {
 	Matched    string `json:"matched,omitempty"`
 }
 
-type Nuclei struct{}
+type Nuclei struct {
+	MaxURLs int
+}
 
 func (*Nuclei) Name() string { return "nuclei" }
 
-func (*Nuclei) Run(ctx *core.Context) error {
+func (n *Nuclei) Run(ctx *core.Context) error {
 	fmt.Println("[+] Running nuclei on", ctx.Domain)
 	if ctx.DryRun {
 		return nil
@@ -56,7 +58,12 @@ func (*Nuclei) Run(ctx *core.Context) error {
 	}
 	defer engine.Close()
 
-	engine.LoadTargets([]string{ctx.Domain}, false)
+	targets := capURLs(ctx.URLs, n.MaxURLs, "nuclei")
+	if len(targets) == 0 {
+		targets = []string{ctx.Domain}
+	}
+	fmt.Printf("[+] nuclei: loading %d target(s)\n", len(targets))
+	engine.LoadTargets(targets, false)
 
 	// nuclei invokes the callback from concurrent template workers, so the
 	// shared findings slice needs a lock.
