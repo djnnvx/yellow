@@ -18,12 +18,8 @@ import (
 func (opts *ScanOpts) Fingerprint() {
 	fmt.Printf("\n[SCAN] domain: %s\n", opts.Domain)
 
-	fullDomain := "https://" + opts.Domain
-	if opts.ForceInsecure {
-		fullDomain = "http://" + opts.Domain
-	}
-
-	if helper.HasUnavailableWebInterface(fullDomain) {
+	fullDomain, ok := helper.ResolveWebTarget(opts.Domain, opts.ForceInsecure)
+	if !ok {
 		fmt.Printf("[FINGERPRINT %s] => no web panel online. skipping\n", opts.Domain)
 		return
 	}

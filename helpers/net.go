@@ -91,6 +91,25 @@ func CheckProxy(proxy string) {
 	}
 }
 
+// ResolveWebTarget probes https first and falls back to http, so a host that
+// only serves plaintext is still scanned instead of skipped.
+func ResolveWebTarget(domain string, forceInsecure bool) (string, bool) {
+	return resolveWebTarget(domain, forceInsecure, HasUnavailableWebInterface)
+}
+
+func resolveWebTarget(domain string, forceInsecure bool, unavailable func(string) bool) (string, bool) {
+	schemes := []string{"https://", "http://"}
+	if forceInsecure {
+		schemes = []string{"http://"}
+	}
+	for _, scheme := range schemes {
+		if target := scheme + domain; !unavailable(target) {
+			return target, true
+		}
+	}
+	return "", false
+}
+
 func HasUnavailableWebInterface(url string) bool {
 	url = strings.TrimSuffix(url, "/")
 

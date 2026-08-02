@@ -27,13 +27,9 @@ func (opts *PruneOpts) Run() {
 
 	for scanner.Scan() {
 		targetDomain := scanner.Text()
-		httpAddr := "https://" + targetDomain
-		if opts.ForceInsecure {
-			httpAddr = "http://" + targetDomain
-		}
 
-		if !helper.HasUnavailableWebInterface(httpAddr) {
-			fmt.Printf("[+] %s is alive !\n", targetDomain)
+		if target, ok := helper.ResolveWebTarget(targetDomain, opts.ForceInsecure); ok {
+			fmt.Printf("[+] %s is alive (%s)!\n", targetDomain, target)
 			results = append(results, targetDomain)
 		}
 	}

@@ -58,21 +58,17 @@ func (opts *ScanOpts) webModules() []core.Module {
 func (opts *ScanOpts) Run() {
 	fmt.Printf("\n[SCAN] domain: %s\n", opts.Domain)
 
-	fullDomain := "https://" + opts.Domain
-	if opts.ForceInsecure {
-		fullDomain = "http://" + opts.Domain
-	}
-
 	if opts.PortScan {
 		opts.runPortScan()
 	}
 
-	if helper.HasUnavailableWebInterface(fullDomain) {
+	fullDomain, ok := helper.ResolveWebTarget(opts.Domain, opts.ForceInsecure)
+	if !ok {
 		fmt.Printf("[SCAN %s] => no web panel online. skipping\n", opts.Domain)
 		return
 	}
 
-	fmt.Printf("[SCAN %s] web panel online....running web scans\n", opts.Domain)
+	fmt.Printf("[SCAN %s] web panel online (%s)....running web scans\n", opts.Domain, fullDomain)
 
 	/* per-domain output dir; setting opts.ScanPath directly would nest dirs */
 	pathForDomain := opts.ScanPath + "/" + opts.Domain

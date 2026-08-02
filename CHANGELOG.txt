@@ -1,5 +1,6 @@
 ## v0.0.7
 
+- fix(net): probe https then fall back to http, http-only hosts were skipped ~ @djnnvx
 - fix(scan): open ports nerva cannot fingerprint no longer vanish from portscan.json ~ @djnnvx
 - chore(deps): bump dependencies ~ @djnnvx
 - refactor(core): dead code deletion, simplification ~ @djnnvx
