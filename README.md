@@ -66,7 +66,6 @@ osint:
 
 other:
 
-* `cdncheck` (projectdiscovery) skip port-scanning CDN/WAF ranges
 * `subjack` / `subzy` subdomain takeover detection on enumerated subdomains
 
 feel free to suggest more ideas. :)~
@@ -194,6 +193,12 @@ You can run a TCP port scan with service fingerprinting as part of the scan comm
 # or with custom ports
 ./yellow scan -d djnn.sh --port-scan --ports "22,80,443,8080-8090"
 ```
+
+Every resolved IP is checked against `cdncheck` first. Hosts sitting behind a WAF
+(cloudflare, incapsula) are annotated in `portscan.json` and **not** port-scanned, since
+you would only be scanning the reverse proxy. CDN and cloud ranges are annotated but still
+scanned: cdncheck files ordinary GCE compute under `cdn/google`, so skipping on that would
+drop real origins. The same WAF check skips pointless shodan lookups.
 
 #### Filter inactive web domains from a list of domains:
 

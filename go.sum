@@ -880,8 +880,8 @@ github.com/projectdiscovery/awesome-search-queries v0.0.0-20260411001519-47ff919
 github.com/projectdiscovery/awesome-search-queries v0.0.0-20260411001519-47ff919ec921/go.mod h1:nSovPcipgSx/EzAefF+iCfORolkKAuodiRWL3RCGHOM=
 github.com/projectdiscovery/blackrock v0.0.1 h1:lHQqhaaEFjgf5WkuItbpeCZv2DUIE45k0VbGJyft6LQ=
 github.com/projectdiscovery/blackrock v0.0.1/go.mod h1:ANUtjDfaVrqB453bzToU+YB4cUbvBRpLvEwoWIwlTss=
-github.com/projectdiscovery/cdncheck v1.2.44 h1:5OXeIbHQ43d8lkgKAUyu5mWh/EneYDOl/5xmStgYRvo=
-github.com/projectdiscovery/cdncheck v1.2.44/go.mod h1:9oE9KKxCSHNvUf0UaMeqqUwWpC38FkNaTll0ScIBT3w=
+github.com/projectdiscovery/cdncheck v1.2.47 h1:SZbE6TLhRIxzGs3j56sRkVC1Nl5z74PSvr5S4Rzmk2k=
+github.com/projectdiscovery/cdncheck v1.2.47/go.mod h1:9oE9KKxCSHNvUf0UaMeqqUwWpC38FkNaTll0ScIBT3w=
 github.com/projectdiscovery/chaos-client v0.5.2 h1:dN+7GXEypsJAbCD//dBcUxzAEAEH1fjc/7Rf4F/RiNU=
 github.com/projectdiscovery/chaos-client v0.5.2/go.mod h1:KnoJ/NJPhll42uaqlDga6oafFfNw5l2XI2ajRijtDuU=
 github.com/projectdiscovery/clistats v0.1.4 h1:kDnXoNxIdOvQElOF7k2Mt6XosGa5GbMKPtRXdPHMVzU=

@@ -13,14 +13,16 @@ import (
 	"sync"
 	"time"
 
+	helper "evil.djnn.sh/djnn/yellow/helpers"
 	"github.com/praetorian-inc/nerva/pkg/plugins"
 	nervascan "github.com/praetorian-inc/nerva/pkg/scan"
 )
 
 type PortScanResult struct {
-	Target    string       `json:"target"`
-	ScannedAt time.Time    `json:"scanned_at"`
-	OpenPorts []PortResult `json:"open_ports"`
+	Target    string          `json:"target"`
+	CDN       *helper.CDNInfo `json:"cdn,omitempty"`
+	ScannedAt time.Time       `json:"scanned_at"`
+	OpenPorts []PortResult    `json:"open_ports"`
 }
 
 type SecurityFinding struct {
@@ -72,6 +74,16 @@ func (p *PortScanner) Run(host string) {
 		host = addrs[0]
 	}
 
+	cdn := helper.LookupCDN(net.ParseIP(host))
+	if helper.SkipPortScan(cdn) {
+		fmt.Printf("[SCAN %s] behind %s/%s, skipping port scan\n\n", host, cdn.Type, cdn.Provider)
+		p.write(PortScanResult{Target: host, CDN: cdn, ScannedAt: time.Now().UTC()})
+		return
+	}
+	if cdn != nil {
+		fmt.Printf("[SCAN %s] %s/%s range, scanning anyway\n", host, cdn.Type, cdn.Provider)
+	}
+
 	ports, err := parsePorts(p.ports)
 	if err != nil {
 		fmt.Printf("[!] invalid ports spec: %v\n", err)
@@ -79,20 +91,22 @@ func (p *PortScanner) Run(host string) {
 	}
 
 	open := p.tcpScan(host, ports)
-	results := p.fingerprint(host, open)
 
-	out := PortScanResult{
+	p.write(PortScanResult{
 		Target:    host,
+		CDN:       cdn,
 		ScannedAt: time.Now().UTC(),
-		OpenPorts: results,
-	}
+		OpenPorts: p.fingerprint(host, open),
+	})
 
+	fmt.Printf("[SCAN %s] port scan done — %d open ports\n\n", host, len(open))
+}
+
+func (p *PortScanner) write(out PortScanResult) {
 	data, _ := json.MarshalIndent(out, "", "  ")
 	if err := os.WriteFile(p.scanPath+"/portscan.json", data, 0644); err != nil {
 		fmt.Printf("[!] port scan: could not write %s/portscan.json: %v\n", p.scanPath, err)
 	}
-
-	fmt.Printf("[SCAN %s] port scan done — %d open ports\n\n", host, len(open))
 }
 
 func (p *PortScanner) tcpScan(host string, ports []int) []int {
@@ -127,15 +141,12 @@ func (p *PortScanner) fingerprint(host string, openPorts []int) []PortResult {
 		return nil
 	}
 
-	// resolve hostname once
-	addrs, err := net.LookupIP(host)
-	if err != nil || len(addrs) == 0 {
+	ip := net.ParseIP(host)
+	if ip == nil {
 		return fallbackResults(openPorts)
 	}
-
-	ip := addrs[0].To4()
-	if ip == nil {
-		ip = addrs[0]
+	if v4 := ip.To4(); v4 != nil {
+		ip = v4
 	}
 
 	addr, ok := netip.AddrFromSlice(ip)

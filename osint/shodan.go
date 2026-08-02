@@ -24,6 +24,7 @@ type Shodan struct {
 
 	HTTPClient *http.Client
 	apiKey     string
+	queried    map[string]bool
 }
 
 func (s Shodan) ShouldRun() bool {
@@ -43,6 +44,7 @@ func (*Shodan) Name() string { return "shodan" }
 func (s *Shodan) Run(ctx *core.Context) error {
 	s.apiKey = os.Getenv("SHODAN_API_KEY")
 	s.outfile = fmt.Sprintf("%s/shodan.txt", ctx.ScanPath)
+	s.queried = map[string]bool{}
 	if s.HTTPClient == nil {
 		s.HTTPClient = &http.Client{Timeout: 15 * time.Second}
 	}
@@ -72,6 +74,16 @@ func (s *Shodan) scanIP(ip string) {
 			return
 		}
 		ip = addrs[0]
+	}
+
+	if s.queried[ip] {
+		return
+	}
+	s.queried[ip] = true
+
+	if cdn := helper.LookupCDN(net.ParseIP(ip)); helper.SkipPortScan(cdn) {
+		fmt.Printf("[OSINT %s] behind %s/%s, skipping shodan lookup\n", ip, cdn.Type, cdn.Provider)
+		return
 	}
 
 	if s.apiKey == "" {

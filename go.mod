@@ -10,6 +10,7 @@ require (
 	github.com/lc/gau/v2 v2.2.4
 	github.com/praetorian-inc/nerva v1.57.0
 	github.com/projectdiscovery/alterx v0.1.0
+	github.com/projectdiscovery/cdncheck v1.2.47
 	github.com/projectdiscovery/dnsx v1.3.0
 	github.com/projectdiscovery/goflags v0.1.75
 	github.com/projectdiscovery/httpx v1.10.0
@@ -299,7 +300,6 @@ require (
 	github.com/projectdiscovery/asnmap v1.1.1 // indirect
 	github.com/projectdiscovery/awesome-search-queries v0.0.0-20260411001519-47ff919ec921 // indirect
 	github.com/projectdiscovery/blackrock v0.0.1 // indirect
-	github.com/projectdiscovery/cdncheck v1.2.44 // indirect
 	github.com/projectdiscovery/chaos-client v0.5.2 // indirect
 	github.com/projectdiscovery/clistats v0.1.4 // indirect
 	github.com/projectdiscovery/dsl v0.8.20 // indirect
