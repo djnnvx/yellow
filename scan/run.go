@@ -25,6 +25,7 @@ type ScanOpts struct {
 	KatanaDepth   int
 	KatanaMaxTime time.Duration
 	KatanaMaxURLs int
+	NoSecrets     bool
 }
 
 // context builds a per-target Context from the current options.
@@ -49,6 +50,9 @@ func (opts *ScanOpts) webModules() []core.Module {
 	}
 	if !opts.NoKatana {
 		modules = append(modules, &Katana{Depth: opts.KatanaDepth, Duration: opts.KatanaMaxTime})
+	}
+	if !opts.NoSecrets {
+		modules = append(modules, &Secrets{MaxURLs: opts.KatanaMaxURLs})
 	}
 	modules = append(modules, &Tlsx{}, &WappalyzerGo{}, &Cvemap{}, &Httpx{})
 

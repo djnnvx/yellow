@@ -95,7 +95,7 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 	var scanCmd = &cobra.Command{
 		Use:   "scan",
 		Short: "Run active scanning tools to perform enumeration",
-		Long:  "Runs active scanning (sitemap, robots.txt, katana crawl, tlsx, wappalyzergo, cvemap, httpx, optional gobuster, optional TCP port-scan and optional nuclei)",
+		Long:  "Runs active scanning (sitemap, robots.txt, katana crawl, tlsx, wappalyzergo, cvemap, httpx, gitleaks secret scan, optional gobuster, optional TCP port-scan and optional nuclei)",
 		Args:  cobra.MinimumNArgs(0),
 		Run: func(cmd *cobra.Command, args []string) {
 
@@ -128,6 +128,7 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 				KatanaDepth:   opts.KatanaDepth,
 				KatanaMaxTime: opts.KatanaMaxTime,
 				KatanaMaxURLs: opts.KatanaMaxURLs,
+				NoSecrets:     opts.NoSecrets,
 			}
 
 			if opts.TargetFilePath == "" {
@@ -248,6 +249,7 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 	scanCmd.Flags().IntVarP(&opts.KatanaDepth, "katana-depth", "", defaults.KatanaDepth, "Katana crawl depth")
 	scanCmd.Flags().DurationVarP(&opts.KatanaMaxTime, "katana-duration", "", defaults.KatanaMaxTime, "Katana crawl time budget per target")
 	scanCmd.Flags().IntVarP(&opts.KatanaMaxURLs, "katana-max-urls", "", defaults.KatanaMaxURLs, "Cap on crawled URLs fed into nuclei/gobuster (0 = unlimited)")
+	scanCmd.Flags().BoolVarP(&opts.NoSecrets, "no-secrets", "", defaults.NoSecrets, "Disable gitleaks secret scanning of crawled responses (runs by default)")
 
 	rootCmd.AddCommand(pruneCmd)
 	pruneCmd.Flags().StringVarP(&opts.Proxy, "proxy", "p", defaults.Proxy, "Proxy URL (used for the tools supporting it. Other will prompt a warning msg)")

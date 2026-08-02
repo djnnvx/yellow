@@ -51,6 +51,9 @@ type StandardOptions struct {
 	// Cap on crawled URLs fed into nuclei/gobuster
 	KatanaMaxURLs int
 
+	// Disable gitleaks secret scanning of crawled responses (runs by default)
+	NoSecrets bool
+
 	// File containing list of emails for credential leak checking
 	EmailsFilePath string
 }
