@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"net/url"
 	"os"
 	"sort"
 	"strings"
@@ -17,7 +18,10 @@ import (
 	"github.com/projectdiscovery/katana/pkg/engine/hybrid"
 	"github.com/projectdiscovery/katana/pkg/output"
 	"github.com/projectdiscovery/katana/pkg/types"
+	"github.com/projectdiscovery/katana/pkg/utils/scope"
 )
+
+const katanaFieldScope = "rdn"
 
 type Katana struct {
 	Depth    int
@@ -37,16 +41,32 @@ func (k *Katana) Run(ctx *core.Context) error {
 		fmt.Println("[+] katana: no system chrome found, headless engine will download one on first run")
 	}
 
+	// katana outputs URLs found past MaxDepth without checking scope
+	// (engine/common/base.go), so third-party hosts reach OnResult and end up in
+	// ctx.URLs, where nuclei/gobuster/secrets would scan them. Re-apply katana's
+	// own check on the way out.
+	target, err := url.Parse(ctx.Domain)
+	if err != nil {
+		fmt.Printf("[!] katana: invalid target %s: %v\n", ctx.Domain, err)
+		return nil
+	}
+	scoper, err := scope.NewManager(nil, nil, katanaFieldScope, false)
+	if err != nil {
+		fmt.Printf("[!] katana: could not build scope manager: %v\n", err)
+		return nil
+	}
+
 	var (
-		mu   sync.Mutex
-		seen = map[string]bool{}
-		urls []string
+		mu      sync.Mutex
+		seen    = map[string]bool{}
+		urls    []string
+		dropped int
 	)
 
 	options := &types.Options{
 		MaxDepth:           k.Depth,
 		CrawlDuration:      k.Duration,
-		FieldScope:         "rdn",
+		FieldScope:         katanaFieldScope,
 		BodyReadSize:       math.MaxInt,
 		Timeout:            10,
 		TimeStable:         1, // 0 makes rod's WaitDOMStable panic on NewTicker(0)
@@ -75,6 +95,11 @@ func (k *Katana) Run(ctx *core.Context) error {
 				return
 			}
 			seen[result.Request.URL] = true
+
+			if !inScope(scoper, result.Request.URL, target.Hostname()) {
+				dropped++
+				return
+			}
 			urls = append(urls, result.Request.URL)
 		},
 	}
@@ -114,6 +139,18 @@ func (k *Katana) Run(ctx *core.Context) error {
 	}
 
 	ctx.URLs = urls
+	if dropped > 0 {
+		fmt.Printf("[+] katana: dropped %d out-of-scope URL(s)\n", dropped)
+	}
 	fmt.Printf("[SCAN %s] katana crawled %d URL(s) in %s\n\n", ctx.Domain, len(urls), outfile)
 	return nil
+}
+
+func inScope(scoper *scope.Manager, rawURL, rootHostname string) bool {
+	u, err := url.Parse(rawURL)
+	if err != nil {
+		return false
+	}
+	ok, err := scoper.Validate(u, rootHostname)
+	return err == nil && ok
 }
