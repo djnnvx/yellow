@@ -1,3 +1,11 @@
+## v0.0.8
+
+- fix(scan): nuclei ignores non-match events, a rate-limited host reported 95913 fake findings ~ @djnnvx
+- fix(scan): nuclei groups hits by template and host instead of one entry per URL ~ @djnnvx
+- fix(scan): nuclei collapses hosts that answer every path to one target ~ @djnnvx
+- fix(scan): nuclei findings record where they hit, matched was empty ~ @djnnvx
+- fix(scan): katana drops out-of-scope URLs, third-party hosts were being scanned ~ @djnnvx
+
 ## v0.0.7
 
 - feat(meta): ship the run-yellow claude skill in-repo ~ @djnnvx
