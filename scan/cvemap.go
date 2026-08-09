@@ -3,7 +3,6 @@ package scan
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -11,6 +10,7 @@ import (
 	"time"
 
 	"evil.djnn.sh/djnn/yellow/core"
+	helper "evil.djnn.sh/djnn/yellow/helpers"
 )
 
 // NVD rate limits: 5 req/30s without key, 50 req/30s with key.
@@ -182,7 +182,7 @@ func (c *Cvemap) queryCVEs(client *http.Client, apiKey, keyword string, limit, o
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
+		body, _, _ := helper.ReadCappedBody(resp.Body)
 		return nil, 0, fmt.Errorf("HTTP %d: %s", resp.StatusCode, string(body))
 	}
 

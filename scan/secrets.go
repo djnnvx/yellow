@@ -14,7 +14,7 @@ import (
 	"github.com/zricethezav/gitleaks/v8/detect"
 )
 
-const maxSecretBodySize = 10 << 20
+const secretChunkKB = 1024 // gitleaks allocates 1000x this per in-flight fetch
 
 type SecretFinding struct {
 	URL         string  `json:"url"`
@@ -98,16 +98,23 @@ func (s *Secrets) Run(ctx *core.Context) error {
 			defer wg.Done()
 			defer func() { <-sem }()
 
-			body, ok := fetchScannable(client, url)
+			rc, ok := fetchScannable(client, url)
 			if !ok {
 				return
 			}
+			defer rc.Close()
 
 			mu.Lock()
 			scanned++
 			mu.Unlock()
 
-			for _, f := range d.DetectBytes(body) {
+			// gitleaks peeks to a safe boundary, so chunking loses nothing
+			found, err := d.DetectReader(rc, secretChunkKB)
+			if err != nil {
+				fmt.Printf("[!] secrets: %s: %v\n", url, err)
+			}
+
+			for _, f := range found {
 				rec := SecretFinding{
 					URL:         url,
 					RuleID:      f.RuleID,
@@ -146,7 +153,7 @@ func (s *Secrets) Run(ctx *core.Context) error {
 	return nil
 }
 
-func fetchScannable(client *http.Client, url string) ([]byte, bool) {
+func fetchScannable(client *http.Client, url string) (io.ReadCloser, bool) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, false
@@ -157,15 +164,11 @@ func fetchScannable(client *http.Client, url string) ([]byte, bool) {
 	if err != nil {
 		return nil, false
 	}
-	defer resp.Body.Close()
 
 	if !shouldScanBody(resp.Header.Get("Content-Type")) {
+		resp.Body.Close()
 		return nil, false
 	}
 
-	body, err := io.ReadAll(io.LimitReader(resp.Body, maxSecretBodySize))
-	if err != nil {
-		return nil, false
-	}
-	return body, true
+	return resp.Body, true
 }

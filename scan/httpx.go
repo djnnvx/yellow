@@ -34,6 +34,10 @@ func (*Httpx) Run(ctx *core.Context) error {
 		HeadlessOptionalArguments: nil,
 		NoHeadlessBody:            false,
 		RateLimit:                 int(ctx.RateLimit),
+
+		// httpx only defaults these via its flag parser. At 0: unbounded read, nothing saved.
+		MaxResponseBodySizeToRead: helper.MaxBodySize,
+		MaxResponseBodySizeToSave: helper.MaxBodySize,
 	}
 
 	if err := options.ValidateOptions(); err != nil {

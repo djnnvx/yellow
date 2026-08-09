@@ -2,7 +2,6 @@ package scan
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -42,9 +41,12 @@ func (*Sitemap) Run(ctx *core.Context) error {
 		}
 
 		if resp.StatusCode != http.StatusNotFound {
-			body, err := io.ReadAll(resp.Body)
+			body, truncated, err := helper.ReadCappedBody(resp.Body)
 			if err != nil {
 				fmt.Printf("%v", err)
+			}
+			if truncated {
+				fmt.Printf("[!] sitemap: body exceeded %d bytes, truncated\n", helper.MaxBodySize)
 			}
 
 			for headerName, headerValue := range resp.Header {

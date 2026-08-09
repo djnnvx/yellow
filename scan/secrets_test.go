@@ -1,6 +1,7 @@
 package scan
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -185,6 +186,32 @@ func TestSecretsCleanBodyYieldsNoFindings(t *testing.T) {
 	if findings := readSecrets(t, dir); len(findings) != 0 {
 		t.Errorf("clean body produced %d findings: %+v", len(findings), findings)
 	}
+}
+
+// a secret past the old 10MB cap: buffering missed it, streaming finds it
+func TestSecretsFindsCredentialPastTheOldCap(t *testing.T) {
+	filler := bytes.Repeat([]byte("// padding\n"), (12<<20)/11)
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/javascript")
+		_, _ = w.Write(filler)
+		_, _ = w.Write([]byte("\nvar t=\"" + fakeGithubPAT + "\";\n"))
+	}))
+	defer srv.Close()
+
+	dir := t.TempDir()
+	ctx := &core.Context{Domain: srv.URL, ScanPath: dir, URLs: []string{srv.URL + "/bundle.js"}}
+
+	if err := (&Secrets{MaxURLs: 10}).Run(ctx); err != nil {
+		t.Fatalf("Run returned %v", err)
+	}
+
+	for _, f := range readSecrets(t, dir) {
+		if f.RuleID == "github-pat" && f.Secret == fakeGithubPAT {
+			return
+		}
+	}
+	t.Errorf("secret at offset %d MB was not found", len(filler)>>20)
 }
 
 func readSecrets(t *testing.T, dir string) []SecretFinding {

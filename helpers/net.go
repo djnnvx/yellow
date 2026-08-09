@@ -16,6 +16,17 @@ import (
 
 const HttpTimeout = 15 * time.Second
 
+const MaxBodySize = 10 << 20
+
+// ReadCappedBody stops at MaxBodySize so a target cannot pick our memory usage.
+func ReadCappedBody(r io.Reader) (body []byte, truncated bool, err error) {
+	b, err := io.ReadAll(io.LimitReader(r, MaxBodySize+1))
+	if len(b) > MaxBodySize {
+		return b[:MaxBodySize], true, err
+	}
+	return b, false, err
+}
+
 func GetHttpTransport() *http.Transport {
 	var proxy = os.Getenv("HTTP_PROXY")
 	url, err := url.Parse(proxy)
@@ -75,7 +86,7 @@ func GetCurrentIP() string {
 	}
 	defer resp.Body.Close()
 
-	result, err := io.ReadAll(resp.Body)
+	result, _, err := ReadCappedBody(resp.Body)
 	if err != nil {
 		fmt.Printf("[!] Could not read public IP address: %v\n", err)
 		return "127.0.0.1"

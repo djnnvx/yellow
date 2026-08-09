@@ -3,7 +3,6 @@ package scan
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"os"
 	"reflect"
@@ -79,7 +78,7 @@ func (d *WappalyzerGo) fetchResponse(client *http.Client, targetURL string) (*ht
 		return nil, nil, fmt.Errorf("no response received")
 	}
 
-	body, err := io.ReadAll(resp.Body)
+	body, _, err := helper.ReadCappedBody(resp.Body)
 	if err != nil {
 		return resp, nil, fmt.Errorf("reading response body: %w", err)
 	}

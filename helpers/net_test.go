@@ -1,6 +1,35 @@
 package helper
 
-import "testing"
+import (
+	"bytes"
+	"testing"
+)
+
+func TestReadCappedBodyTruncatesOversizedBody(t *testing.T) {
+	body, truncated, err := ReadCappedBody(bytes.NewReader(make([]byte, MaxBodySize+1<<20)))
+	if err != nil {
+		t.Fatalf("ReadCappedBody returned %v", err)
+	}
+	if !truncated {
+		t.Error("oversized body not reported as truncated")
+	}
+	if len(body) != MaxBodySize {
+		t.Errorf("read %d bytes, want the %d byte cap", len(body), MaxBodySize)
+	}
+}
+
+func TestReadCappedBodyKeepsExactCapIntact(t *testing.T) {
+	body, truncated, err := ReadCappedBody(bytes.NewReader(make([]byte, MaxBodySize)))
+	if err != nil {
+		t.Fatalf("ReadCappedBody returned %v", err)
+	}
+	if truncated {
+		t.Error("body of exactly MaxBodySize reported as truncated")
+	}
+	if len(body) != MaxBodySize {
+		t.Errorf("read %d bytes, want %d", len(body), MaxBodySize)
+	}
+}
 
 func TestResolveWebTargetFallsBackToHTTP(t *testing.T) {
 	probed := []string{}
