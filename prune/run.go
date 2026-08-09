@@ -25,9 +25,7 @@ func (opts *PruneOpts) Run() {
 	scanner := helper.LoadTargetFile(opts.InFilePath)
 	defer scanner.Close()
 
-	for scanner.Scan() {
-		targetDomain := scanner.Text()
-
+	for targetDomain := range scanner.Lines() {
 		if target, ok := helper.ResolveWebTarget(targetDomain, opts.ForceInsecure); ok {
 			fmt.Printf("[+] %s is alive (%s)!\n", targetDomain, target)
 			results = append(results, targetDomain)

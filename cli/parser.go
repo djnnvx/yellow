@@ -85,8 +85,8 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 			scanner := helper.LoadTargetFile(opts.TargetFilePath)
 			defer scanner.Close()
 
-			for scanner.Scan() {
-				scanOpts.Domain = scanner.Text()
+			for target := range scanner.Lines() {
+				scanOpts.Domain = target
 				scanOpts.Fingerprint()
 			}
 		},
@@ -139,8 +139,8 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 			scanner := helper.LoadTargetFile(opts.TargetFilePath)
 			defer scanner.Close()
 
-			for scanner.Scan() {
-				scanOpts.Domain = scanner.Text()
+			for target := range scanner.Lines() {
+				scanOpts.Domain = target
 				scanOpts.Run()
 			}
 		},
@@ -188,8 +188,8 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 			scanner := helper.LoadTargetFile(opts.TargetFilePath)
 			defer scanner.Close()
 
-			for scanner.Scan() {
-				osintOpts.Domain = scanner.Text()
+			for target := range scanner.Lines() {
+				osintOpts.Domain = target
 				osintOpts.Run()
 			}
 		},
