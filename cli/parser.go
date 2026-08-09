@@ -78,7 +78,7 @@ func GetParser(opts *StandardOptions) *cobra.Command {
 			}
 
 			if opts.TargetFilePath == "" {
-				scanOpts.Run()
+				scanOpts.Fingerprint()
 				return
 			}
 
