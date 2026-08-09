@@ -38,16 +38,12 @@ func (*RobotsTxt) Run(ctx *core.Context) error {
 		}
 
 		if resp.StatusCode != http.StatusNotFound {
-			body, truncated, err := helper.ReadCappedBody(resp.Body)
-			if err != nil {
-				fmt.Printf("%v", err)
+			outfile := fmt.Sprintf("%s/robots.txt", ctx.ScanPath)
+			if n, err := core.SaveStream(outfile, resp.Body); err != nil {
+				fmt.Printf("[!] robots.txt: could not write %s: %v\n", outfile, err)
+			} else {
+				fmt.Printf("[SCAN %s] robots.txt: %d bytes in %s\n", domain, n, outfile)
 			}
-			if truncated {
-				fmt.Printf("[!] robots.txt: body exceeded %d bytes, truncated\n", helper.MaxBodySize)
-			}
-			sb := string(body)
-			fmt.Println(sb)
-
 		} else {
 			fmt.Println("----- Sorry, got 404 status code for robots.txt ----- ")
 		}

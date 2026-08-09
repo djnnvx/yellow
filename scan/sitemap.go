@@ -41,22 +41,18 @@ func (*Sitemap) Run(ctx *core.Context) error {
 		}
 
 		if resp.StatusCode != http.StatusNotFound {
-			body, truncated, err := helper.ReadCappedBody(resp.Body)
-			if err != nil {
-				fmt.Printf("%v", err)
-			}
-			if truncated {
-				fmt.Printf("[!] sitemap: body exceeded %d bytes, truncated\n", helper.MaxBodySize)
-			}
-
 			for headerName, headerValue := range resp.Header {
 				if contains(GlobalHeaders, headerName) {
 					fmt.Printf("Found Header: %s | %s \n", headerName, headerValue)
 				}
 			}
-			sb := string(body)
-			fmt.Println(sb)
 
+			outfile := fmt.Sprintf("%s/sitemap.xml", ctx.ScanPath)
+			if n, err := core.SaveStream(outfile, resp.Body); err != nil {
+				fmt.Printf("[!] sitemap: could not write %s: %v\n", outfile, err)
+			} else {
+				fmt.Printf("[SCAN %s] sitemap: %d bytes in %s\n", domain, n, outfile)
+			}
 		} else {
 			fmt.Println("-----  Sorry, got 404 status code for sitemap.xml -----")
 		}

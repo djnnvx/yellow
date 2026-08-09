@@ -1,5 +1,6 @@
 ## v0.0.8
 
+- feat(scan): robots.txt and sitemap.xml are saved to the scan directory ~ @djnnvx
 - fix(cli): target files stream line by line ~ @djnnvx
 - fix(cli): fingerprint -d should only run wappalyzer and cvemap ~ @djnnvx
 - fix(scan): bind every response body read ~ @djnnvx
