@@ -1,5 +1,7 @@
 ## v0.0.8
 
+- chore(build): bump Go to 1.27 ~ @djnnvx
+- chore(deps): bump dependencies ~ @djnnvx
 - feat(scan): robots.txt and sitemap.xml are saved to the scan directory ~ @djnnvx
 - fix(cli): target files stream line by line ~ @djnnvx
 - fix(cli): fingerprint -d should only run wappalyzer and cvemap ~ @djnnvx

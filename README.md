@@ -41,7 +41,7 @@ Please use at your own risk, in a controlled environnement. Thanks<3
 
 ## Installing
 
-Using go v1.26.
+Using go v1.27.
 
 ```bash
 git clone https://evil.djnn.sh/yellow.git
