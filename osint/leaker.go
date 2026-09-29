@@ -72,6 +72,7 @@ func (*Leaker) Run(ctx *core.Context) error {
 		fmt.Printf("[!] Leaker: failed to create runner: %v\n", err)
 		return nil
 	}
+	defer r.Close()
 
 	if err := r.EnumerateMultipleTargets(context.Background(), emailsReader, []io.Writer{outFile}); err != nil {
 		fmt.Printf("[!] Leaker: enumeration failed: %v\n", err)
