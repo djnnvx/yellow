@@ -225,6 +225,9 @@ func parsePorts(spec string) ([]int, error) {
 			if err1 != nil || err2 != nil || lo > hi {
 				return nil, fmt.Errorf("invalid range: %s", part)
 			}
+			if !validPort(lo) || !validPort(hi) {
+				return nil, fmt.Errorf("port out of range (1-65535): %s", part)
+			}
 			for p := lo; p <= hi; p++ {
 				ports = append(ports, p)
 			}
@@ -233,8 +236,13 @@ func parsePorts(spec string) ([]int, error) {
 			if err != nil {
 				return nil, fmt.Errorf("invalid port: %s", part)
 			}
+			if !validPort(p) {
+				return nil, fmt.Errorf("port out of range (1-65535): %s", part)
+			}
 			ports = append(ports, p)
 		}
 	}
 	return ports, nil
 }
+
+func validPort(p int) bool { return p >= 1 && p <= 65535 }

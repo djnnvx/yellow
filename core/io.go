@@ -16,6 +16,9 @@ func SaveStream(path string, r io.Reader) (int64, error) {
 	if cerr := f.Close(); err == nil {
 		err = cerr
 	}
+	if err != nil {
+		os.Remove(path)
+	}
 	return n, err
 }
 

@@ -48,6 +48,10 @@ func TestParsePorts(t *testing.T) {
 		{spec: "100-80", wantErr: true},
 		{spec: "http", wantErr: true},
 		{spec: "1-x", wantErr: true},
+		{spec: "0", wantErr: true},
+		{spec: "-1", wantErr: true},
+		{spec: "65536", wantErr: true},
+		{spec: "1-70000", wantErr: true},
 	}
 
 	for _, tt := range tests {

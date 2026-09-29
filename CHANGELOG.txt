@@ -1,5 +1,6 @@
 ## v0.0.8
 
+- fix(scan): validate port range 1-65535, SaveStream removes partial files on write error, core test coverage ~ @djnnvx
 - fix(osint): leaker closes its runner (sqlite cache handle) after enumeration ~ @djnnvx
 - chore(deps): bump dependencies ~ @djnnvx
 - chore(build): bump Go to 1.27 ~ @djnnvx
