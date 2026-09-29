@@ -1,5 +1,6 @@
 ## v0.0.8
 
+- chore(deps): bump dependencies ~ @djnnvx
 - chore(build): bump Go to 1.27 ~ @djnnvx
 - chore(deps): bump dependencies ~ @djnnvx
 - feat(scan): robots.txt and sitemap.xml are saved to the scan directory ~ @djnnvx
